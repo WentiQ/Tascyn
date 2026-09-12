@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_chip_pearl"
+    android:layout_marginVertical="3dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/imgSubtaskCheck"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_precision_circle"
+        app:tint="@color/color_steel" />
+
+    <TextView
+        android:id="@+id/txtSubtaskTitle"
+        style="@style/TextAppearance.Tascyn.Secondary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:textColor="@color/color_void"
+        android:textSize="13sp"
+        tools:text="Write MATLAB Jacobian derivation script" />
+
+    <TextView
+        android:id="@+id/txtSubtaskDuration"
+        style="@style/TextAppearance.Tascyn.Micro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:textColor="@color/color_steel"
+        tools:text="1h 10m" />
+
+    <ImageView
+        android:id="@+id/btnDeleteSubtask"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="6dp"
+        android:padding="3dp"
+        android:src="@drawable/ic_trash_precision"
+        app:tint="@color/color_steel" />
+</LinearLayout>

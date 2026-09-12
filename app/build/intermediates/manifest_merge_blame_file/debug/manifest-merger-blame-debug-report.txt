@@ -1,0 +1,159 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.tascyn"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+8-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml
+9        android:targetSdkVersion="33" />
+9-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:3:5-67
+11-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:3:22-64
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:4:5-79
+12-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:4:22-76
+13    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+13-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:5:5-71
+13-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:5:22-68
+14
+15    <!-- Alarm & Notification Permissions -->
+16    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+16-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:8:5-77
+16-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:8:22-74
+17    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+17-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:9:5-79
+17-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:9:22-76
+18    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+18-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:10:5-74
+18-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:10:22-71
+19    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+19-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:11:5-81
+19-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:11:22-78
+20    <uses-permission android:name="android.permission.WAKE_LOCK" />
+20-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:12:5-68
+20-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:12:22-65
+21    <uses-permission android:name="android.permission.VIBRATE" />
+21-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:13:5-66
+21-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:13:22-63
+22    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+22-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:14:5-81
+22-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:14:22-78
+23    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+23-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:15:5-95
+23-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:15:22-92
+24
+25    <application
+25-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:17:5-62:19
+26        android:allowBackup="true"
+26-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:18:9-35
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.8.0] C:\Users\dines\.gradle\caches\transforms-3\76411c7520f0d995d1e8fc516856d8c3\transformed\core-1.8.0\AndroidManifest.xml:24:18-86
+28        android:debuggable="true"
+29        android:icon="@mipmap/ic_launcher"
+29-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:20:9-43
+30        android:label="Tascyn"
+30-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:19:9-31
+31        android:roundIcon="@mipmap/ic_launcher_round"
+31-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:21:9-54
+32        android:supportsRtl="true"
+32-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:22:9-35
+33        android:theme="@style/Theme.Tascyn"
+33-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:23:9-44
+34        android:usesCleartextTraffic="true" >
+34-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:24:9-44
+35        <activity
+35-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:26:9-33:20
+36            android:name="com.example.tascyn.MainActivity"
+36-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:27:13-41
+37            android:exported="true" >
+37-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:28:13-36
+38            <intent-filter>
+38-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:29:13-32:29
+39                <action android:name="android.intent.action.MAIN" />
+39-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:30:17-69
+39-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:30:25-66
+40
+41                <category android:name="android.intent.category.LAUNCHER" />
+41-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:31:17-77
+41-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:31:27-74
+42            </intent-filter>
+43        </activity>
+44
+45        <!-- Full-Screen Alarm Alert Screen -->
+46        <activity
+46-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:36:9-43:51
+47            android:name="com.example.tascyn.ui.alarm.AlarmAlertActivity"
+47-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:37:13-56
+48            android:excludeFromRecents="true"
+48-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:40:13-46
+49            android:exported="false"
+49-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:38:13-37
+50            android:launchMode="singleTask"
+50-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:39:13-44
+51            android:showWhenLocked="true"
+51-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:41:13-42
+52            android:theme="@style/Theme.Tascyn"
+52-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:43:13-48
+53            android:turnScreenOn="true" />
+53-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:42:13-40
+54
+55        <!-- Alarm Broadcast Receiver -->
+56        <receiver
+56-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:46:9-48:40
+57            android:name="com.example.tascyn.receiver.TaskAlarmReceiver"
+57-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:47:13-55
+58            android:exported="false" />
+58-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:48:13-37
+59
+60        <!-- Boot & Time Change Receiver to Reschedule Alarms -->
+61        <receiver
+61-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:51:9-60:20
+62            android:name="com.example.tascyn.receiver.BootReceiver"
+62-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:52:13-50
+63            android:exported="true" >
+63-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:53:13-36
+64            <intent-filter>
+64-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:54:13-59:29
+65                <action android:name="android.intent.action.BOOT_COMPLETED" />
+65-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:55:17-79
+65-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:55:25-76
+66                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+66-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:56:17-84
+66-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:56:25-81
+67                <action android:name="android.intent.action.TIME_SET" />
+67-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:57:17-73
+67-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:57:25-70
+68                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+68-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:58:17-81
+68-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:58:25-78
+69            </intent-filter>
+70        </receiver>
+71
+72        <provider
+72-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+73            android:name="androidx.startup.InitializationProvider"
+73-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+74            android:authorities="com.example.tascyn.androidx-startup"
+74-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+75            android:exported="false" >
+75-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+76            <meta-data
+76-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+77                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+77-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+78                android:value="androidx.startup" />
+78-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+79            <meta-data
+79-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+80                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+80-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+81                android:value="androidx.startup" />
+81-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+82        </provider>
+83    </application>
+84
+85</manifest>

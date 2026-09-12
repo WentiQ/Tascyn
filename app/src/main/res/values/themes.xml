@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Tascyn" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Brand Base Colors -->
+        <item name="colorPrimary">@color/color_void</item>
+        <item name="colorPrimaryVariant">@color/color_carbon</item>
+        <item name="colorOnPrimary">@color/color_white</item>
+        <item name="colorSecondary">@color/color_void</item>
+        <item name="colorOnSecondary">@color/color_white</item>
+        <item name="android:windowBackground">@color/color_canvas</item>
+        <item name="android:colorBackground">@color/color_canvas</item>
+        <item name="android:windowNoTitle">true</item>
+
+        <!-- Status Bar & Navigation Bar: Warm Off-white & crisp dark icons -->
+        <item name="android:statusBarColor">@color/color_canvas</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/color_canvas</item>
+    </style>
+</resources>

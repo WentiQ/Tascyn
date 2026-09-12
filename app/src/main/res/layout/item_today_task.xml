@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutTaskCardRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="5dp"
+    android:background="@drawable/bg_task_next_card"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <!-- Top Row: Checkbox, Status Dot, Title, and Start Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imgTaskCheckbox"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_precision_circle"
+            android:tint="#9CA3AF" />
+
+        <View
+            android:id="@+id/viewStatusDot"
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_notification_badge" />
+
+        <TextView
+            android:id="@+id/txtTaskTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="2"
+            android:textColor="#0E0E10"
+            android:textSize="15.5sp"
+            tools:text="Finish robotics assignment" />
+
+        <!-- Start Pill Button -->
+        <LinearLayout
+            android:id="@+id/btnStartTask"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_btn_start_neutral"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp">
+
+            <TextView
+                android:id="@+id/txtStartPlayIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="▶"
+                android:textColor="#1F2937"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/txtStartLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Start"
+                android:textColor="#1F2937"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom Row: Precision Formula Metadata -->
+    <TextView
+        android:id="@+id/txtTaskFormulaMetadata"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif"
+        android:maxLines="1"
+        android:textColor="#EF4444"
+        android:textSize="12sp"
+        tools:text="Overdue · Overdue · 10h 10m · Q2 · Recover Immedia..." />
+
+</LinearLayout>

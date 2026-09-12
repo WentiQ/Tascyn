@@ -1,0 +1,39 @@
+<resources>
+    <!-- 8dp Grid Spacing System -->
+    <dimen name="space_micro">4dp</dimen>
+    <dimen name="space_small">8dp</dimen>
+    <dimen name="space_compact">12dp</dimen>
+    <dimen name="space_standard">16dp</dimen>
+    <dimen name="space_section">24dp</dimen>
+    <dimen name="space_large">32dp</dimen>
+    <dimen name="space_major">40dp</dimen>
+    <dimen name="space_screen">48dp</dimen>
+
+    <!-- Corner Radii Scale -->
+    <dimen name="radius_small">8dp</dimen>
+    <dimen name="radius_medium">12dp</dimen>
+    <dimen name="radius_large">16dp</dimen>
+    <dimen name="radius_container">20dp</dimen>
+    <dimen name="radius_extra_large">24dp</dimen>
+    <dimen name="radius_bottom_sheet">28dp</dimen>
+
+    <!-- Precision Component Sizing -->
+    <dimen name="card_task_min_height">68dp</dimen>
+    <dimen name="card_task_padding_horizontal">16dp</dimen>
+    <dimen name="card_task_padding_vertical">14dp</dimen>
+    <dimen name="button_height_primary">52dp</dimen>
+    <dimen name="button_radius_primary">14dp</dimen>
+    <dimen name="progress_bar_precision_height">3dp</dimen>
+    <dimen name="border_precision_width">1dp</dimen>
+    <dimen name="ai_button_size">56dp</dimen>
+    <dimen name="nav_bar_height">64dp</dimen>
+
+    <!-- Typography Scale -->
+    <dimen name="text_display">32sp</dimen>
+    <dimen name="text_large_heading">26sp</dimen>
+    <dimen name="text_section_heading">19sp</dimen>
+    <dimen name="text_task_title">16sp</dimen>
+    <dimen name="text_secondary">14sp</dimen>
+    <dimen name="text_metadata">12sp</dimen>
+    <dimen name="text_micro">10.5sp</dimen>
+</resources>

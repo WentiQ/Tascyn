@@ -1,0 +1,70 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.tascyn"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+8-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml
+9        android:targetSdkVersion="33" />
+9-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml
+10
+11    <application
+11-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:3:5-18:19
+12        android:allowBackup="true"
+12-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:4:9-35
+13        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+13-->[androidx.core:core:1.8.0] C:\Users\dines\.gradle\caches\transforms-3\76411c7520f0d995d1e8fc516856d8c3\transformed\core-1.8.0\AndroidManifest.xml:24:18-86
+14        android:icon="@mipmap/ic_launcher"
+14-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:6:9-43
+15        android:label="Tascyn"
+15-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:5:9-31
+16        android:roundIcon="@mipmap/ic_launcher_round"
+16-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:7:9-54
+17        android:supportsRtl="true"
+17-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:8:9-35
+18        android:theme="@style/Theme.Tascyn" >
+18-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:9:9-44
+19        <activity
+19-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:10:9-17:20
+20            android:name="com.example.tascyn.MainActivity"
+20-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:11:13-41
+21            android:exported="true" >
+21-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:12:13-36
+22            <intent-filter>
+22-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:13:13-16:29
+23                <action android:name="android.intent.action.MAIN" />
+23-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:14:17-69
+23-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:14:25-66
+24
+25                <category android:name="android.intent.category.LAUNCHER" />
+25-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:15:17-77
+25-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:15:27-74
+26            </intent-filter>
+27        </activity>
+28
+29        <provider
+29-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+30            android:name="androidx.startup.InitializationProvider"
+30-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+31            android:authorities="com.example.tascyn.androidx-startup"
+31-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+32            android:exported="false" >
+32-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+33            <meta-data
+33-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+34                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+34-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+35                android:value="androidx.startup" />
+35-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+36            <meta-data
+36-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+37                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+37-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+38                android:value="androidx.startup" />
+38-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+39        </provider>
+40    </application>
+41
+42</manifest>

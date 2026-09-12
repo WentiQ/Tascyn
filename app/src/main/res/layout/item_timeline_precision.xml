@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="4dp"
+    android:orientation="horizontal">
+
+    <!-- Timeline left spine -->
+    <LinearLayout
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="4dp">
+
+        <TextView
+            android:id="@+id/txtTimelineDate"
+            style="@style/TextAppearance.Tascyn.Micro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_void"
+            android:textStyle="bold"
+            tools:text="TODAY" />
+
+        <TextView
+            android:id="@+id/txtTimelineTime"
+            style="@style/TextAppearance.Tascyn.Metadata"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_steel"
+            android:textSize="10sp"
+            tools:text="6:00 PM" />
+    </LinearLayout>
+
+    <!-- Timeline task card -->
+    <androidx.cardview.widget.CardView
+        style="@style/Widget.Tascyn.Card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/txtTimelineTaskTitle"
+                style="@style/TextAppearance.Tascyn.TaskTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                tools:text="Finish robotics kinematics simulation" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtTimelineQuadrant"
+                    style="@style/TextAppearance.Tascyn.Micro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_quadrant_badge"
+                    android:paddingHorizontal="5dp"
+                    android:paddingVertical="2dp"
+                    tools:text="Q16 · Do Now" />
+
+                <TextView
+                    android:id="@+id/txtTimelineUrgency"
+                    style="@style/TextAppearance.Tascyn.Micro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_urgency_red"
+                    android:paddingHorizontal="5dp"
+                    android:paddingVertical="2dp"
+                    android:textColor="@color/color_urgent_red"
+                    tools:text="Urgent" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

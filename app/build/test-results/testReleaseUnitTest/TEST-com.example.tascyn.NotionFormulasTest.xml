@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.tascyn.NotionFormulasTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-12T07:07:20" hostname="DINESH" time="0.084">
+  <properties/>
+  <testcase name="testFormatMinutesToDuration" classname="com.example.tascyn.NotionFormulasTest" time="0.015"/>
+  <testcase name="testFormula41TimesheetDuration" classname="com.example.tascyn.NotionFormulasTest" time="0.015"/>
+  <testcase name="testParseMinimumTimeToMinutes" classname="com.example.tascyn.NotionFormulasTest" time="0.017"/>
+  <testcase name="testFormula23QuadrantEngineCalculations" classname="com.example.tascyn.NotionFormulasTest" time="0.013"/>
+  <testcase name="testFormula22TimeLeftUrgencyBuckets" classname="com.example.tascyn.NotionFormulasTest" time="0.0"/>
+  <testcase name="testFormula21TotalDurationRecursive" classname="com.example.tascyn.NotionFormulasTest" time="0.021"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

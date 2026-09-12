@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Drag Handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_chip_pearl" />
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_settings_precision" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="Settings"
+                    android:textColor="#0E0E10"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="Account, Gemini AI &amp; preferences"
+                    android:textColor="#6B7280"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/btnCloseSettingsSheet"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_chip_pearl"
+                android:padding="6dp"
+                android:src="@drawable/ic_close_precision"
+                app:tint="#1E293B" />
+        </LinearLayout>
+
+        <!-- SECTION 1: GOOGLE ACCOUNT -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="GOOGLE ACCOUNT &amp; SYNC"
+            android:textColor="#9CA3AF"
+            android:textSize="11.5sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_google_logo" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txtGoogleAccountEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="dinesh@gmail.com"
+                        android:textColor="#0E0E10"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="Connected &amp; Synced"
+                        android:textColor="#059669"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/btnGoogleAccountAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_connected"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:text="Connected"
+                    android:textColor="#059669"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#E5E7EB" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Cloud Database Synchronization"
+                    android:textColor="#374151"
+                    android:textSize="13sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchGoogleSync"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- SECTION 2: GEMINI AI API CONFIGURATION -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="GEMINI AI CONFIGURATION"
+            android:textColor="#9CA3AF"
+            android:textSize="11.5sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_sparkle_ai"
+                    app:tint="#6366F1" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Google Gemini API Key"
+                    android:textColor="#0E0E10"
+                    android:textSize="13.5sp" />
+
+                <TextView
+                    android:id="@+id/txtGeminiStatusBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_connected"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Active"
+                    android:textColor="#059669"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="sans-serif"
+                android:text="Required for AI task parser, schema generation &amp; smart scheduling."
+                android:textColor="#6B7280"
+                android:textSize="12sp" />
+
+            <!-- API Key Input Field -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:background="@drawable/bg_input_field"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp">
+
+                <EditText
+                    android:id="@+id/edtGeminiApiKey"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:fontFamily="monospace"
+                    android:hint="Paste API Key (AIzaSy...)"
+                    android:inputType="textPassword"
+                    android:textColor="#0E0E10"
+                    android:textColorHint="#9CA3AF"
+                    android:textSize="12.5sp" />
+
+                <ImageView
+                    android:id="@+id/btnToggleApiKeyVisibility"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_stats_bars"
+                    app:tint="#6B7280" />
+            </LinearLayout>
+
+            <!-- AI Model Selector -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Active LLM Model"
+                    android:textColor="#374151"
+                    android:textSize="12.5sp" />
+
+                <Spinner
+                    android:id="@+id/spinnerAiModel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_chip_pearl"
+                    android:paddingHorizontal="8dp" />
+            </LinearLayout>
+
+            <!-- Test Connection & Save Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnTestGeminiKey"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Test Key"
+                    android:textAllCaps="false"
+                    android:textColor="#0E0E10"
+                    android:textSize="12.5sp"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="#D1D5DB" />
+
+                <Button
+                    android:id="@+id/btnSaveGeminiKey"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="#0E0E10"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Save Key"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12.5sp"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- SECTION 3: BACKGROUND ACTIVITY & ALARM PERMISSIONS -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="BACKGROUND ACTIVITY &amp; ALARMS"
+            android:textColor="#9CA3AF"
+            android:textSize="11.5sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif"
+            android:text="Ensure alerts &amp; alarms fire on time even when phone is locked or asleep."
+            android:textColor="#6B7280"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <!-- 1. Notification Permission -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Notification Alerts"
+                        android:textColor="#0E0E10"
+                        android:textSize="13.5sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="Push notifications for attention-needed tasks"
+                        android:textColor="#6B7280"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtNotifPermBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_connected"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Granted"
+                    android:textColor="#059669"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnGrantNotifPerm"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingVertical="0dp"
+                android:text="Configure Notification Permission"
+                android:textAllCaps="false"
+                android:textColor="#0E0E10"
+                android:textSize="12sp"
+                app:cornerRadius="6dp"
+                app:strokeColor="#D1D5DB" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#E5E7EB" />
+
+            <!-- 2. Exact Alarms Permission -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Exact Alarm &amp; Full-Screen Alerts"
+                        android:textColor="#0E0E10"
+                        android:textSize="13.5sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="Full-screen alarm clock alerts for urgent/overdue"
+                        android:textColor="#6B7280"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtExactAlarmBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_connected"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Granted"
+                    android:textColor="#059669"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnGrantExactAlarm"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingVertical="0dp"
+                android:text="Allow Exact Alarms Setting"
+                android:textAllCaps="false"
+                android:textColor="#0E0E10"
+                android:textSize="12sp"
+                app:cornerRadius="6dp"
+                app:strokeColor="#D1D5DB" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#E5E7EB" />
+
+            <!-- 3. Battery Optimization (Doze Whitelist) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Battery Optimization Exemption"
+                        android:textColor="#0E0E10"
+                        android:textSize="13.5sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="Prevents OS from sleeping/killing alarms"
+                        android:textColor="#6B7280"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtBatteryOptBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_connected"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Unrestricted"
+                    android:textColor="#059669"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnFixBatteryOptimization"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingVertical="0dp"
+                android:text="Disable Battery Optimization"
+                android:textAllCaps="false"
+                android:textColor="#0E0E10"
+                android:textSize="12sp"
+                app:cornerRadius="6dp"
+                app:strokeColor="#D1D5DB" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#E5E7EB" />
+
+            <!-- 4. System App Settings / Full Screen Over Other Apps -->
+            <Button
+                android:id="@+id/btnOpenAppSettings"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:backgroundTint="#0E0E10"
+                android:fontFamily="sans-serif-bold"
+                android:text="Open System App Info &amp; Permissions"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="12.5sp"
+                app:cornerRadius="8dp" />
+        </LinearLayout>
+
+        <!-- SECTION 4: APP PREFERENCES -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="APP PREFERENCES"
+            android:textColor="#9CA3AF"
+            android:textSize="11.5sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Urgent &amp; Overdue Notifications"
+                    android:textColor="#374151"
+                    android:textSize="13sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchNotifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#E5E7EB" />
+
+            <LinearLayout
+                android:id="@+id/btnExportData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Export Tasks &amp; Sessions (JSON / Notion)"
+                    android:textColor="#374151"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#9CA3AF" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Version Footer -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:fontFamily="sans-serif"
+            android:text="Tascyn v1.0 · Notion Task Manager Engine"
+            android:textColor="#9CA3AF"
+            android:textSize="11.5sp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Tascyn" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Brand Dark Base Colors -->
+        <item name="colorPrimary">@color/color_dark_text_primary</item>
+        <item name="colorPrimaryVariant">@color/color_carbon</item>
+        <item name="colorOnPrimary">@color/color_void</item>
+        <item name="colorSecondary">@color/color_dark_text_primary</item>
+        <item name="colorOnSecondary">@color/color_void</item>
+        <item name="android:windowBackground">@color/color_dark_canvas</item>
+        <item name="android:colorBackground">@color/color_dark_canvas</item>
+        <item name="android:windowNoTitle">true</item>
+
+        <!-- Status Bar & Navigation Bar: Anodized Dark Metal -->
+        <item name="android:statusBarColor">@color/color_dark_canvas</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/color_dark_canvas</item>
+    </style>
+</resources>

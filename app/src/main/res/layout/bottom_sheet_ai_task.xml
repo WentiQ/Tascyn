@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Bottom Sheet Drag Handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_chip_pearl" />
+
+        <!-- AI Engine Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.example.tascyn.ui.components.InterlockingGeometryView
+                android:id="@+id/viewAiInterlocking"
+                android:layout_width="32dp"
+                android:layout_height="32dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TextAppearance.Tascyn.SectionHeading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI Natural Language Parser" />
+
+                <TextView
+                    android:id="@+id/txtAiEngineStatus"
+                    style="@style/TextAppearance.Tascyn.Metadata"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Instant schema &amp; automatic task creation"
+                    android:textColor="@color/color_steel" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/btnCloseAiSheet"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_chip_pearl"
+                android:padding="6dp"
+                android:src="@drawable/ic_close_precision"
+                app:tint="@color/color_carbon" />
+        </LinearLayout>
+
+        <!-- API Key Missing / Config Warning Banner -->
+        <LinearLayout
+            android:id="@+id/bannerApiKeyWarning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_urgency_neutral"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_sparkle_ai"
+                app:tint="#D97706" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:text="Add your Gemini API Key in Settings for deep AI reasoning."
+                android:textColor="#92400E"
+                android:textSize="11.5sp" />
+
+            <TextView
+                android:id="@+id/btnOpenSettingsFromAi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-bold"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="Settings"
+                android:textColor="#D97706"
+                android:textSize="11.5sp" />
+        </LinearLayout>
+
+        <!-- Natural Language Input Area -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_input_field"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <EditText
+                android:id="@+id/edtAiInput"
+                style="@style/TextAppearance.Tascyn.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="top|start"
+                android:hint="Describe your task naturally, e.g.:\n'Prepare Kinematics quiz on Friday 6pm, 2h min time, high priority, academic exam'"
+                android:minLines="3"
+                android:textColor="@color/color_void"
+                android:textColorHint="@color/color_steel"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/TextAppearance.Tascyn.Micro"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Auto-extracts dates, duration, category &amp; creates task"
+                    android:textColor="@color/color_steel" />
+
+                <ImageView
+                    android:id="@+id/btnAiVoiceInput"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_chip_pearl"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_mic_precision"
+                    app:tint="@color/color_void" />
+
+                <ImageView
+                    android:id="@+id/btnAiParseAction"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_button_primary"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_send_precision"
+                    app:tint="@color/color_white" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Quick Sample Suggestions Horizontal Scroll -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Quick Suggestions:"
+            android:textColor="@color/color_steel"
+            android:textSize="11.5sp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/chipSampleExam"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_chip_pearl"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:text="Physics Exam on Friday 6pm (3h high priority)"
+                    android:textColor="@color/color_carbon"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/chipSampleAssignment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_pearl"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:text="OS Project draft tomorrow 5pm (4h)"
+                    android:textColor="@color/color_carbon"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/chipSampleReading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_pearl"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:text="Read Machine Learning ch 3 tonight (45m)"
+                    android:textColor="@color/color_carbon"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- AI Processing / Loading State -->
+        <LinearLayout
+            android:id="@+id/layoutAiLoading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card_precision"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ProgressBar
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:indeterminateTint="#4F46E5" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Gemini LLM is extracting &amp; creating your task..."
+                android:textColor="@color/color_carbon"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Parsed Results & Auto-Created Preview Card -->
+        <LinearLayout
+            android:id="@+id/layoutAiParsedResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card_precision"
+            android:orientation="vertical"
+            android:padding="14dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/TextAppearance.Tascyn.Micro"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="AUTOMATICALLY CREATED &amp; SAVED"
+                    android:textColor="#059669"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_precision_check"
+                    app:tint="#059669" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtAiParsedTitle"
+                style="@style/TextAppearance.Tascyn.TaskTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Finish thesis draft"
+                android:textColor="@color/color_void"
+                android:textSize="15sp" />
+
+            <!-- Formula Badges row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtAiParsedQuadrant"
+                    style="@style/TextAppearance.Tascyn.Micro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_quadrant_badge"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="3dp"
+                    android:text="Q16 · Do Now"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtAiParsedPriority"
+                    style="@style/TextAppearance.Tascyn.Micro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_chip_pearl"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="3dp"
+                    android:text="HIGH"
+                    android:textColor="@color/color_steel" />
+
+                <TextView
+                    android:id="@+id/txtAiParsedMinTime"
+                    style="@style/TextAppearance.Tascyn.Micro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_chip_pearl"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="3dp"
+                    android:text="3h 0m min"
+                    android:textColor="@color/color_steel" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtAiParsedDetails"
+                style="@style/TextAppearance.Tascyn.Metadata"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Due: Tomorrow 5:00 PM | Types: Academic, Assignment"
+                android:textColor="@color/color_graphite" />
+
+            <TextView
+                android:id="@+id/txtAiSubtasksCount"
+                style="@style/TextAppearance.Tascyn.Micro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="3 subtasks automatically created"
+                android:textColor="#4F46E5"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Action / Confirmation Row -->
+        <LinearLayout
+            android:id="@+id/layoutAiActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <Button
+                android:id="@+id/btnDoneAiTask"
+                style="@style/Widget.Tascyn.Button.Primary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:text="Done" />
+
+            <Button
+                android:id="@+id/btnEditAiTask"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-bold"
+                android:text="Edit Details"
+                android:textAllCaps="false"
+                android:textColor="@color/color_carbon"
+                app:cornerRadius="8dp"
+                app:strokeColor="#D1D5DB" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
+

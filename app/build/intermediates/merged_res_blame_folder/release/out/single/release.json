@@ -1,0 +1,274 @@
+[
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_quadrant_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_quadrant_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/layout_bottom_sheet_timesheets.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/layout/bottom_sheet_timesheets.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_nav_profile.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_nav_profile.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_button_metallic.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_button_metallic.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_precision_check.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_precision_check.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_subtask_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_subtask_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_folder_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_folder_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_logo.png.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/logo.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-mdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_button_primary.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_button_primary.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_card_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_card_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_more_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_more_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_calendar_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_calendar_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/layout_item_subtask_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/layout/item_subtask_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_card_interactive.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_card_interactive.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_urgency_red.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_urgency_red.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_mic_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_mic_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_urgency_orange.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_urgency_orange.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xxxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_quadrant_badge.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_quadrant_badge.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_input_field.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_input_field.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/layout_bottom_sheet_ai_task.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/layout/bottom_sheet_ai_task.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_nav_projects.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_nav_projects.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/layout_item_task_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/layout/item_task_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/layout_bottom_sheet_task_detail.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/layout/bottom_sheet_task_detail.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_chip_pearl.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_chip_pearl.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_urgency_neutral.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_urgency_neutral.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_sparkle_ai.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_sparkle_ai.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_chip_tag.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_chip_tag.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_close_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_close_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/layout_item_timeline_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/layout/item_timeline_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_chip_unselected.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_chip_unselected.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_timer_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_timer_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_bottom_navigation.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_bottom_navigation.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_play_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_play_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_send_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_send_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_nav_tasks.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_nav_tasks.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_live_ticker.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_live_ticker.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_ai_button.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_ai_button.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_flag_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_flag_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_add_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_add_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_timeline_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_timeline_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_urgency_green.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_urgency_green.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/layout_activity_main.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_button_secondary.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_button_secondary.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_nav_today.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_nav_today.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_time_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_time_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/layout_item_timesheet_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/layout/item_timesheet_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_bottom_sheet.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_bottom_sheet.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_precision_circle.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_precision_circle.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/mipmap-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.tascyn.app-main-30:/mipmap-hdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_trash_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_trash_precision.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_bg_chip_selected.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/bg_chip_selected.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-29:/drawable_ic_stop_precision.xml.flat",
+        "source": "com.example.tascyn.app-main-30:/drawable/ic_stop_precision.xml"
+    }
+]

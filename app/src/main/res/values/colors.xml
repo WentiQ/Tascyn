@@ -1,0 +1,35 @@
+<resources>
+    <!-- Brand Monochrome / Metallic Palette -->
+    <color name="color_void">#0E0E10</color>
+    <color name="color_graphite">#232429</color>
+    <color name="color_carbon">#38393F</color>
+    <color name="color_steel">#767883</color>
+    <color name="color_silver">#C8C9CE</color>
+    <color name="color_mist">#E7E8EB</color>
+    <color name="color_pearl">#F4F5F7</color>
+    <color name="color_white">#FFFFFF</color>
+    <color name="color_canvas">#FFFFFF</color>
+
+    <!-- Semantic Urgency & Action Colors -->
+    <color name="color_urgent_red">#DC2626</color>
+    <color name="color_urgent_red_bg">#1ADC2626</color>
+    <color name="color_attention_orange">#EA580C</color>
+    <color name="color_attention_orange_bg">#1AEA580C</color>
+    <color name="color_on_track_green">#16A34A</color>
+    <color name="color_ontrack_green_bg">#1A16A34A</color>
+    <color name="color_neutral_blue">#2563EB</color>
+    <color name="color_success">#10B981</color>
+
+    <!-- Dark Theme Canvas Colors -->
+    <color name="color_dark_canvas">#121316</color>
+    <color name="color_dark_surface">#1C1D22</color>
+    <color name="color_dark_text_primary">#F4F5F7</color>
+    <color name="color_dark_text_secondary">#9CA3AF</color>
+
+    <!-- Legacy / System Compat -->
+    <color name="purple_500">#0E0E10</color>
+    <color name="purple_700">#000000</color>
+    <color name="teal_200">#10B981</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>
