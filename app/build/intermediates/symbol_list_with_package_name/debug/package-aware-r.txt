@@ -1328,6 +1328,7 @@ color color_icon_secondary
 color color_input_bg
 color color_input_border
 color color_mist
+color color_nav_ai_circle
 color color_neutral_blue
 color color_on_track_green
 color color_ontrack_green_bg
@@ -1340,6 +1341,7 @@ color color_surface_secondary
 color color_text_primary
 color color_text_secondary
 color color_text_tertiary
+color color_timeline_card_bg
 color color_timeline_grid
 color color_timeline_today
 color color_timeline_weekend
@@ -2819,6 +2821,7 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable r_logo
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
@@ -3010,6 +3013,7 @@ id chipCatProject
 id chipGroupTaskTypes
 id chipSampleAssignment
 id chipSampleExam
+id chipSampleMultiTask
 id chipSampleReading
 id chkImportTask
 id chkSelectAllImport
@@ -3025,6 +3029,8 @@ id compress
 id confirm_button
 id constraint
 id container
+id containerAiTasksList
+id containerItemAiSubtasks
 id content
 id contentPanel
 id contiguous
@@ -3138,6 +3144,8 @@ id ifRoom
 id ignore
 id ignoreRequest
 id image
+id imgAlarmLogo
+id imgAppLogo
 id imgCheckCircle
 id imgSessionStatusIcon
 id imgSubtaskCheck
@@ -3171,6 +3179,7 @@ id layoutCategoryChips
 id layoutCustomModel
 id layoutInactiveSessionCard
 id layoutInlineAddSubtask
+id layoutItemAiSubtaskList
 id layoutMainContentContainer
 id layoutQrContainer
 id layoutSessionsPageView
@@ -3179,6 +3188,7 @@ id layoutStartNewSessionForm
 id layoutSubtasksSection
 id layoutTaskCardRoot
 id layoutTaskInfo
+id layoutTasksEmptyState
 id layoutTasksPageView
 id layoutTimelinePageView
 id layoutTopHeader
@@ -3451,12 +3461,7 @@ id txtActiveSessionCountdown
 id txtActiveSessionElapsedLive
 id txtActiveSessionTaskName
 id txtAiEngineStatus
-id txtAiParsedDetails
-id txtAiParsedMinTime
-id txtAiParsedPriority
-id txtAiParsedQuadrant
-id txtAiParsedTitle
-id txtAiSubtasksCount
+id txtAiResultHeader
 id txtAlarmBadgeLabel
 id txtAlarmComment
 id txtAlarmDueTime
@@ -3479,6 +3484,12 @@ id txtImportSelectedCount
 id txtImportTaskDueDate
 id txtImportTaskPriority
 id txtImportTaskTitle
+id txtItemAiDetails
+id txtItemAiMinTime
+id txtItemAiPriority
+id txtItemAiQuadrant
+id txtItemAiSubtasksHeader
+id txtItemAiTitle
 id txtNoTodaySessions
 id txtNotifPermBadge
 id txtOnTrackCountLabel
@@ -3510,6 +3521,8 @@ id txtTaskComment
 id txtTaskFormulaMetadata
 id txtTaskTitle
 id txtTaskTypes
+id txtTasksEmptySubtitle
+id txtTasksEmptyTitle
 id txtTasksPendingCount
 id txtTimeLeftBadge
 id txtTimelineDate
@@ -3716,6 +3729,7 @@ layout design_navigation_menu_item
 layout design_text_input_end_icon
 layout design_text_input_start_icon
 layout dialog_import_tasks_selection
+layout item_ai_parsed_task
 layout item_import_task_checkbox
 layout item_quadrant_header
 layout item_session_start_task
@@ -3788,6 +3802,8 @@ layout support_simple_spinner_dropdown_item
 layout zxing_barcode_scanner
 layout zxing_capture
 mipmap ic_launcher
+mipmap ic_launcher_dark
+mipmap ic_launcher_dark_round
 mipmap ic_launcher_foreground
 mipmap ic_launcher_round
 plurals mtrl_badge_content_description
@@ -4540,6 +4556,7 @@ style Theme_MaterialComponents_Light_NoActionBar_Bridge
 style Theme_MaterialComponents_NoActionBar
 style Theme_MaterialComponents_NoActionBar_Bridge
 style Theme_Tascyn
+style Theme_Tascyn_BottomSheetDialog
 style Theme_Tascyn_Dark
 style Theme_Tascyn_Light
 style ThemeOverlay_AppCompat
@@ -5008,6 +5025,7 @@ style Widget_MaterialComponents_Toolbar_PrimarySurface
 style Widget_MaterialComponents_Toolbar_Surface
 style Widget_MaterialComponents_Tooltip
 style Widget_Support_CoordinatorLayout
+style Widget_Tascyn_BottomSheet_Modal
 style Widget_Tascyn_Button_Primary
 style Widget_Tascyn_Button_Secondary
 style Widget_Tascyn_Card

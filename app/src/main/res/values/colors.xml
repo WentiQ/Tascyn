@@ -28,6 +28,7 @@
     <color name="color_bottom_nav_indicator">#EEF2FF</color>
     <color name="color_bottom_sheet_bg">#FFFFFF</color>
     <color name="color_bottom_sheet_handle">#E5E7EB</color>
+    <color name="color_nav_ai_circle">#0E0E10</color>
 
     <!-- Typography & Icons (Day) -->
     <color name="color_text_primary">#0E0E10</color>
@@ -68,10 +69,11 @@
     <color name="color_timeline_grid">#F1F3F5</color>
     <color name="color_timeline_weekend">#FAFAFB</color>
     <color name="color_timeline_today">#F5F7FF</color>
+    <color name="color_timeline_card_bg">#FFFFFF</color>
 
-    <!-- Dark Theme Canvas Colors (for fallback references) -->
-    <color name="color_dark_canvas">#121316</color>
-    <color name="color_dark_surface">#1C1D22</color>
+    <!-- Dark Theme Canvas Colors (Pure Black OLED) -->
+    <color name="color_dark_canvas">#000000</color>
+    <color name="color_dark_surface">#000000</color>
     <color name="color_dark_text_primary">#F4F5F7</color>
     <color name="color_dark_text_secondary">#9CA3AF</color>
 

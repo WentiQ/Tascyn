@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_chip_pearl"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Task Title & Click Action Indicator -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtItemAiTitle"
+            style="@style/TextAppearance.Tascyn.TaskTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/color_void"
+            android:textSize="14.5sp"
+            android:textStyle="bold"
+            tools:text="Prepare Kinematics Quiz" />
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="6dp"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="@color/color_steel" />
+    </LinearLayout>
+
+    <!-- Formula Badges Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtItemAiQuadrant"
+            style="@style/TextAppearance.Tascyn.Micro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_quadrant_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textStyle="bold"
+            tools:text="Q1 · Do Now" />
+
+        <TextView
+            android:id="@+id/txtItemAiPriority"
+            style="@style/TextAppearance.Tascyn.Micro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_chip_pearl"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/color_steel"
+            tools:text="HIGH" />
+
+        <TextView
+            android:id="@+id/txtItemAiMinTime"
+            style="@style/TextAppearance.Tascyn.Micro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_chip_pearl"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/color_steel"
+            tools:text="2h 0m min" />
+    </LinearLayout>
+
+    <!-- Due Date & Categories -->
+    <TextView
+        android:id="@+id/txtItemAiDetails"
+        style="@style/TextAppearance.Tascyn.Metadata"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/color_graphite"
+        android:textSize="11.5sp"
+        tools:text="Due: Friday 6:00 PM | Types: Academic, Exam" />
+
+    <!-- Subtasks Container -->
+    <LinearLayout
+        android:id="@+id/containerItemAiSubtasks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/txtItemAiSubtasksHeader"
+            style="@style/TextAppearance.Tascyn.Micro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#4F46E5"
+            android:textSize="11sp"
+            tools:text="↳ 2 subtasks:" />
+
+        <LinearLayout
+            android:id="@+id/layoutItemAiSubtaskList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+
+</LinearLayout>

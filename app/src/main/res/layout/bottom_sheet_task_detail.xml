@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet"
+    android:outlineProvider="background"
+    android:clipToOutline="true"
     android:padding="20dp">
 
     <LinearLayout

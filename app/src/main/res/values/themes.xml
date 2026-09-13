@@ -20,6 +20,9 @@
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/color_canvas</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/ic_splash_logo</item>
+
+        <!-- Bottom Sheet Dialog Theme -->
+        <item name="bottomSheetDialogTheme">@style/Theme.Tascyn.BottomSheetDialog</item>
     </style>
 
     <!-- Dedicated Light Theme (Pure White Splash & Canvas) -->
@@ -40,25 +43,36 @@
         <item name="android:windowSplashScreenBackground" tools:targetApi="31">#FFFFFF</item>
         <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="31">#FFFFFF</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/ic_splash_logo</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.Tascyn.BottomSheetDialog</item>
     </style>
 
-    <!-- Dedicated Dark Theme (Pure Dark Splash & Canvas) -->
+    <!-- Dedicated Dark Theme (Pure Black Splash & Canvas) -->
     <style name="Theme.Tascyn.Dark" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">#F3F4F6</item>
-        <item name="colorPrimaryVariant">#23252E</item>
-        <item name="colorOnPrimary">#0E0E10</item>
+        <item name="colorPrimaryVariant">#0D0D10</item>
+        <item name="colorOnPrimary">#000000</item>
         <item name="colorSecondary">#818CF8</item>
         <item name="colorOnSecondary">#F4F5F7</item>
-        <item name="android:windowBackground">#111216</item>
-        <item name="android:colorBackground">#111216</item>
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:colorBackground">#000000</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:statusBarColor">#111216</item>
+        <item name="android:statusBarColor">#000000</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:navigationBarColor">#111216</item>
+        <item name="android:navigationBarColor">#000000</item>
         <item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@android:color/transparent</item>
         <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowSplashScreenBackground" tools:targetApi="31">#111216</item>
-        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="31">#111216</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">#000000</item>
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="31">#000000</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/ic_splash_logo</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.Tascyn.BottomSheetDialog</item>
+    </style>
+
+    <!-- Custom Bottom Sheet Dialog Style with Transparent Background for Rounded Corners -->
+    <style name="Theme.Tascyn.BottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Tascyn.BottomSheet.Modal</item>
+    </style>
+
+    <style name="Widget.Tascyn.BottomSheet.Modal" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 </resources>

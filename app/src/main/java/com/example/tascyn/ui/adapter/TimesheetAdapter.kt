@@ -49,7 +49,7 @@ class TimesheetAdapter(
                 imgSessionStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.color_success))
             } else {
                 imgSessionStatusIcon.setImageResource(R.drawable.ic_timer_precision)
-                imgSessionStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.color_void))
+                imgSessionStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.color_icon_secondary))
             }
 
             // Formula 4.1: Timesheet Duration

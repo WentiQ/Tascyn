@@ -41,6 +41,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
             val taskId = intent.getStringExtra(TaskAlarmScheduler.EXTRA_TASK_ID) ?: return
             val alertMessage = intent.getStringExtra(TaskAlarmScheduler.EXTRA_ALERT_MESSAGE) ?: "Task requires your attention"
             val dueDate = intent.getLongExtra(TaskAlarmScheduler.EXTRA_DUE_DATE, 0L)
+            val isAutoSnooze = intent.getBooleanExtra(TaskAlarmScheduler.EXTRA_IS_AUTO_SNOOZE, false)
 
             val repository = TaskManagerRepository.get()
             repository.attachContext(context)
@@ -97,6 +98,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                     putExtra(TaskAlarmScheduler.EXTRA_ALARM_TYPE, action)
                     putExtra(TaskAlarmScheduler.EXTRA_ALERT_MESSAGE, alertMessage)
                     putExtra(TaskAlarmScheduler.EXTRA_DUE_DATE, dueDate)
+                    putExtra(TaskAlarmScheduler.EXTRA_IS_AUTO_SNOOZE, isAutoSnooze)
                 }
 
                 val fullScreenPendingIntent = PendingIntent.getActivity(
@@ -106,10 +108,11 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
-                val alarmTitle = when (action) {
-                    TaskAlarmScheduler.ACTION_TRIGGER_OVERDUE_ALARM -> "TASK OVERDUE: ${task.title}"
-                    TaskAlarmScheduler.ACTION_TRIGGER_URGENT_ALARM -> "URGENT ALARM: ${task.title}"
-                    TaskAlarmScheduler.ACTION_TRIGGER_CUSTOM_ALARM -> "REMINDER: ${task.title}"
+                val alarmTitle = when {
+                    isAutoSnooze -> "AUTO-SNOOZED ALARM: ${task.title}"
+                    action == TaskAlarmScheduler.ACTION_TRIGGER_OVERDUE_ALARM -> "TASK OVERDUE: ${task.title}"
+                    action == TaskAlarmScheduler.ACTION_TRIGGER_URGENT_ALARM -> "URGENT ALARM: ${task.title}"
+                    action == TaskAlarmScheduler.ACTION_TRIGGER_CUSTOM_ALARM -> "REMINDER: ${task.title}"
                     else -> "ALARM: ${task.title}"
                 }
 

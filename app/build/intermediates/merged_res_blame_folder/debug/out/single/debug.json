@@ -4,6 +4,10 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_stop_precision.xml"
     },
     {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable-night_logo.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable-night\\logo.png"
+    },
+    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_urgency_orange.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_urgency_orange.xml"
     },
@@ -30,6 +34,10 @@
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_button_primary.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_button_primary.xml"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-anydpi-v26_ic_launcher_dark_round.xml.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-anydpi-v26\\ic_launcher_dark_round.xml"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_nav_selected_pill.xml.flat",
@@ -72,6 +80,10 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_precision_check.xml"
     },
     {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_r_logo.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\r_logo.png"
+    },
+    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_urgency_neutral.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_urgency_neutral.xml"
     },
@@ -108,6 +120,10 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_card_interactive.xml"
     },
     {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable-night_ic_splash_logo.xml.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable-night\\ic_splash_logo.xml"
+    },
+    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\layout_bottom_sheet_settings.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\layout\\bottom_sheet_settings.xml"
     },
@@ -122,6 +138,10 @@
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\layout_item_session_start_task.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\layout\\item_session_start_task.xml"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-xxhdpi_ic_launcher_dark.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-xxhdpi\\ic_launcher_dark.png"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_play_precision.xml.flat",
@@ -168,6 +188,10 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_settings_precision.xml"
     },
     {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-xhdpi_ic_launcher_dark.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-xhdpi\\ic_launcher_dark.png"
+    },
+    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_close_precision.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_close_precision.xml"
     },
@@ -178,6 +202,10 @@
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_more_precision.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_more_precision.xml"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-xxxhdpi_ic_launcher_dark.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-xxxhdpi\\ic_launcher_dark.png"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_timer_precision.xml.flat",
@@ -194,6 +222,10 @@
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_notion_view_pill.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_notion_view_pill.xml"
+    },
+    {
+        "merged": "com.example.tascyn.app-merged_res-30:/layout_item_ai_parsed_task.xml.flat",
+        "source": "com.example.tascyn.app-main-32:/layout/item_ai_parsed_task.xml"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_nav_ai_black_circle.xml.flat",
@@ -248,12 +280,12 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\layout\\activity_main.xml"
     },
     {
-        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_focus_os_logo.xml.flat",
-        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_focus_os_logo.xml"
-    },
-    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_task_now_card.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_task_now_card.xml"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_focus_os_logo.xml.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_focus_os_logo.xml"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\layout_item_today_task.xml.flat",
@@ -280,24 +312,24 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_notification_badge.xml"
     },
     {
-        "merged": "com.example.tascyn.app-merged_res-30:/layout_activity_main.xml.flat",
-        "source": "com.example.tascyn.app-main-32:/layout/activity_main.xml"
-    },
-    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_nav_tasks.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_nav_tasks.xml"
-    },
-    {
-        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_sort_precision.xml.flat",
-        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_sort_precision.xml"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_bottom_sheet.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_bottom_sheet.xml"
     },
     {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_sort_precision.xml.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_sort_precision.xml"
+    },
+    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-hdpi_ic_launcher_foreground.png.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-hdpi\\ic_launcher_foreground.png"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-anydpi-v26_ic_launcher_dark.xml.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-anydpi-v26\\ic_launcher_dark.xml"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_chip_unselected.xml.flat",
@@ -306,6 +338,14 @@
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_theme_dark.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_theme_dark.xml"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-hdpi_ic_launcher_dark_round.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-hdpi\\ic_launcher_dark_round.png"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-mdpi_ic_launcher_dark.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-mdpi\\ic_launcher_dark.png"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_chevron_down.xml.flat",
@@ -356,6 +396,10 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_bell_notification.xml"
     },
     {
+        "merged": "com.example.tascyn.app-merged_res-30:/layout_bottom_sheet_ai_task.xml.flat",
+        "source": "com.example.tascyn.app-main-32:/layout/bottom_sheet_ai_task.xml"
+    },
+    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_ai_button.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_ai_button.xml"
     },
@@ -372,12 +416,12 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_urgency_red.xml"
     },
     {
-        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_bottom_navigation.xml.flat",
-        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_bottom_navigation.xml"
-    },
-    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-xxxhdpi_ic_launcher_round.png.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-xxxhdpi\\ic_launcher_round.png"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_bottom_navigation.xml.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_bottom_navigation.xml"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\layout_item_task_precision.xml.flat",
@@ -392,8 +436,20 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_input_field.xml"
     },
     {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-xxxhdpi_ic_launcher_dark_round.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-xxxhdpi\\ic_launcher_dark_round.png"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-mdpi_ic_launcher_dark_round.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-mdpi\\ic_launcher_dark_round.png"
+    },
+    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_nav_projects.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_nav_projects.xml"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable-night_r_logo.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable-night\\r_logo.png"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_notion_btn_blue.xml.flat",
@@ -416,12 +472,24 @@
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\ic_mic_precision.xml"
     },
     {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-xxhdpi_ic_launcher_dark_round.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-xxhdpi\\ic_launcher_dark_round.png"
+    },
+    {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_chip_tag.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_chip_tag.xml"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_bg_live_ticker.xml.flat",
         "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\drawable\\bg_live_ticker.xml"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-xhdpi_ic_launcher_dark_round.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-xhdpi\\ic_launcher_dark_round.png"
+    },
+    {
+        "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\mipmap-hdpi_ic_launcher_dark.png.flat",
+        "source": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-main-32:\\mipmap-hdpi\\ic_launcher_dark.png"
     },
     {
         "merged": "C:\\Users\\dines\\.gradle\\daemon\\7.5.1\\com.example.tascyn.app-merged_res-30:\\drawable_ic_precision_circle.xml.flat",

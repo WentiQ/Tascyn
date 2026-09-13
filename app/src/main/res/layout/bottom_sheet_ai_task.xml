@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet"
+    android:outlineProvider="background"
+    android:clipToOutline="true"
     android:padding="20dp">
 
     <LinearLayout
@@ -219,6 +221,18 @@
                     android:text="Read Machine Learning ch 3 tonight (45m)"
                     android:textColor="@color/color_carbon"
                     android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/chipSampleMultiTask"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_pearl"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:text="Multi-Task: 1. Physics Quiz with subtasks. 2. Buy groceries"
+                    android:textColor="@color/color_carbon"
+                    android:textSize="11sp" />
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -245,7 +259,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="Gemini LLM is extracting &amp; creating your task..."
+                android:text="Gemini LLM is extracting &amp; creating your tasks..."
                 android:textColor="@color/color_carbon"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -269,6 +283,7 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/txtAiResultHeader"
                     style="@style/TextAppearance.Tascyn.Micro"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -284,78 +299,13 @@
                     app:tint="#059669" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/txtAiParsedTitle"
-                style="@style/TextAppearance.Tascyn.TaskTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Finish thesis draft"
-                android:textColor="@color/color_void"
-                android:textSize="15sp" />
-
-            <!-- Formula Badges row -->
+            <!-- Dynamic container for multiple created tasks and their subtasks -->
             <LinearLayout
+                android:id="@+id/containerAiTasksList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/txtAiParsedQuadrant"
-                    style="@style/TextAppearance.Tascyn.Micro"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_quadrant_badge"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="3dp"
-                    android:text="Q16 · Do Now"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txtAiParsedPriority"
-                    style="@style/TextAppearance.Tascyn.Micro"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/bg_chip_pearl"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="3dp"
-                    android:text="HIGH"
-                    android:textColor="@color/color_steel" />
-
-                <TextView
-                    android:id="@+id/txtAiParsedMinTime"
-                    style="@style/TextAppearance.Tascyn.Micro"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/bg_chip_pearl"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="3dp"
-                    android:text="3h 0m min"
-                    android:textColor="@color/color_steel" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/txtAiParsedDetails"
-                style="@style/TextAppearance.Tascyn.Metadata"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Due: Tomorrow 5:00 PM | Types: Academic, Assignment"
-                android:textColor="@color/color_graphite" />
-
-            <TextView
-                android:id="@+id/txtAiSubtasksCount"
-                style="@style/TextAppearance.Tascyn.Micro"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="3 subtasks automatically created"
-                android:textColor="#4F46E5"
-                android:visibility="gone" />
+                android:layout_marginTop="10dp"
+                android:orientation="vertical" />
         </LinearLayout>
 
         <!-- Action / Confirmation Row -->

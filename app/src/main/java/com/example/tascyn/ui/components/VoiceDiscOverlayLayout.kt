@@ -9,6 +9,8 @@ import android.util.AttributeSet
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
+import androidx.core.content.ContextCompat
+import com.example.tascyn.R
 
 /**
  * Custom overlay layout that expands as a circular disc centered at the AI nav button.
@@ -41,16 +43,16 @@ class VoiceDiscOverlayLayout @JvmOverloads constructor(
 
     private val discPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.WHITE
+        color = ContextCompat.getColor(context, R.color.color_surface)
     }
 
     private val arcBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 2f * resources.displayMetrics.density
-        color = Color.parseColor("#E5E7EB")
+        color = ContextCompat.getColor(context, R.color.color_card_border)
     }
 
-    private val scrimColor = Color.parseColor("#0E0E10")
+    private val scrimColor = ContextCompat.getColor(context, R.color.color_void)
 
     init {
         setWillNotDraw(false)

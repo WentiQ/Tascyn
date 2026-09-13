@@ -19,7 +19,11 @@ import com.example.tascyn.domain.NotionFormulas
 
 abstract class QuadrantListItem {
     data class Header(val title: String, val colorHex: String) : QuadrantListItem()
-    data class TaskCard(val task: Task, val category: TaskUrgencyCategory) : QuadrantListItem()
+    data class TaskCard(
+        val task: Task,
+        val category: TaskUrgencyCategory,
+        val status: com.example.tascyn.data.TaskStatus = task.status
+    ) : QuadrantListItem()
 }
 
 class QuadrantGroupedTaskAdapter(
@@ -185,7 +189,18 @@ class QuadrantGroupedTaskAdapter(
         }
 
         override fun areContentsTheSame(oldItem: QuadrantListItem, newItem: QuadrantListItem): Boolean {
-            return oldItem == newItem
+            return when {
+                oldItem is QuadrantListItem.Header && newItem is QuadrantListItem.Header -> oldItem == newItem
+                oldItem is QuadrantListItem.TaskCard && newItem is QuadrantListItem.TaskCard ->
+                    oldItem.category == newItem.category &&
+                    oldItem.status == newItem.status &&
+                    oldItem.task.title == newItem.task.title &&
+                    oldItem.task.dueDate == newItem.task.dueDate &&
+                    oldItem.task.remainderDate == newItem.task.remainderDate &&
+                    oldItem.task.taskTypes == newItem.task.taskTypes &&
+                    oldItem.task.priority == newItem.task.priority
+                else -> false
+            }
         }
     }
 }

@@ -12,16 +12,23 @@ import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.*
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import android.content.res.Configuration
 import com.example.tascyn.R
+import com.example.tascyn.data.AppSettingsManager
 import com.example.tascyn.data.Task
 import com.example.tascyn.data.TaskManagerRepository
 import com.example.tascyn.data.TaskStatus
@@ -39,18 +46,28 @@ class AlarmAlertActivity : AppCompatActivity() {
     private var currentTask: Task? = null
     private var taskId: String? = null
     private var alarmType: String? = null
+    private var isAutoSnooze = false
+
+    // Navigation and screen persistence controls
+    private var isAlarmActive = true
+    private var isShowingDialog = false
 
     // Auto-timeout handlers
     private val timeoutHandler = Handler(Looper.getMainLooper())
     private var countdownRunnable: Runnable? = null
     private var isUrgentOrOverdueAlert = false
     private var alertTimeoutSeconds = 30
+    private var secondsRemaining = 30
+    private var baseSubtitleString = ""
+    private var txtTimeSubtitleView: TextView? = null
     private var activityWakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         wakeAndUnlockScreen()
         acquireActivityWakeLock()
+        applyImmersiveFullScreen()
+        setupNavigationBlocking()
         setContentView(R.layout.activity_alarm_alert)
 
         extractIntentData(intent)
@@ -61,8 +78,11 @@ class AlarmAlertActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        isAlarmActive = true
+        isShowingDialog = false
         wakeAndUnlockScreen()
         acquireActivityWakeLock()
+        applyImmersiveFullScreen()
         extractIntentData(intent)
         initUi()
         startAlarmAudioAndVibration()
@@ -71,6 +91,7 @@ class AlarmAlertActivity : AppCompatActivity() {
     private fun extractIntentData(srcIntent: Intent?) {
         taskId = srcIntent?.getStringExtra(TaskAlarmScheduler.EXTRA_TASK_ID)
         alarmType = srcIntent?.getStringExtra(TaskAlarmScheduler.EXTRA_ALARM_TYPE)
+        isAutoSnooze = srcIntent?.getBooleanExtra(TaskAlarmScheduler.EXTRA_IS_AUTO_SNOOZE, false) ?: false
 
         val repository = TaskManagerRepository.get()
         repository.attachContext(this)
@@ -88,8 +109,101 @@ class AlarmAlertActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-            WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+            WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+    }
+
+    private fun setupNavigationBlocking() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Prevent dismiss via back gesture or button: explicit user action or auto turn off required
+            }
+        })
+    }
+
+    private fun applyImmersiveFullScreen() {
+        try {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            val controller = WindowCompat.getInsetsController(window, window.decorView)
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        @Suppress("DEPRECATION")
+        try {
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyImmersiveFullScreen()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            applyImmersiveFullScreen()
+        } else if (isAlarmActive && !isFinishing && !isDestroyed && !isShowingDialog) {
+            bringToFront()
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (isAlarmActive && !isFinishing && !isDestroyed && !isShowingDialog) {
+            bringToFront()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isAlarmActive && !isFinishing && !isDestroyed && !isShowingDialog) {
+            bringToFront()
+        }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_BACK,
+            KeyEvent.KEYCODE_APP_SWITCH -> true // Block navigation buttons from dismissing the alert
+            else -> super.onKeyDown(keyCode, event)
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Block back button from dismissing the alert
+    }
+
+    private fun bringToFront() {
+        try {
+            @Suppress("DEPRECATION")
+            sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+        } catch (e: Exception) {
+            // Ignored on newer platform versions
+        }
+        try {
+            val intent = Intent(this, AlarmAlertActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun acquireActivityWakeLock() {
@@ -122,6 +236,17 @@ class AlarmAlertActivity : AppCompatActivity() {
     }
 
     private fun initUi() {
+        val imgAlarmLogo = findViewById<ImageView>(R.id.imgAlarmLogo)
+        val isDarkTheme = when (AppSettingsManager.getInstance(this).themeMode) {
+            AppSettingsManager.THEME_DARK -> true
+            AppSettingsManager.THEME_LIGHT -> false
+            else -> {
+                val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+            }
+        }
+        imgAlarmLogo?.setImageResource(if (isDarkTheme) R.drawable.r_logo else R.drawable.logo)
+
         val txtBadgeLabel = findViewById<TextView>(R.id.txtAlarmBadgeLabel)
         val layoutBadge = findViewById<View>(R.id.layoutAlarmBadge)
         val dotIndicator = findViewById<View>(R.id.dotAlarmIndicator)
@@ -159,7 +284,14 @@ class AlarmAlertActivity : AppCompatActivity() {
         alertTimeoutSeconds = if (isUrgentOrOverdueAlert) 60 else 30
 
         val baseSubtitle: String
-        if (isOverdue) {
+        if (isAutoSnooze) {
+            txtBadgeLabel.text = "AUTO-SNOOZED ALARM"
+            txtBadgeLabel.setTextColor(Color.parseColor("#7C3AED"))
+            layoutBadge.setBackgroundResource(R.drawable.bg_badge_connected)
+            layoutBadge.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#EDE9FE"))
+            dotIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#8B5CF6"))
+            baseSubtitle = "Auto-snoozed alert. Action required."
+        } else if (isOverdue) {
             txtBadgeLabel.text = "TASK OVERDUE"
             txtBadgeLabel.setTextColor(Color.parseColor("#DC2626"))
             layoutBadge.setBackgroundResource(R.drawable.bg_badge_disconnected)
@@ -209,30 +341,31 @@ class AlarmAlertActivity : AppCompatActivity() {
 
         // 1. Snooze 10 Minutes
         btnSnooze10m.setOnClickListener {
+            isAlarmActive = false
             cancelTimeout()
             snoozeAlarm(10 * 60 * 1000L, "10 minutes")
         }
 
         // 2. Reschedule Due Date (changes task.dueDate)
         btnRescheduleDueDate.setOnClickListener {
-            cancelTimeout()
             showRescheduleDueDatePicker()
         }
 
         // 3. Add Custom Reminder (schedules a custom alarm without modifying dueDate)
         btnAddCustomReminder.setOnClickListener {
-            cancelTimeout()
             showAddCustomReminderPicker()
         }
 
         // 4. Mark Done
         btnMarkDone.setOnClickListener {
+            isAlarmActive = false
             cancelTimeout()
             markTaskCompleted()
         }
 
         // 5. Dismiss
         btnDismiss.setOnClickListener {
+            isAlarmActive = false
             cancelTimeout()
             stopAlarmAudioAndVibration()
             dismissAlarmNotification()
@@ -241,15 +374,23 @@ class AlarmAlertActivity : AppCompatActivity() {
     }
 
     private fun startTimeoutCountdown(txtTimeSubtitle: TextView, baseSubtitle: String) {
+        txtTimeSubtitleView = txtTimeSubtitle
+        baseSubtitleString = baseSubtitle
+        secondsRemaining = alertTimeoutSeconds
+        resumeTimeoutCountdown()
+    }
+
+    private fun resumeTimeoutCountdown() {
+        if (!isAlarmActive || isFinishing || isDestroyed) return
         timeoutHandler.removeCallbacksAndMessages(null)
-        var secondsRemaining = alertTimeoutSeconds
 
         countdownRunnable = object : Runnable {
             override fun run() {
-                if (isFinishing || isDestroyed) return
+                if (isFinishing || isDestroyed || !isAlarmActive) return
 
                 if (secondsRemaining > 0) {
-                    txtTimeSubtitle.text = "$baseSubtitle\n(Auto-dismiss in ${secondsRemaining}s if unresponded)"
+                    val prompt = if (isAutoSnooze) "Auto-dismiss in" else "Auto-snooze in"
+                    txtTimeSubtitleView?.text = "$baseSubtitleString\n($prompt ${secondsRemaining}s if unresponded)"
                     secondsRemaining--
                     timeoutHandler.postDelayed(this, 1000L)
                 } else {
@@ -260,6 +401,11 @@ class AlarmAlertActivity : AppCompatActivity() {
         timeoutHandler.post(countdownRunnable!!)
     }
 
+    private fun pauseTimeoutCountdown() {
+        timeoutHandler.removeCallbacksAndMessages(null)
+        countdownRunnable = null
+    }
+
     private fun cancelTimeout() {
         timeoutHandler.removeCallbacksAndMessages(null)
         countdownRunnable = null
@@ -268,11 +414,35 @@ class AlarmAlertActivity : AppCompatActivity() {
     private fun handleAlarmTimeout() {
         if (isFinishing || isDestroyed) return
 
+        isAlarmActive = false
+        cancelTimeout()
         stopAlarmAudioAndVibration()
         dismissAlarmNotification()
 
-        // Post missed alarm notification because the user did not respond in time
-        postMissedAlarmNotification()
+        if (!isAutoSnooze) {
+            // First time unresponded: Auto-snooze the alarm for 5 minutes
+            val tId = taskId ?: currentTask?.id
+            val taskTitle = currentTask?.title
+                ?: intent?.getStringExtra(TaskAlarmScheduler.EXTRA_TASK_TITLE)
+                ?: "Task Alert"
+
+            if (tId != null) {
+                val autoSnoozeDurationMillis = 5 * 60 * 1000L // 5 minutes
+                TaskAlarmScheduler.scheduleCustomAlarm(
+                    context = this,
+                    taskId = tId,
+                    taskTitle = taskTitle,
+                    triggerAtMillis = System.currentTimeMillis() + autoSnoozeDurationMillis,
+                    message = "Auto-snoozed alarm for: $taskTitle",
+                    dueDate = currentTask?.dueDate,
+                    isAutoSnooze = true
+                )
+                Toast.makeText(this, "Unresponded: Alarm auto-snoozed for 5 minutes", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Still not responded after the auto-snooze: Throw notification
+            postMissedAlarmNotification()
+        }
 
         finish()
     }
@@ -295,7 +465,7 @@ class AlarmAlertActivity : AppCompatActivity() {
         )
 
         val title = if (isUrgentOrOverdueAlert) "Missed Urgent Alarm: $taskTitle" else "Missed Alarm: $taskTitle"
-        val message = "Alarm auto-stopped after ${alertTimeoutSeconds}s without response. Tap to view task."
+        val message = "Alarm was auto-snoozed and timed out without response. Tap to view task."
 
         val notification = NotificationCompat.Builder(this, TaskAlarmScheduler.CHANNEL_ATTENTION_ID)
             .setSmallIcon(R.drawable.ic_bell_notification)
@@ -346,12 +516,15 @@ class AlarmAlertActivity : AppCompatActivity() {
             cal.add(Calendar.HOUR_OF_DAY, 2)
         }
 
-        DatePickerDialog(this, { _, year, month, dayOfMonth ->
+        isShowingDialog = true
+        pauseTimeoutCountdown()
+
+        val datePicker = DatePickerDialog(this, { _, year, month, dayOfMonth ->
             cal.set(Calendar.YEAR, year)
             cal.set(Calendar.MONTH, month)
             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-            TimePickerDialog(this, { _, hourOfDay, minute ->
+            val timePicker = TimePickerDialog(this, { _, hourOfDay, minute ->
                 cal.set(Calendar.HOUR_OF_DAY, hourOfDay)
                 cal.set(Calendar.MINUTE, minute)
                 cal.set(Calendar.SECOND, 0)
@@ -360,9 +533,14 @@ class AlarmAlertActivity : AppCompatActivity() {
                 val selectedMillis = cal.timeInMillis
                 if (selectedMillis <= System.currentTimeMillis()) {
                     Toast.makeText(this, "Please select a future date and time for the due date.", Toast.LENGTH_SHORT).show()
+                    isShowingDialog = false
+                    applyImmersiveFullScreen()
+                    resumeTimeoutCountdown()
                     return@TimePickerDialog
                 }
 
+                isAlarmActive = false
+                isShowingDialog = false
                 stopAlarmAudioAndVibration()
                 dismissAlarmNotification()
 
@@ -379,21 +557,51 @@ class AlarmAlertActivity : AppCompatActivity() {
                 Toast.makeText(this, "Due date rescheduled to ${fmt.format(Date(selectedMillis))}", Toast.LENGTH_LONG).show()
                 finish()
 
-            }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false).show()
+            }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false)
 
-        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
+            timePicker.setOnCancelListener {
+                isShowingDialog = false
+                applyImmersiveFullScreen()
+                resumeTimeoutCountdown()
+            }
+            timePicker.setOnDismissListener {
+                if (isAlarmActive) {
+                    isShowingDialog = false
+                    applyImmersiveFullScreen()
+                    resumeTimeoutCountdown()
+                }
+            }
+            timePicker.show()
+
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+
+        datePicker.setOnCancelListener {
+            isShowingDialog = false
+            applyImmersiveFullScreen()
+            resumeTimeoutCountdown()
+        }
+        datePicker.setOnDismissListener {
+            if (isAlarmActive && !isShowingDialog) {
+                applyImmersiveFullScreen()
+                resumeTimeoutCountdown()
+            }
+        }
+        datePicker.show()
     }
 
     private fun showAddCustomReminderPicker() {
         val cal = Calendar.getInstance()
         cal.add(Calendar.HOUR_OF_DAY, 1)
 
-        DatePickerDialog(this, { _, year, month, dayOfMonth ->
+        isShowingDialog = true
+        pauseTimeoutCountdown()
+
+        val datePicker = DatePickerDialog(this, { _, year, month, dayOfMonth ->
             cal.set(Calendar.YEAR, year)
             cal.set(Calendar.MONTH, month)
             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-            TimePickerDialog(this, { _, hourOfDay, minute ->
+            val timePicker = TimePickerDialog(this, { _, hourOfDay, minute ->
                 cal.set(Calendar.HOUR_OF_DAY, hourOfDay)
                 cal.set(Calendar.MINUTE, minute)
                 cal.set(Calendar.SECOND, 0)
@@ -402,9 +610,14 @@ class AlarmAlertActivity : AppCompatActivity() {
                 val selectedMillis = cal.timeInMillis
                 if (selectedMillis <= System.currentTimeMillis()) {
                     Toast.makeText(this, "Please select a future time for the reminder.", Toast.LENGTH_SHORT).show()
+                    isShowingDialog = false
+                    applyImmersiveFullScreen()
+                    resumeTimeoutCountdown()
                     return@TimePickerDialog
                 }
 
+                isAlarmActive = false
+                isShowingDialog = false
                 stopAlarmAudioAndVibration()
                 dismissAlarmNotification()
 
@@ -437,9 +650,36 @@ class AlarmAlertActivity : AppCompatActivity() {
                 Toast.makeText(this, "Reminder scheduled for ${fmt.format(Date(selectedMillis))}", Toast.LENGTH_LONG).show()
                 finish()
 
-            }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false).show()
+            }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false)
 
-        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
+            timePicker.setOnCancelListener {
+                isShowingDialog = false
+                applyImmersiveFullScreen()
+                resumeTimeoutCountdown()
+            }
+            timePicker.setOnDismissListener {
+                if (isAlarmActive) {
+                    isShowingDialog = false
+                    applyImmersiveFullScreen()
+                    resumeTimeoutCountdown()
+                }
+            }
+            timePicker.show()
+
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+
+        datePicker.setOnCancelListener {
+            isShowingDialog = false
+            applyImmersiveFullScreen()
+            resumeTimeoutCountdown()
+        }
+        datePicker.setOnDismissListener {
+            if (isAlarmActive && !isShowingDialog) {
+                applyImmersiveFullScreen()
+                resumeTimeoutCountdown()
+            }
+        }
+        datePicker.show()
     }
 
     private fun markTaskCompleted() {
@@ -548,6 +788,7 @@ class AlarmAlertActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        isAlarmActive = false
         cancelTimeout()
         stopAlarmAudioAndVibration()
         releaseActivityWakeLock()

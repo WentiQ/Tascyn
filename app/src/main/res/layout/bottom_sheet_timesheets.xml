@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet"
+    android:outlineProvider="background"
+    android:clipToOutline="true"
     android:padding="20dp">
 
     <LinearLayout
@@ -31,7 +33,7 @@
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:src="@drawable/ic_timer_precision"
-                app:tint="@color/color_void" />
+                app:tint="@color/color_icon_primary" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -52,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Formula 4.1 Duration Calculation Engine"
-                    android:textColor="@color/color_steel" />
+                    android:textColor="@color/color_text_secondary" />
             </LinearLayout>
 
             <ImageView
@@ -62,7 +64,7 @@
                 android:background="@drawable/bg_chip_pearl"
                 android:padding="6dp"
                 android:src="@drawable/ic_close_precision"
-                app:tint="@color/color_carbon" />
+                app:tint="@color/color_icon_secondary" />
         </LinearLayout>
 
         <!-- Active Live Session Card (if session running) -->
@@ -87,7 +89,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="CURRENT ACTIVE SESSION"
-                    android:textColor="@color/color_void"
+                    android:textColor="@color/color_text_tertiary"
                     android:textStyle="bold" />
 
                 <TextView
@@ -95,7 +97,7 @@
                     style="@style/TextAppearance.Tascyn.Display"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/color_void"
+                    android:textColor="@color/color_text_primary"
                     android:textSize="22sp"
                     tools:text="00:25:14" />
             </LinearLayout>
@@ -107,7 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="Robotics Kinematics Control Simulation"
-                android:textColor="@color/color_void" />
+                android:textColor="@color/color_text_primary" />
 
             <TextView
                 android:id="@+id/txtActiveSessionCountdown"
@@ -116,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Remaining against 3h min time: 02:34:46"
-                android:textColor="@color/color_steel" />
+                android:textColor="@color/color_text_secondary" />
 
             <Button
                 android:id="@+id/btnEndActiveSessionSheet"
@@ -142,7 +144,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="START NEW SESSION"
-                android:textColor="@color/color_steel" />
+                android:textColor="@color/color_text_tertiary" />
 
             <EditText
                 android:id="@+id/edtNewSessionTitle"
@@ -178,7 +180,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="SESSION HISTORY (LOGGED SESSIONS)"
-            android:textColor="@color/color_steel" />
+            android:textColor="@color/color_text_tertiary" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerTimesheetsLog"

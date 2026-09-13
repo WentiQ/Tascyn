@@ -15,12 +15,26 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.Executors
 
+data class ParsedTaskGroup(
+    val task: Task,
+    val subtasks: List<Task> = emptyList()
+)
+
 data class TaskParseResult(
     val success: Boolean,
-    val task: Task? = null,
-    val subtasks: List<Task> = emptyList(),
+    val taskGroups: List<ParsedTaskGroup> = emptyList(),
     val error: String? = null
-)
+) {
+    // Backwards-compatible properties
+    val task: Task?
+        get() = taskGroups.firstOrNull()?.task
+
+    val subtasks: List<Task>
+        get() = taskGroups.flatMap { it.subtasks }
+
+    val allTasks: List<Task>
+        get() = taskGroups.flatMap { listOf(it.task) + it.subtasks }
+}
 
 object GeminiAiService {
 
@@ -96,7 +110,7 @@ object GeminiAiService {
                 onResult(
                     TaskParseResult(
                         success = false,
-                        task = null,
+                        taskGroups = emptyList(),
                         error = "Gemini API key not found. Please enter your Gemini API key in Settings."
                     )
                 )
@@ -106,7 +120,7 @@ object GeminiAiService {
 
         executor.execute {
             try {
-                val model = settings.selectedAiModel.ifBlank { "gemini-3.7-flash" }
+                val model = settings.selectedAiModel.ifBlank { "gemini-2.5-flash" }
                 val url = URL("https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey")
                 val conn = (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
@@ -126,36 +140,68 @@ object GeminiAiService {
 You are an expert AI task parser for Tascyn (a Notion Task Manager system).
 Current Time & Date Reference: $dateContext (Year: $currentYear, Month: $currentMonth, Day: $currentDay)
 
-Your job: Read the user's natural language task description paragraph, understand the intent, and extract structured task properties into PURE JSON.
+Your job: Read the user's natural language input, understand the intent, and extract ALL tasks and their subtasks into PURE JSON.
+The user's input may contain ONE task, or MULTIPLE distinct tasks (e.g. a list of things to do, numbered items, separate goals, or multiple projects).
+Each task may also contain one or more SUBTASKS (actionable breakdown steps, checklist items, sub-components) if mentioned or implied.
 
-CRITICAL INSTRUCTIONS FOR FIELDS:
-- "title": (STRING, 3 to 7 WORDS MAXIMUM). Generate a clean, crisp, action-oriented title summarizing what needs to be done (e.g. "Prepare Kinematics Quiz", "Submit Operating Systems Project", "Read Machine Learning Chapter 4"). DO NOT copy the entire paragraph into the title!
-- "priority": (STRING) "HIGH", "MEDIUM", or "LOW" (Use HIGH if urgent, critical, exam, or deadline is very close; otherwise MEDIUM or LOW).
-- "status": (STRING) "Not started" (or "In progress", "Procrastinated", "Left", "Done").
-- "taskTypes": (ARRAY OF STRINGS) Choose matching categories from: ["Work", "Personal", "Academic", "Project", "Skill", "Book Reading", "Spiritual", "Health", "Travel", "Lab", "Assignment", "Exam"].
-- "dueYear": (INTEGER) year e.g. $currentYear.
-- "dueMonth": (INTEGER) 1-12.
-- "dueDay": (INTEGER) 1-31.
-- "dueHour": (INTEGER 0-23) e.g. 17 for 5 PM, 18 for 6 PM, 21 for 9 PM (default 18).
-- "dueMinute": (INTEGER 0-59, default 0).
-- "minimumTimeRequired": (STRING in Notion duration format "Xd Yh Zm" e.g. "0d 1h 30m", "0d 2h 0m", "0d 0h 45m", "1d 0h 0m").
-- "comment": (STRING) Store any background details, instructions, references, or context from the user description.
-- "subtasks": (ARRAY OF OBJECTS) If the user's description mentions steps, breakdown or checklist items: [{"title": "Subtask title (string)", "minimumTimeRequired": "0d 0h 30m"}].
+CRITICAL INSTRUCTIONS:
+1. MULTIPLE TASKS:
+   - If the user describes multiple things to do, create a separate task object in the "tasks" array for EACH independent task.
+   - If only one task is described, return a "tasks" array with that 1 task.
+   - Never merge unrelated tasks into one title.
 
-Return ONLY valid JSON matching this schema:
+2. SUBTASKS PER TASK:
+   - If steps, sub-items, or checklist breakdown items are mentioned for a task, put them in that task's "subtasks" array.
+   - If the user explicitly asks to break down a task (or mentions subtasks), generate concise actionable subtasks.
+   - If a task has no subtasks, set "subtasks": [].
+
+3. TASK PROPERTIES:
+   - "title": (STRING, 3 to 7 WORDS MAXIMUM). Clean, crisp, action-oriented title summarizing what needs to be done (e.g. "Prepare Kinematics Quiz", "Submit Operating Systems Project", "Buy Weekly Groceries"). DO NOT copy entire paragraphs into the title!
+   - "priority": (STRING) "HIGH", "MEDIUM", or "LOW" (Use HIGH if urgent, critical, exam, or deadline is near; otherwise MEDIUM or LOW).
+   - "status": (STRING) "Not started" (or "In progress", "Procrastinated", "Left", "Done").
+   - "taskTypes": (ARRAY OF STRINGS) Choose matching categories from: ["Work", "Personal", "Academic", "Project", "Skill", "Book Reading", "Spiritual", "Health", "Travel", "Lab", "Assignment", "Exam"].
+   - "dueYear": (INTEGER) year e.g. $currentYear.
+   - "dueMonth": (INTEGER) 1-12.
+   - "dueDay": (INTEGER) 1-31.
+   - "dueHour": (INTEGER 0-23) e.g. 17 for 5 PM, 18 for 6 PM, 21 for 9 PM (default 18).
+   - "dueMinute": (INTEGER 0-59, default 0).
+   - "minimumTimeRequired": (STRING in Notion duration format "Xd Yh Zm" e.g. "0d 1h 30m", "0d 2h 0m", "0d 0h 45m", "1d 0h 0m").
+   - "comment": (STRING) Relevant background details, instructions, references, or context from the user prompt.
+   - "subtasks": (ARRAY OF OBJECTS) Subtasks breakdown:
+     [
+       {
+         "title": "Concise subtask title (string, 3-7 words)",
+         "minimumTimeRequired": "0d 0h 30m"
+       }
+     ]
+
+OUTPUT SCHEMA (Return ONLY valid JSON matching this schema):
 {
-  "title": "Clean concise title",
-  "priority": "HIGH",
-  "status": "Not started",
-  "taskTypes": ["Academic", "Assignment"],
-  "dueYear": $currentYear,
-  "dueMonth": $currentMonth,
-  "dueDay": $currentDay,
-  "dueHour": 18,
-  "dueMinute": 0,
-  "minimumTimeRequired": "0d 2h 0m",
-  "comment": "Notes from user prompt",
-  "subtasks": []
+  "tasks": [
+    {
+      "title": "Prepare Kinematics Quiz",
+      "priority": "HIGH",
+      "status": "Not started",
+      "taskTypes": ["Academic", "Exam"],
+      "dueYear": $currentYear,
+      "dueMonth": $currentMonth,
+      "dueDay": $currentDay,
+      "dueHour": 18,
+      "dueMinute": 0,
+      "minimumTimeRequired": "0d 2h 0m",
+      "comment": "Focus on 2D motion and projectile equations",
+      "subtasks": [
+        {
+          "title": "Review lecture slides 1 to 4",
+          "minimumTimeRequired": "0d 0h 45m"
+        },
+        {
+          "title": "Solve 5 kinematics practice problems",
+          "minimumTimeRequired": "0d 1h 0m"
+        }
+      ]
+    }
+  ]
 }
 """.trimIndent()
 
@@ -195,9 +241,7 @@ Return ONLY valid JSON matching this schema:
                     val text = parts?.optJSONObject(0)?.optString("text") ?: ""
 
                     val cleanJsonStr = extractJsonSubstring(text)
-                    val taskJson = JSONObject(cleanJsonStr)
-
-                    val parsedResult = taskFromJson(taskJson, prompt)
+                    val parsedResult = parseTasksFromJsonString(cleanJsonStr, prompt)
                     mainHandler.post { onResult(parsedResult) }
                 } else {
                     val errStream = conn.errorStream
@@ -212,7 +256,7 @@ Return ONLY valid JSON matching this schema:
                         onResult(
                             TaskParseResult(
                                 success = false,
-                                task = null,
+                                taskGroups = emptyList(),
                                 error = "Gemini LLM error ($responseCode: $parsedMsg). No task was created."
                             )
                         )
@@ -223,7 +267,7 @@ Return ONLY valid JSON matching this schema:
                     onResult(
                         TaskParseResult(
                             success = false,
-                            task = null,
+                            taskGroups = emptyList(),
                             error = "LLM request failed: ${e.localizedMessage ?: "Network error"}. No task was created."
                         )
                     )
@@ -233,16 +277,91 @@ Return ONLY valid JSON matching this schema:
     }
 
     private fun extractJsonSubstring(raw: String): String {
-        val trimmed = raw.trim()
-        val firstBrace = trimmed.indexOf('{')
-        val lastBrace = trimmed.lastIndexOf('}')
-        if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
-            return trimmed.substring(firstBrace, lastBrace + 1)
+        var clean = raw.trim()
+        if (clean.startsWith("```json", ignoreCase = true)) {
+            clean = clean.substring(7)
+        } else if (clean.startsWith("```")) {
+            clean = clean.substring(3)
         }
-        return trimmed.replace("```json", "").replace("```", "").trim()
+        if (clean.endsWith("```")) {
+            clean = clean.substring(0, clean.length - 3)
+        }
+        clean = clean.trim()
+
+        val firstBrace = clean.indexOf('{')
+        val firstBracket = clean.indexOf('[')
+
+        if (firstBracket != -1 && (firstBrace == -1 || firstBracket < firstBrace)) {
+            val lastBracket = clean.lastIndexOf(']')
+            if (lastBracket != -1 && lastBracket > firstBracket) {
+                return clean.substring(firstBracket, lastBracket + 1)
+            }
+        } else if (firstBrace != -1) {
+            val lastBrace = clean.lastIndexOf('}')
+            if (lastBrace != -1 && lastBrace > firstBrace) {
+                return clean.substring(firstBrace, lastBrace + 1)
+            }
+        }
+        return clean
     }
 
-    private fun taskFromJson(json: JSONObject, rawPrompt: String): TaskParseResult {
+    fun parseTasksFromJsonString(cleanJsonStr: String, rawPrompt: String): TaskParseResult {
+        val trimmed = cleanJsonStr.trim()
+        val taskJsonList = mutableListOf<JSONObject>()
+
+        try {
+            if (trimmed.startsWith("[")) {
+                val jsonArray = JSONArray(trimmed)
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.optJSONObject(i)
+                    if (obj != null) taskJsonList.add(obj)
+                }
+            } else {
+                val rootObj = JSONObject(trimmed)
+                if (rootObj.has("tasks")) {
+                    val tasksArray = rootObj.optJSONArray("tasks")
+                    if (tasksArray != null) {
+                        for (i in 0 until tasksArray.length()) {
+                            val obj = tasksArray.optJSONObject(i)
+                            if (obj != null) taskJsonList.add(obj)
+                        }
+                    }
+                } else {
+                    // Single task object
+                    taskJsonList.add(rootObj)
+                }
+            }
+        } catch (e: Exception) {
+            return TaskParseResult(
+                success = false,
+                taskGroups = emptyList(),
+                error = "Failed to parse LLM JSON: ${e.localizedMessage}"
+            )
+        }
+
+        if (taskJsonList.isEmpty()) {
+            return TaskParseResult(
+                success = false,
+                taskGroups = emptyList(),
+                error = "No valid tasks found in LLM response."
+            )
+        }
+
+        val groups = mutableListOf<ParsedTaskGroup>()
+        val baseTime = System.currentTimeMillis()
+
+        for ((taskIndex, taskJson) in taskJsonList.withIndex()) {
+            val group = parseSingleTaskGroup(taskJson, rawPrompt, baseTime, taskIndex)
+            groups.add(group)
+        }
+
+        return TaskParseResult(
+            success = true,
+            taskGroups = groups
+        )
+    }
+
+    private fun parseSingleTaskGroup(json: JSONObject, rawPrompt: String, baseTime: Long, taskIndex: Int): ParsedTaskGroup {
         var title = json.optString("title", "").trim()
         if (title.isBlank()) {
             title = generateConciseTitleFromPrompt(rawPrompt)
@@ -284,9 +403,9 @@ Return ONLY valid JSON matching this schema:
         val dueDateMillis = cal.timeInMillis
 
         val minTime = json.optString("minimumTimeRequired", "0d 1h 0m").ifBlank { "0d 1h 0m" }
-        val comment = json.optString("comment", rawPrompt).ifBlank { rawPrompt }
+        val comment = json.optString("comment", "").trim()
 
-        val mainTaskId = "task_ai_" + System.currentTimeMillis()
+        val mainTaskId = "task_ai_${baseTime}_${taskIndex}_${UUID.randomUUID().toString().take(6)}"
         val mainTask = Task(
             id = mainTaskId,
             title = title,
@@ -296,20 +415,32 @@ Return ONLY valid JSON matching this schema:
             minimumTimeRequired = minTime,
             dueDate = dueDateMillis,
             remainderDate = dueDateMillis,
-            comment = comment
+            comment = comment,
+            parentTaskId = null
         )
 
         val subtasks = mutableListOf<Task>()
         val subtasksArray = json.optJSONArray("subtasks")
         if (subtasksArray != null) {
-            for (i in 0 until subtasksArray.length()) {
-                val subObj = subtasksArray.optJSONObject(i) ?: continue
-                val subTitle = subObj.optString("title", "").trim()
-                val subMinTime = subObj.optString("minimumTimeRequired", "0d 0h 30m").ifBlank { "0d 0h 30m" }
+            for (subIndex in 0 until subtasksArray.length()) {
+                val subObj = subtasksArray.optJSONObject(subIndex)
+                val subTitle: String
+                val subMinTime: String
+
+                if (subObj != null) {
+                    subTitle = subObj.optString("title", "").trim()
+                    subMinTime = subObj.optString("minimumTimeRequired", "0d 0h 30m").ifBlank { "0d 0h 30m" }
+                } else {
+                    // LLM might have returned a raw string array: ["Subtask 1", "Subtask 2"]
+                    subTitle = subtasksArray.optString(subIndex, "").trim()
+                    subMinTime = "0d 0h 30m"
+                }
+
                 if (subTitle.isNotBlank()) {
+                    val subId = "sub_ai_${baseTime}_${taskIndex}_${subIndex}_${UUID.randomUUID().toString().take(6)}"
                     subtasks.add(
                         Task(
-                            id = "sub_ai_${System.currentTimeMillis()}_$i",
+                            id = subId,
                             title = subTitle,
                             status = TaskStatus.NOT_STARTED,
                             priority = priority,
@@ -324,105 +455,159 @@ Return ONLY valid JSON matching this schema:
             }
         }
 
-        return TaskParseResult(
-            success = true,
+        return ParsedTaskGroup(
             task = mainTask,
             subtasks = subtasks
         )
     }
 
     fun parseWithLocalHeuristics(prompt: String): TaskParseResult {
-        val lower = prompt.lowercase()
+        val lines = prompt.split("\n", ";").map { it.trim() }.filter { it.isNotBlank() }
+        val baseTime = System.currentTimeMillis()
 
-        val priority = when {
-            lower.contains("high priority") || lower.contains("urgent") || lower.contains("critical") || lower.contains("asap") -> TaskPriority.HIGH
-            lower.contains("low priority") || lower.contains("trivial") || lower.contains("optional") -> TaskPriority.LOW
-            else -> TaskPriority.MEDIUM
+        // Check if user entered multiple numbered/bulleted items
+        val candidateItems = mutableListOf<String>()
+        val numberRegex = Regex("^(\\d+[.)]|[-*•])\\s*(.+)$")
+
+        for (line in lines) {
+            val match = numberRegex.find(line)
+            if (match != null) {
+                candidateItems.add(match.groupValues[2].trim())
+            } else if (candidateItems.isNotEmpty()) {
+                candidateItems[candidateItems.size - 1] += " " + line
+            } else {
+                candidateItems.add(line)
+            }
         }
 
-        val cal = Calendar.getInstance()
-        when {
-            lower.contains("tomorrow") -> cal.add(Calendar.DAY_OF_YEAR, 1)
-            lower.contains("today") || lower.contains("tonight") -> { /* today */ }
-            lower.contains("monday") -> setNextDayOfWeek(cal, Calendar.MONDAY)
-            lower.contains("tuesday") -> setNextDayOfWeek(cal, Calendar.TUESDAY)
-            lower.contains("wednesday") -> setNextDayOfWeek(cal, Calendar.WEDNESDAY)
-            lower.contains("thursday") -> setNextDayOfWeek(cal, Calendar.THURSDAY)
-            lower.contains("friday") -> setNextDayOfWeek(cal, Calendar.FRIDAY)
-            lower.contains("saturday") -> setNextDayOfWeek(cal, Calendar.SATURDAY)
-            lower.contains("sunday") -> setNextDayOfWeek(cal, Calendar.SUNDAY)
-            lower.contains("next week") -> cal.add(Calendar.DAY_OF_YEAR, 7)
-            else -> cal.add(Calendar.DAY_OF_YEAR, 1)
+        val itemsToProcess = if (candidateItems.size > 1) candidateItems else listOf(prompt)
+        val groups = mutableListOf<ParsedTaskGroup>()
+
+        for ((idx, itemText) in itemsToProcess.withIndex()) {
+            val lower = itemText.lowercase()
+
+            val priority = when {
+                lower.contains("high priority") || lower.contains("urgent") || lower.contains("critical") || lower.contains("asap") -> TaskPriority.HIGH
+                lower.contains("low priority") || lower.contains("trivial") || lower.contains("optional") -> TaskPriority.LOW
+                else -> TaskPriority.MEDIUM
+            }
+
+            val cal = Calendar.getInstance()
+            when {
+                lower.contains("tomorrow") -> cal.add(Calendar.DAY_OF_YEAR, 1)
+                lower.contains("today") || lower.contains("tonight") -> { /* today */ }
+                lower.contains("monday") -> setNextDayOfWeek(cal, Calendar.MONDAY)
+                lower.contains("tuesday") -> setNextDayOfWeek(cal, Calendar.TUESDAY)
+                lower.contains("wednesday") -> setNextDayOfWeek(cal, Calendar.WEDNESDAY)
+                lower.contains("thursday") -> setNextDayOfWeek(cal, Calendar.THURSDAY)
+                lower.contains("friday") -> setNextDayOfWeek(cal, Calendar.FRIDAY)
+                lower.contains("saturday") -> setNextDayOfWeek(cal, Calendar.SATURDAY)
+                lower.contains("sunday") -> setNextDayOfWeek(cal, Calendar.SUNDAY)
+                lower.contains("next week") -> cal.add(Calendar.DAY_OF_YEAR, 7)
+                else -> cal.add(Calendar.DAY_OF_YEAR, 1)
+            }
+
+            when {
+                lower.contains("9am") || lower.contains("9:00 am") -> { cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("10am") || lower.contains("10:00 am") -> { cal.set(Calendar.HOUR_OF_DAY, 10); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("11am") || lower.contains("11:00 am") -> { cal.set(Calendar.HOUR_OF_DAY, 11); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("12pm") || lower.contains("noon") -> { cal.set(Calendar.HOUR_OF_DAY, 12); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("1pm") || lower.contains("13:00") -> { cal.set(Calendar.HOUR_OF_DAY, 13); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("2pm") || lower.contains("14:00") -> { cal.set(Calendar.HOUR_OF_DAY, 14); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("3pm") || lower.contains("15:00") -> { cal.set(Calendar.HOUR_OF_DAY, 15); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("4pm") || lower.contains("16:00") -> { cal.set(Calendar.HOUR_OF_DAY, 16); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("5pm") || lower.contains("5 pm") || lower.contains("17:00") -> { cal.set(Calendar.HOUR_OF_DAY, 17); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("6pm") || lower.contains("6 pm") || lower.contains("18:00") -> { cal.set(Calendar.HOUR_OF_DAY, 18); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("7pm") || lower.contains("7 pm") || lower.contains("19:00") -> { cal.set(Calendar.HOUR_OF_DAY, 19); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("8pm") || lower.contains("8 pm") || lower.contains("20:00") -> { cal.set(Calendar.HOUR_OF_DAY, 20); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("9pm") || lower.contains("9 pm") || lower.contains("21:00") -> { cal.set(Calendar.HOUR_OF_DAY, 21); cal.set(Calendar.MINUTE, 0) }
+                lower.contains("11:59pm") || lower.contains("midnight") -> { cal.set(Calendar.HOUR_OF_DAY, 23); cal.set(Calendar.MINUTE, 59) }
+                else -> { cal.set(Calendar.HOUR_OF_DAY, 18); cal.set(Calendar.MINUTE, 0) }
+            }
+            cal.set(Calendar.SECOND, 0)
+            cal.set(Calendar.MILLISECOND, 0)
+            val dueDate = cal.timeInMillis
+
+            val minTime = when {
+                lower.contains("4h") || lower.contains("4 hours") -> "0d 4h 0m"
+                lower.contains("3h") || lower.contains("3 hours") -> "0d 3h 0m"
+                lower.contains("2h") || lower.contains("2 hours") -> "0d 2h 0m"
+                lower.contains("1.5h") || lower.contains("90m") || lower.contains("90 min") -> "0d 1h 30m"
+                lower.contains("1h") || lower.contains("1 hour") -> "0d 1h 0m"
+                lower.contains("45m") || lower.contains("45 min") -> "0d 0h 45m"
+                lower.contains("30m") || lower.contains("30 min") -> "0d 0h 30m"
+                else -> "0d 1h 0m"
+            }
+
+            val types = mutableSetOf<TaskType>()
+            if (lower.contains("academic") || lower.contains("thesis") || lower.contains("paper") || lower.contains("study")) types.add(TaskType.ACADEMIC)
+            if (lower.contains("exam") || lower.contains("quiz") || lower.contains("midterm") || lower.contains("final")) types.add(TaskType.EXAM)
+            if (lower.contains("lab") || lower.contains("experiment")) types.add(TaskType.LAB)
+            if (lower.contains("assignment") || lower.contains("homework") || lower.contains("hw")) types.add(TaskType.ASSIGNMENT)
+            if (lower.contains("reading") || lower.contains("book") || lower.contains("chapter")) types.add(TaskType.BOOK_READING)
+            if (lower.contains("project") || lower.contains("code") || lower.contains("build") || lower.contains("develop")) types.add(TaskType.PROJECT)
+            if (lower.contains("health") || lower.contains("gym") || lower.contains("workout") || lower.contains("med")) types.add(TaskType.HEALTH)
+            if (lower.contains("skill") || lower.contains("practice") || lower.contains("learn")) types.add(TaskType.SKILL)
+            if (lower.contains("personal")) types.add(TaskType.PERSONAL)
+            if (types.isEmpty()) types.add(TaskType.WORK)
+
+            val title = generateConciseTitleFromPrompt(itemText)
+
+            val mainTaskId = "task_heuristic_${baseTime}_${idx}_${UUID.randomUUID().toString().take(6)}"
+            val mainTask = Task(
+                id = mainTaskId,
+                title = title,
+                status = TaskStatus.NOT_STARTED,
+                priority = priority,
+                taskTypes = types,
+                minimumTimeRequired = minTime,
+                dueDate = dueDate,
+                remainderDate = dueDate,
+                comment = itemText.trim(),
+                parentTaskId = null
+            )
+
+            // Extract heuristic subtasks if user wrote "subtasks:" or "steps:"
+            val subtasks = mutableListOf<Task>()
+            val subtaskMarker = when {
+                lower.contains("subtasks:") -> "subtasks:"
+                lower.contains("steps:") -> "steps:"
+                else -> null
+            }
+
+            if (subtaskMarker != null) {
+                val subPart = itemText.substring(itemText.indexOf(subtaskMarker, ignoreCase = true) + subtaskMarker.length)
+                val subItems = subPart.split(",", " and ", ";").map { it.trim() }.filter { it.isNotBlank() }
+                for ((sIdx, sTitle) in subItems.withIndex()) {
+                    val cleanSubTitle = sTitle.replace(Regex("^[-*•\\d+.)\\s]+"), "").trim()
+                    if (cleanSubTitle.isNotBlank()) {
+                        subtasks.add(
+                            Task(
+                                id = "sub_heuristic_${baseTime}_${idx}_${sIdx}_${UUID.randomUUID().toString().take(6)}",
+                                title = cleanSubTitle.capitalizeFirstLetter(),
+                                status = TaskStatus.NOT_STARTED,
+                                priority = priority,
+                                taskTypes = types,
+                                minimumTimeRequired = "0d 0h 30m",
+                                dueDate = dueDate,
+                                remainderDate = dueDate,
+                                parentTaskId = mainTaskId
+                            )
+                        )
+                    }
+                }
+            }
+
+            groups.add(ParsedTaskGroup(task = mainTask, subtasks = subtasks))
         }
-
-        when {
-            lower.contains("9am") || lower.contains("9:00 am") -> { cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("10am") || lower.contains("10:00 am") -> { cal.set(Calendar.HOUR_OF_DAY, 10); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("11am") || lower.contains("11:00 am") -> { cal.set(Calendar.HOUR_OF_DAY, 11); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("12pm") || lower.contains("noon") -> { cal.set(Calendar.HOUR_OF_DAY, 12); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("1pm") || lower.contains("13:00") -> { cal.set(Calendar.HOUR_OF_DAY, 13); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("2pm") || lower.contains("14:00") -> { cal.set(Calendar.HOUR_OF_DAY, 14); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("3pm") || lower.contains("15:00") -> { cal.set(Calendar.HOUR_OF_DAY, 15); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("4pm") || lower.contains("16:00") -> { cal.set(Calendar.HOUR_OF_DAY, 16); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("5pm") || lower.contains("5 pm") || lower.contains("17:00") -> { cal.set(Calendar.HOUR_OF_DAY, 17); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("6pm") || lower.contains("6 pm") || lower.contains("18:00") -> { cal.set(Calendar.HOUR_OF_DAY, 18); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("7pm") || lower.contains("7 pm") || lower.contains("19:00") -> { cal.set(Calendar.HOUR_OF_DAY, 19); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("8pm") || lower.contains("8 pm") || lower.contains("20:00") -> { cal.set(Calendar.HOUR_OF_DAY, 20); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("9pm") || lower.contains("9 pm") || lower.contains("21:00") -> { cal.set(Calendar.HOUR_OF_DAY, 21); cal.set(Calendar.MINUTE, 0) }
-            lower.contains("11:59pm") || lower.contains("midnight") -> { cal.set(Calendar.HOUR_OF_DAY, 23); cal.set(Calendar.MINUTE, 59) }
-            else -> { cal.set(Calendar.HOUR_OF_DAY, 18); cal.set(Calendar.MINUTE, 0) }
-        }
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
-        val dueDate = cal.timeInMillis
-
-        val minTime = when {
-            lower.contains("4h") || lower.contains("4 hours") -> "0d 4h 0m"
-            lower.contains("3h") || lower.contains("3 hours") -> "0d 3h 0m"
-            lower.contains("2h") || lower.contains("2 hours") -> "0d 2h 0m"
-            lower.contains("1.5h") || lower.contains("90m") || lower.contains("90 min") -> "0d 1h 30m"
-            lower.contains("1h") || lower.contains("1 hour") -> "0d 1h 0m"
-            lower.contains("45m") || lower.contains("45 min") -> "0d 0h 45m"
-            lower.contains("30m") || lower.contains("30 min") -> "0d 0h 30m"
-            else -> "0d 1h 0m"
-        }
-
-        val types = mutableSetOf<TaskType>()
-        if (lower.contains("academic") || lower.contains("thesis") || lower.contains("paper") || lower.contains("study")) types.add(TaskType.ACADEMIC)
-        if (lower.contains("exam") || lower.contains("quiz") || lower.contains("midterm") || lower.contains("final")) types.add(TaskType.EXAM)
-        if (lower.contains("lab") || lower.contains("experiment")) types.add(TaskType.LAB)
-        if (lower.contains("assignment") || lower.contains("homework") || lower.contains("hw")) types.add(TaskType.ASSIGNMENT)
-        if (lower.contains("reading") || lower.contains("book") || lower.contains("chapter")) types.add(TaskType.BOOK_READING)
-        if (lower.contains("project") || lower.contains("code") || lower.contains("build") || lower.contains("develop")) types.add(TaskType.PROJECT)
-        if (lower.contains("health") || lower.contains("gym") || lower.contains("workout") || lower.contains("med")) types.add(TaskType.HEALTH)
-        if (lower.contains("skill") || lower.contains("practice") || lower.contains("learn")) types.add(TaskType.SKILL)
-        if (lower.contains("personal")) types.add(TaskType.PERSONAL)
-        if (types.isEmpty()) types.add(TaskType.WORK)
-
-        val title = generateConciseTitleFromPrompt(prompt)
-
-        val mainTaskId = "task_heuristic_" + System.currentTimeMillis()
-        val mainTask = Task(
-            id = mainTaskId,
-            title = title,
-            status = TaskStatus.NOT_STARTED,
-            priority = priority,
-            taskTypes = types,
-            minimumTimeRequired = minTime,
-            dueDate = dueDate,
-            remainderDate = dueDate,
-            comment = prompt.trim()
-        )
 
         return TaskParseResult(
             success = true,
-            task = mainTask,
-            subtasks = emptyList()
+            taskGroups = groups
         )
     }
 
     private fun generateConciseTitleFromPrompt(prompt: String): String {
-        // Strip out noisy date/time/metadata tokens
         var cleaned = prompt
             .replace(Regex("(?i)\\b(tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next week|yesterday)\\b"), "")
             .replace(Regex("(?i)\\b(by|at|before|due)\\s+\\d+(:\\d+)?\\s*(am|pm)?"), "")
@@ -435,7 +620,6 @@ Return ONLY valid JSON matching this schema:
 
         if (cleaned.isBlank()) cleaned = prompt.trim()
 
-        // Take only the first sentence or up to 6 words
         val firstSentence = cleaned.split(Regex("[.!?\n]"))[0].trim()
         val words = firstSentence.split(Regex("\\s+")).filter { it.isNotBlank() }
         val conciseWords = if (words.size > 6) words.take(6).joinToString(" ") else words.joinToString(" ")
@@ -455,5 +639,3 @@ Return ONLY valid JSON matching this schema:
         cal.add(Calendar.DAY_OF_YEAR, daysToAdd)
     }
 }
-
-

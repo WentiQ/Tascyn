@@ -22,7 +22,7 @@
         android:layout_marginStart="8dp"
         android:fontFamily="sans-serif-black"
         android:letterSpacing="0.02"
-        android:textColor="#0E0E10"
+        android:textColor="@color/color_text_primary"
         android:textSize="14sp"
         android:textStyle="bold"
         tools:text="Q2 · Recover Immediately" />

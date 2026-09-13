@@ -24,6 +24,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
+                android:id="@+id/imgAppLogo"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/logo" />
@@ -36,7 +37,7 @@
                 android:layout_weight="1"
                 android:fontFamily="sans-serif-black"
                 android:text="Tascyn"
-                android:textColor="#0E0E10"
+                android:textColor="@color/color_text_primary"
                 android:textSize="21sp"
                 android:textStyle="bold" />
 
@@ -49,7 +50,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@drawable/ic_settings_precision"
-                app:tint="#0E0E10" />
+                app:tint="@color/color_icon_primary" />
         </LinearLayout>
 
         <!-- ============================================================= -->
@@ -90,7 +91,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
                             android:text="Good afternoon"
-                            android:textColor="#0E0E10"
+                            android:textColor="@color/color_text_primary"
                             android:textSize="27sp"
                             android:textStyle="bold" />
 
@@ -121,7 +122,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-bold"
                             android:text="8 tasks need your attention"
-                            android:textColor="#0E0E10"
+                            android:textColor="@color/color_text_primary"
                             android:textSize="16sp" />
 
                         <LinearLayout
@@ -312,7 +313,7 @@
                         android:layout_weight="1"
                         android:fontFamily="sans-serif-black"
                         android:text="Tasks"
-                        android:textColor="#0E0E10"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -322,7 +323,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:text="8 pending"
-                        android:textColor="#6B7280"
+                        android:textColor="@color/color_text_secondary"
                         android:textSize="15sp" />
                 </LinearLayout>
 
@@ -345,6 +346,7 @@
                             android:id="@+id/tabFilterPending"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center_horizontal"
@@ -358,7 +360,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:text="Pending"
-                                android:textColor="#0E0E10"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="14.5sp" />
 
                             <View
@@ -366,7 +368,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="2.5dp"
                                 android:layout_marginTop="8dp"
-                                android:background="#0E0E10" />
+                                android:background="@color/color_text_primary" />
                         </LinearLayout>
 
                         <!-- Tab 2: Today -->
@@ -375,6 +377,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center_horizontal"
@@ -388,7 +391,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="Today"
-                                android:textColor="#6B7280"
+                                android:textColor="@color/color_text_tertiary"
                                 android:textSize="14.5sp" />
 
                             <View
@@ -405,6 +408,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center_horizontal"
@@ -418,7 +422,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="Tomorrow"
-                                android:textColor="#6B7280"
+                                android:textColor="@color/color_text_tertiary"
                                 android:textSize="14.5sp" />
 
                             <View
@@ -435,6 +439,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center_horizontal"
@@ -448,7 +453,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="This Week"
-                                android:textColor="#6B7280"
+                                android:textColor="@color/color_text_tertiary"
                                 android:textSize="14.5sp" />
 
                             <View
@@ -465,6 +470,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center_horizontal"
@@ -478,7 +484,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="Completed"
-                                android:textColor="#6B7280"
+                                android:textColor="@color/color_text_tertiary"
                                 android:textSize="14.5sp" />
 
                             <View
@@ -495,6 +501,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center_horizontal"
@@ -508,7 +515,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="All Tasks"
-                                android:textColor="#6B7280"
+                                android:textColor="@color/color_text_tertiary"
                                 android:textSize="14.5sp" />
 
                             <View
@@ -526,7 +533,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#F3F4F6" />
+                    android:background="@color/color_divider" />
 
                 <!-- Secondary Category Filter Chips -->
                 <HorizontalScrollView
@@ -548,14 +555,14 @@
                             android:id="@+id/chipCatAll"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/bg_fab_dark"
+                            android:background="@drawable/bg_chip_selected"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-medium"
                             android:paddingHorizontal="16dp"
                             android:paddingVertical="7dp"
                             android:text="All"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/color_btn_primary_text"
                             android:textSize="12.5sp" />
 
                         <!-- Chip: Academic -->
@@ -564,14 +571,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_ai_chip"
+                            android:background="@drawable/bg_chip_unselected"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-medium"
                             android:paddingHorizontal="14dp"
                             android:paddingVertical="7dp"
                             android:text="Academic"
-                            android:textColor="#4B5563"
+                            android:textColor="@color/color_text_secondary"
                             android:textSize="12.5sp" />
 
                         <!-- Chip: Assignment -->
@@ -580,14 +587,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_ai_chip"
+                            android:background="@drawable/bg_chip_unselected"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-medium"
                             android:paddingHorizontal="14dp"
                             android:paddingVertical="7dp"
                             android:text="Assignment"
-                            android:textColor="#4B5563"
+                            android:textColor="@color/color_text_secondary"
                             android:textSize="12.5sp" />
 
                         <!-- Chip: Project -->
@@ -596,14 +603,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_ai_chip"
+                            android:background="@drawable/bg_chip_unselected"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-medium"
                             android:paddingHorizontal="14dp"
                             android:paddingVertical="7dp"
                             android:text="Project"
-                            android:textColor="#4B5563"
+                            android:textColor="@color/color_text_secondary"
                             android:textSize="12.5sp" />
 
                         <!-- Chip: Personal -->
@@ -612,14 +619,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_ai_chip"
+                            android:background="@drawable/bg_chip_unselected"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-medium"
                             android:paddingHorizontal="14dp"
                             android:paddingVertical="7dp"
                             android:text="Personal"
-                            android:textColor="#4B5563"
+                            android:textColor="@color/color_text_secondary"
                             android:textSize="12.5sp" />
                     </LinearLayout>
                 </HorizontalScrollView>
@@ -633,6 +640,36 @@
                     android:paddingTop="6dp"
                     android:paddingBottom="24dp"
                     android:scrollbars="vertical" />
+
+                <!-- Empty State When Filter Yields No Tasks -->
+                <LinearLayout
+                    android:id="@+id/layoutTasksEmptyState"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="32dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/txtTasksEmptyTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="No tasks found"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/txtTasksEmptySubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="No tasks match the selected filter."
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- 3. NOTION TIMELINE PAGE VIEW (Exact Notion Task Manager Timeline View) -->
@@ -640,7 +677,7 @@
                 android:id="@+id/layoutTimelinePageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#FFFFFF"
+                android:background="@color/color_canvas"
                 android:orientation="vertical"
                 android:visibility="gone">
 
@@ -660,7 +697,7 @@
                         android:layout_weight="1"
                         android:fontFamily="sans-serif-black"
                         android:text="Timeline"
-                        android:textColor="#0E0E10"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -680,7 +717,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_notion_timeline"
-                            app:tint="#374151" />
+                            app:tint="@color/color_icon_primary" />
 
                         <TextView
                             android:id="@+id/txtTimelineViewName"
@@ -689,7 +726,7 @@
                             android:layout_marginStart="6dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Pending Tasks timeline"
-                            android:textColor="#1F2937"
+                            android:textColor="@color/color_text_primary"
                             android:textSize="13sp" />
 
                         <ImageView
@@ -697,7 +734,7 @@
                             android:layout_height="12dp"
                             android:layout_marginStart="6dp"
                             android:src="@drawable/ic_chevron_down"
-                            app:tint="#6B7280" />
+                            app:tint="@color/color_icon_secondary" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -717,7 +754,7 @@
                         android:layout_weight="1"
                         android:fontFamily="sans-serif-bold"
                         android:text="September 2026"
-                        android:textColor="#0E0E10"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -739,7 +776,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="Month"
-                            android:textColor="#6B7280"
+                            android:textColor="@color/color_text_secondary"
                             android:textSize="13sp" />
 
                         <ImageView
@@ -747,7 +784,7 @@
                             android:layout_height="10dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_down"
-                            app:tint="#6B7280" />
+                            app:tint="@color/color_icon_secondary" />
                     </LinearLayout>
 
                     <!-- Prev Month < -->
@@ -760,7 +797,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:src="@drawable/ic_chevron_left"
-                        app:tint="#6B7280" />
+                        app:tint="@color/color_icon_secondary" />
 
                     <!-- Today Button -->
                     <TextView
@@ -774,7 +811,7 @@
                         android:fontFamily="sans-serif-medium"
                         android:paddingHorizontal="4dp"
                         android:text="Today"
-                        android:textColor="#0E0E10"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="13sp" />
 
                     <!-- Next Month > -->
@@ -787,14 +824,14 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:src="@drawable/ic_chevron_right"
-                        app:tint="#6B7280" />
+                        app:tint="@color/color_icon_secondary" />
                 </LinearLayout>
 
                 <!-- Thin divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E5E7EB" />
+                    android:background="@color/color_divider" />
 
                 <!-- Interactive Notion Gantt Timeline Horizontal Scrollable Area -->
                 <HorizontalScrollView
@@ -823,6 +860,7 @@
                 android:id="@+id/layoutSessionsPageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/color_canvas"
                 android:clipToPadding="false"
                 android:paddingBottom="24dp"
                 android:scrollbars="none"
@@ -842,7 +880,7 @@
                         android:fontFamily="sans-serif-black"
                         android:paddingHorizontal="20dp"
                         android:text="Work Session"
-                        android:textColor="#0E0E10"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -875,7 +913,7 @@
                                     android:layout_height="26dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_timer_precision"
-                                    app:tint="#64748B" />
+                                    app:tint="@color/color_icon_secondary" />
                             </FrameLayout>
 
                             <TextView
@@ -884,7 +922,7 @@
                                 android:layout_marginTop="12dp"
                                 android:fontFamily="sans-serif-bold"
                                 android:text="No active work session"
-                                android:textColor="#0E0E10"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="16.5sp"
                                 android:textStyle="bold" />
 
@@ -895,7 +933,7 @@
                                 android:fontFamily="sans-serif"
                                 android:gravity="center"
                                 android:text="Select a pending task below to start tracking focused work."
-                                android:textColor="#6B7280"
+                                android:textColor="@color/color_text_secondary"
                                 android:textSize="13.5sp" />
                         </LinearLayout>
 
@@ -927,7 +965,7 @@
                                     android:fontFamily="sans-serif-black"
                                     android:letterSpacing="0.06"
                                     android:text="TRACKING LIVE"
-                                    android:textColor="#EF4444"
+                                    android:textColor="@color/color_urgent_red"
                                     android:textSize="11.5sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
@@ -940,7 +978,7 @@
                                 android:layout_marginTop="8dp"
                                 android:fontFamily="sans-serif-black"
                                 android:text="00:00:00"
-                                android:textColor="#0E0E10"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="32sp"
                                 android:textStyle="bold" />
 
@@ -952,7 +990,7 @@
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
                                 android:text="Working Session"
-                                android:textColor="#4B5563"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="15sp" />
 
                             <TextView
@@ -962,7 +1000,7 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif"
                                 android:text="No minimum time set"
-                                android:textColor="#6B7280"
+                                android:textColor="@color/color_text_secondary"
                                 android:textSize="13sp" />
 
                             <Button
@@ -974,7 +1012,7 @@
                                 android:fontFamily="sans-serif-bold"
                                 android:paddingHorizontal="24dp"
                                 android:text="End Session"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/color_btn_primary_text"
                                 android:textSize="13sp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -995,7 +1033,7 @@
                             android:fontFamily="sans-serif-black"
                             android:letterSpacing="0.05"
                             android:text="TODAY'S SESSIONS"
-                            android:textColor="#64748B"
+                            android:textColor="@color/color_text_tertiary"
                             android:textSize="12sp"
                             android:textStyle="bold" />
 
@@ -1005,7 +1043,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-bold"
                             android:text="Total today: 0m"
-                            android:textColor="#0E0E10"
+                            android:textColor="@color/color_text_primary"
                             android:textSize="13sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -1019,7 +1057,7 @@
                         android:fontFamily="sans-serif"
                         android:paddingHorizontal="20dp"
                         android:text="No sessions recorded today yet."
-                        android:textColor="#6B7280"
+                        android:textColor="@color/color_text_secondary"
                         android:textSize="14sp" />
 
                     <!-- Today's Sessions List (When present) -->
@@ -1041,7 +1079,7 @@
                         android:letterSpacing="0.05"
                         android:paddingHorizontal="20dp"
                         android:text="START WORKING ON"
-                        android:textColor="#64748B"
+                        android:textColor="@color/color_text_tertiary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
 
@@ -1076,7 +1114,7 @@
                 android:layout_height="22dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_add_precision"
-                app:tint="#FFFFFF" />
+                app:tint="@color/color_btn_primary_text" />
         </FrameLayout>
 
         <!-- ============================================================= -->

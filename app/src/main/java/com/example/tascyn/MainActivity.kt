@@ -11,6 +11,7 @@ import androidx.core.animation.doOnEnd
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -199,6 +200,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chipCatPersonal: TextView
 
     private lateinit var recyclerTasksGrouped: RecyclerView
+    private lateinit var layoutTasksEmptyState: LinearLayout
     private lateinit var tasksGroupedAdapter: QuadrantGroupedTaskAdapter
 
     // Notion Timeline Page Views
@@ -231,6 +233,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var todaySessionsAdapter: TimesheetAdapter
     private lateinit var startWorkingTaskAdapter: StartWorkingTaskAdapter
+    private var imgAppLogo: ImageView? = null
 
     private val sessionTickerHandler = Handler(Looper.getMainLooper())
     private val sessionTickerRunnable = object : Runnable {
@@ -396,6 +399,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        updateAppLogoForTheme()
         refreshData()
         if (repository.getActiveSession() != null) {
             SessionNotificationManager.startSessionService(this)
@@ -412,6 +416,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        imgAppLogo = findViewById(R.id.imgAppLogo)
+        updateAppLogoForTheme()
+
         layoutTopHeader = findViewById(R.id.layoutTopHeader)
         txtGreetingHeadline = findViewById(R.id.txtGreetingHeadline)
         txtGreetingDate = findViewById(R.id.txtGreetingDate)
@@ -461,6 +468,7 @@ class MainActivity : AppCompatActivity() {
         chipCatPersonal = findViewById(R.id.chipCatPersonal)
 
         recyclerTasksGrouped = findViewById(R.id.recyclerTasksGrouped)
+        layoutTasksEmptyState = findViewById(R.id.layoutTasksEmptyState)
 
         // Notion Timeline Page Views Binding
         layoutTimelinePageView = findViewById(R.id.layoutTimelinePageView)
@@ -671,10 +679,22 @@ class MainActivity : AppCompatActivity() {
         tabFilterAll.setOnClickListener { selectTasksTimeTab(TasksTimeTab.ALL) }
 
         chipCatAll.setOnClickListener { selectCategoryFilter(null) }
-        chipCatAcademic.setOnClickListener { selectCategoryFilter(TaskType.ACADEMIC) }
-        chipCatAssignment.setOnClickListener { selectCategoryFilter(TaskType.ASSIGNMENT) }
-        chipCatProject.setOnClickListener { selectCategoryFilter(TaskType.PROJECT) }
-        chipCatPersonal.setOnClickListener { selectCategoryFilter(TaskType.PERSONAL) }
+        chipCatAcademic.setOnClickListener {
+            selectCategoryFilter(if (selectedTaskTypeFilter == TaskType.ACADEMIC) null else TaskType.ACADEMIC)
+        }
+        chipCatAssignment.setOnClickListener {
+            selectCategoryFilter(if (selectedTaskTypeFilter == TaskType.ASSIGNMENT) null else TaskType.ASSIGNMENT)
+        }
+        chipCatProject.setOnClickListener {
+            selectCategoryFilter(if (selectedTaskTypeFilter == TaskType.PROJECT) null else TaskType.PROJECT)
+        }
+        chipCatPersonal.setOnClickListener {
+            selectCategoryFilter(if (selectedTaskTypeFilter == TaskType.PERSONAL) null else TaskType.PERSONAL)
+        }
+
+        // Initialize styling for current theme and default filters
+        selectTasksTimeTab(selectedTasksTimeTab)
+        selectCategoryFilter(selectedTaskTypeFilter)
     }
 
     private fun selectTasksTimeTab(tab: TasksTimeTab) {
@@ -714,10 +734,10 @@ class MainActivity : AppCompatActivity() {
 
         fun updateChip(chip: TextView, isSelected: Boolean) {
             if (isSelected) {
-                chip.setBackgroundResource(R.drawable.bg_button_primary)
+                chip.setBackgroundResource(R.drawable.bg_chip_selected)
                 chip.setTextColor(ContextCompat.getColor(this, R.color.color_btn_primary_text))
             } else {
-                chip.setBackgroundResource(R.drawable.bg_ai_chip)
+                chip.setBackgroundResource(R.drawable.bg_chip_unselected)
                 chip.setTextColor(ContextCompat.getColor(this, R.color.color_text_secondary))
             }
         }
@@ -733,8 +753,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshTasksPageView() {
         val now = System.currentTimeMillis()
-        val pendingCount = repository.getTasksForView(NotionView.PENDING, now).size
-        txtTasksPendingCount.text = "$pendingCount pending"
 
         val baseTasks = when (selectedTasksTimeTab) {
             TasksTimeTab.PENDING -> repository.getTasksForView(NotionView.PENDING, now)
@@ -742,10 +760,10 @@ class MainActivity : AppCompatActivity() {
             TasksTimeTab.TOMORROW -> repository.getTasksForView(NotionView.TOMORROW, now)
             TasksTimeTab.THIS_WEEK -> repository.getTasksForView(NotionView.THIS_WEEK, now)
             TasksTimeTab.COMPLETED -> repository.getTasksForView(NotionView.COMPLETED, now)
-            TasksTimeTab.ALL -> repository.getTopLevelTasks().filter { !it.isCompleted && it.status != TaskStatus.LEFT }
+            TasksTimeTab.ALL -> repository.getTopLevelTasks()
         }
 
-        val activeFilteredTasks = if (selectedTasksTimeTab == TasksTimeTab.COMPLETED) {
+        val activeFilteredTasks = if (selectedTasksTimeTab == TasksTimeTab.COMPLETED || selectedTasksTimeTab == TasksTimeTab.ALL) {
             baseTasks
         } else {
             baseTasks.filter { !it.isCompleted && it.status != TaskStatus.LEFT }
@@ -760,9 +778,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val count = filteredTasks.size
+        txtTasksPendingCount.text = when (selectedTasksTimeTab) {
+            TasksTimeTab.COMPLETED -> "$count completed"
+            TasksTimeTab.ALL -> "$count tasks"
+            else -> "$count pending"
+        }
+
+        if (filteredTasks.isEmpty()) {
+            layoutTasksEmptyState.visibility = View.VISIBLE
+            recyclerTasksGrouped.visibility = View.GONE
+            tasksGroupedAdapter.submitList(emptyList())
+            return
+        } else {
+            layoutTasksEmptyState.visibility = View.GONE
+            recyclerTasksGrouped.visibility = View.VISIBLE
+        }
+
         // When viewing Completed tasks, do NOT show in order of Q; show in order of recency when completed
         if (selectedTasksTimeTab == TasksTimeTab.COMPLETED) {
-            val sortedCompleted = filteredTasks.sortedByDescending { it.completedAt ?: it.createdAt }
+            val sortedCompleted = filteredTasks.sortedByDescending { it.completedAt ?: it.dueDate ?: it.remainderDate ?: it.createdAt }
             val items = mutableListOf<QuadrantListItem>()
 
             val cal = Calendar.getInstance()
@@ -776,7 +811,7 @@ class MainActivity : AppCompatActivity() {
             val weekStart = todayStart - (6 * 24 * 3600 * 1000L)
 
             val groupedByRecency = sortedCompleted.groupBy { task ->
-                val compTime = task.completedAt ?: task.createdAt
+                val compTime = task.completedAt ?: task.dueDate ?: task.remainderDate ?: task.createdAt
                 when {
                     compTime >= todayStart -> "Completed Today"
                     compTime >= yesterdayStart -> "Completed Yesterday"
@@ -794,7 +829,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 items.add(QuadrantListItem.Header(title = "• $sectionTitle (${taskList.size})", colorHex = headerColor))
                 for (task in taskList) {
-                    items.add(QuadrantListItem.TaskCard(task = task, category = TaskUrgencyCategory.LATER))
+                    items.add(QuadrantListItem.TaskCard(task = task, category = TaskUrgencyCategory.LATER, status = task.status))
                 }
             }
 
@@ -819,7 +854,7 @@ class MainActivity : AppCompatActivity() {
             items.add(QuadrantListItem.Header(title = title, colorHex = headerColor))
 
             for (task in taskList) {
-                items.add(QuadrantListItem.TaskCard(task = task, category = urgencyCat))
+                items.add(QuadrantListItem.TaskCard(task = task, category = urgencyCat, status = task.status))
             }
         }
 
@@ -848,10 +883,12 @@ class MainActivity : AppCompatActivity() {
                 val remS = activeState.remainingSeconds % 60L
                 val formatted = String.format("%02d:%02d:%02d", remH, remM, remS)
                 txtSessionActiveCountdown.text = if (activeState.isOvertime) "Overtime: $formatted" else "Remaining: $formatted"
-                txtSessionActiveCountdown.setTextColor(Color.parseColor(if (activeState.isOvertime) "#EF4444" else "#6B7280"))
+                val overtimeColor = ContextCompat.getColor(this, R.color.color_urgent_red)
+                val normalCountdownColor = ContextCompat.getColor(this, R.color.color_text_secondary)
+                txtSessionActiveCountdown.setTextColor(if (activeState.isOvertime) overtimeColor else normalCountdownColor)
             } else {
                 txtSessionActiveCountdown.text = "No minimum time set"
-                txtSessionActiveCountdown.setTextColor(Color.parseColor("#6B7280"))
+                txtSessionActiveCountdown.setTextColor(ContextCompat.getColor(this, R.color.color_text_secondary))
             }
 
             SessionNotificationManager.showOrUpdateSessionNotification(this, activeState)
@@ -1529,6 +1566,7 @@ class MainActivity : AppCompatActivity() {
     // =========================================================================
     private fun showTaskDetailBottomSheet(existingTask: Task?) {
         val dialog = BottomSheetDialog(this)
+        dialog.setupRoundedBottomSheet()
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_task_detail, null)
         dialog.setContentView(view)
 
@@ -1743,6 +1781,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 existingTask.status = selectedStatus
                 existingTask.dueDate = selectedDueDate
+                existingTask.remainderDate = selectedDueDate
                 existingTask.minimumTimeRequired = edtMinTime.text.toString().ifBlank { "0d 1h 0m" }
                 existingTask.taskTypes = selectedTypes
                 existingTask.comment = edtComment.text.toString()
@@ -1784,6 +1823,7 @@ class MainActivity : AppCompatActivity() {
     // =========================================================================
     private fun showAiNaturalLanguageBottomSheet(initialPrompt: String = "") {
         val dialog = BottomSheetDialog(this)
+        dialog.setupRoundedBottomSheet()
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_ai_task, null)
         dialog.setContentView(view)
 
@@ -1805,16 +1845,13 @@ class MainActivity : AppCompatActivity() {
 
         val layoutLoading = view.findViewById<LinearLayout>(R.id.layoutAiLoading)
         val layoutResult = view.findViewById<LinearLayout>(R.id.layoutAiParsedResult)
-        val txtTitle = view.findViewById<TextView>(R.id.txtAiParsedTitle)
-        val txtQuadrant = view.findViewById<TextView>(R.id.txtAiParsedQuadrant)
-        val txtPriority = view.findViewById<TextView>(R.id.txtAiParsedPriority)
-        val txtMinTime = view.findViewById<TextView>(R.id.txtAiParsedMinTime)
-        val txtDetails = view.findViewById<TextView>(R.id.txtAiParsedDetails)
-        val txtSubtasksCount = view.findViewById<TextView>(R.id.txtAiSubtasksCount)
+        val txtResultHeader = view.findViewById<TextView>(R.id.txtAiResultHeader)
+        val containerTasksList = view.findViewById<LinearLayout>(R.id.containerAiTasksList)
 
         val layoutActions = view.findViewById<LinearLayout>(R.id.layoutAiActions)
         val btnDone = view.findViewById<Button>(R.id.btnDoneAiTask)
         val btnEdit = view.findViewById<Button>(R.id.btnEditAiTask)
+        val chipSampleMultiTask = view.findViewById<TextView>(R.id.chipSampleMultiTask)
 
         var lastCreatedTask: Task? = null
 
@@ -1863,7 +1900,7 @@ class MainActivity : AppCompatActivity() {
                 btnVoiceInput.isEnabled = true
                 layoutLoading.visibility = View.GONE
 
-                if (!parseResult.success || parseResult.task == null) {
+                if (!parseResult.success || parseResult.taskGroups.isEmpty()) {
                     // STRICT REQUIREMENT: DO NOT CREATE ANY TASK WHEN LLM FAILS
                     val errorText = parseResult.error ?: "Gemini LLM extraction failed. No task created."
                     Toast.makeText(this@MainActivity, "❌ $errorText", Toast.LENGTH_LONG).show()
@@ -1872,42 +1909,135 @@ class MainActivity : AppCompatActivity() {
                     return@parseTask
                 }
 
-                val task = parseResult.task
-                lastCreatedTask = task
+                // AUTOMATICALLY CREATE ALL TASKS AND THEIR SUBTASKS IN REPOSITORY
+                var totalTasksCount = 0
+                var totalSubtasksCount = 0
 
-                // AUTOMATICALLY CREATE TASK AND ALL SUBTASKS IN REPOSITORY ONLY ON SUCCESSFUL LLM EXTRACTION
-                repository.addTask(task)
-                TaskAlarmScheduler.scheduleTaskAlarms(this@MainActivity, task)
-                for (subtask in parseResult.subtasks) {
-                    repository.addTask(subtask)
-                    TaskAlarmScheduler.scheduleTaskAlarms(this@MainActivity, subtask)
+                for (group in parseResult.taskGroups) {
+                    val parentTask = group.task
+                    repository.addTask(parentTask)
+                    TaskAlarmScheduler.scheduleTaskAlarms(this@MainActivity, parentTask)
+                    totalTasksCount++
+
+                    for (subtask in group.subtasks) {
+                        repository.addTask(subtask)
+                        TaskAlarmScheduler.scheduleTaskAlarms(this@MainActivity, subtask)
+                        totalSubtasksCount++
+                    }
                 }
+
+                lastCreatedTask = parseResult.taskGroups.firstOrNull()?.task
 
                 // Instantly refresh all views (Today view, Tasks view, Timeline Gantt, Sessions)
                 refreshData()
 
-                // Display created task details in preview card
-                val qRes = NotionFormulas.calculateQuadrant(task)
-                txtTitle.text = task.title
-                txtQuadrant.text = "Q${qRes.qNumber} · ${qRes.action}"
-                txtPriority.text = task.priority.name
-                txtMinTime.text = task.minimumTimeRequired
+                // Populate Dynamic Task Cards in containerTasksList
+                containerTasksList.removeAllViews()
 
-                val dueDate = task.dueDate ?: System.currentTimeMillis()
-                val sdf = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
-                txtDetails.text = "Due: ${sdf.format(Date(dueDate))} | Types: ${task.taskTypes.joinToString { it.displayName }}"
-
-                if (parseResult.subtasks.isNotEmpty()) {
-                    txtSubtasksCount.visibility = View.VISIBLE
-                    txtSubtasksCount.text = "✓ ${parseResult.subtasks.size} subtasks automatically created"
+                val headerText = if (totalTasksCount == 1 && totalSubtasksCount == 0) {
+                    "AUTOMATICALLY CREATED & SAVED"
+                } else if (totalTasksCount == 1) {
+                    "1 TASK & $totalSubtasksCount SUBTASKS CREATED & SAVED"
+                } else if (totalSubtasksCount > 0) {
+                    "$totalTasksCount TASKS & $totalSubtasksCount SUBTASKS CREATED & SAVED"
                 } else {
-                    txtSubtasksCount.visibility = View.GONE
+                    "$totalTasksCount TASKS CREATED & SAVED"
+                }
+                txtResultHeader.text = headerText
+
+                val sdf = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
+                val inflater = LayoutInflater.from(this@MainActivity)
+
+                for (group in parseResult.taskGroups) {
+                    val task = group.task
+                    val taskView = inflater.inflate(R.layout.item_ai_parsed_task, containerTasksList, false)
+
+                    val txtItemTitle = taskView.findViewById<TextView>(R.id.txtItemAiTitle)
+                    val txtItemQuadrant = taskView.findViewById<TextView>(R.id.txtItemAiQuadrant)
+                    val txtItemPriority = taskView.findViewById<TextView>(R.id.txtItemAiPriority)
+                    val txtItemMinTime = taskView.findViewById<TextView>(R.id.txtItemAiMinTime)
+                    val txtItemDetails = taskView.findViewById<TextView>(R.id.txtItemAiDetails)
+                    val containerSubtasks = taskView.findViewById<LinearLayout>(R.id.containerItemAiSubtasks)
+                    val txtSubtasksHeader = taskView.findViewById<TextView>(R.id.txtItemAiSubtasksHeader)
+                    val layoutSubtaskList = taskView.findViewById<LinearLayout>(R.id.layoutItemAiSubtaskList)
+
+                    val qRes = NotionFormulas.calculateQuadrant(task)
+                    txtItemTitle.text = task.title
+                    txtItemQuadrant.text = "Q${qRes.qNumber} · ${qRes.action}"
+                    txtItemPriority.text = task.priority.name
+                    txtItemMinTime.text = task.minimumTimeRequired
+
+                    val dueDate = task.dueDate ?: System.currentTimeMillis()
+                    txtItemDetails.text = "Due: ${sdf.format(Date(dueDate))} | Types: ${task.taskTypes.joinToString { it.displayName }}"
+
+                    if (group.subtasks.isNotEmpty()) {
+                        containerSubtasks.visibility = View.VISIBLE
+                        txtSubtasksHeader.text = "↳ ${group.subtasks.size} subtasks:"
+                        layoutSubtaskList.removeAllViews()
+
+                        for (subtask in group.subtasks) {
+                            val subRow = LinearLayout(this@MainActivity).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                setPadding(0, 4, 0, 4)
+                            }
+                            val subBullet = TextView(this@MainActivity).apply {
+                                text = "• "
+                                setTextColor(Color.parseColor("#4F46E5"))
+                                textSize = 12f
+                            }
+                            val subTitle = TextView(this@MainActivity).apply {
+                                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                                text = subtask.title
+                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.color_carbon))
+                                textSize = 12.5f
+                            }
+                            val subTime = TextView(this@MainActivity).apply {
+                                text = subtask.minimumTimeRequired
+                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.color_steel))
+                                textSize = 11f
+                            }
+                            subRow.addView(subBullet)
+                            subRow.addView(subTitle)
+                            subRow.addView(subTime)
+                            layoutSubtaskList.addView(subRow)
+                        }
+                    } else {
+                        containerSubtasks.visibility = View.GONE
+                    }
+
+                    // Tapping a task card opens its detail sheet
+                    taskView.setOnClickListener {
+                        dialog.dismiss()
+                        showTaskDetailBottomSheet(task)
+                    }
+
+                    containerTasksList.addView(taskView)
+                }
+
+                // Setup action buttons based on task count
+                if (totalTasksCount > 1) {
+                    btnEdit.text = "View in Tasks ($totalTasksCount)"
+                    btnEdit.setOnClickListener {
+                        dialog.dismiss()
+                        selectTab(AppNavTab.TASKS)
+                    }
+                } else {
+                    btnEdit.text = "Edit Details"
+                    btnEdit.setOnClickListener {
+                        dialog.dismiss()
+                        lastCreatedTask?.let { showTaskDetailBottomSheet(it) }
+                    }
                 }
 
                 layoutResult.visibility = View.VISIBLE
                 layoutActions.visibility = View.VISIBLE
 
-                Toast.makeText(this@MainActivity, "✨ Task '${task.title}' created via Gemini AI!", Toast.LENGTH_SHORT).show()
+                val toastMsg = if (totalTasksCount == 1) {
+                    "✨ Task '${lastCreatedTask?.title}' created via Gemini AI!"
+                } else {
+                    "✨ Created $totalTasksCount tasks ($totalSubtasksCount subtasks) via Gemini AI!"
+                }
+                Toast.makeText(this@MainActivity, toastMsg, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -1941,6 +2071,12 @@ class MainActivity : AppCompatActivity() {
             parseAndCreateAutomatically(prompt)
         }
 
+        chipSampleMultiTask.setOnClickListener {
+            val prompt = "1. Physics quiz Friday 6pm with subtasks Review lecture and Solve 5 exercises. 2. Buy groceries tonight 8pm."
+            edtInput.setText(prompt)
+            parseAndCreateAutomatically(prompt)
+        }
+
         btnDone.setOnClickListener {
             dialog.dismiss()
         }
@@ -1965,6 +2101,7 @@ class MainActivity : AppCompatActivity() {
     // =========================================================================
     private fun showSettingsBottomSheet() {
         val dialog = BottomSheetDialog(this)
+        dialog.setupRoundedBottomSheet()
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_settings, null)
         dialog.setContentView(view)
 
@@ -2032,6 +2169,7 @@ class MainActivity : AppCompatActivity() {
                 delegate.localNightMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
                 settings.applyTheme(AppSettingsManager.THEME_LIGHT, this)
                 updateThemeSelectorUi(AppSettingsManager.THEME_LIGHT)
+                updateAppLogoForTheme()
                 Toast.makeText(this, "Light theme activated", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }
@@ -2043,6 +2181,7 @@ class MainActivity : AppCompatActivity() {
                 delegate.localNightMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
                 settings.applyTheme(AppSettingsManager.THEME_DARK, this)
                 updateThemeSelectorUi(AppSettingsManager.THEME_DARK)
+                updateAppLogoForTheme()
                 Toast.makeText(this, "Dark theme activated", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }
@@ -2054,6 +2193,7 @@ class MainActivity : AppCompatActivity() {
                 delegate.localNightMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 settings.applyTheme(AppSettingsManager.THEME_SYSTEM, this)
                 updateThemeSelectorUi(AppSettingsManager.THEME_SYSTEM)
+                updateAppLogoForTheme()
                 Toast.makeText(this, "Following system default theme", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }
@@ -2464,6 +2604,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val dialog = BottomSheetDialog(this)
+        dialog.setupRoundedBottomSheet()
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_import_tasks_selection, null)
         dialog.setContentView(view)
 
@@ -2575,6 +2716,7 @@ class MainActivity : AppCompatActivity() {
     // =========================================================================
     private fun showTimesheetsBottomSheet() {
         val dialog = BottomSheetDialog(this)
+        dialog.setupRoundedBottomSheet()
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_timesheets, null)
         dialog.setContentView(view)
 
@@ -2596,7 +2738,9 @@ class MainActivity : AppCompatActivity() {
         val allTasks = repository.getAllTasks()
         val taskTitles = mutableListOf("No linked task (Independent)")
         taskTitles.addAll(allTasks.map { it.title })
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, taskTitles)
+        val spinnerAdapter = ArrayAdapter(this, R.layout.item_spinner_selected, taskTitles).apply {
+            setDropDownViewResource(R.layout.item_spinner_dropdown)
+        }
         spinnerTask.adapter = spinnerAdapter
 
         // History adapter
@@ -2659,6 +2803,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun updateAppLogoForTheme() {
+        val settings = AppSettingsManager.getInstance(this)
+        val isDark = when (settings.themeMode) {
+            AppSettingsManager.THEME_DARK -> true
+            AppSettingsManager.THEME_LIGHT -> false
+            else -> {
+                val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+            }
+        }
+        imgAppLogo?.setImageResource(if (isDark) R.drawable.r_logo else R.drawable.logo)
+    }
+
+    private fun BottomSheetDialog.setupRoundedBottomSheet() {
+        setOnShowListener {
+            val bottomSheet = findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundResource(android.R.color.transparent)
+        }
     }
 
     // Inner Subtask Adapter

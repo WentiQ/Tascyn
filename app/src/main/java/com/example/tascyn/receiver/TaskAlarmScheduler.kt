@@ -31,6 +31,7 @@ object TaskAlarmScheduler {
     const val EXTRA_ALARM_TYPE = "extra_alarm_type"
     const val EXTRA_ALERT_MESSAGE = "extra_alert_message"
     const val EXTRA_DUE_DATE = "extra_due_date"
+    const val EXTRA_IS_AUTO_SNOOZE = "extra_is_auto_snooze"
 
     fun createNotificationChannels(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -171,7 +172,8 @@ object TaskAlarmScheduler {
         taskTitle: String,
         triggerAtMillis: Long,
         message: String,
-        dueDate: Long? = null
+        dueDate: Long? = null,
+        isAutoSnooze: Boolean = false
     ) {
         createNotificationChannels(context)
         scheduleAlarmIntent(
@@ -182,7 +184,8 @@ object TaskAlarmScheduler {
             triggerAtMillis = triggerAtMillis,
             requestCode = getRequestCode(taskId, 5),
             message = message,
-            dueDate = dueDate ?: triggerAtMillis
+            dueDate = dueDate ?: triggerAtMillis,
+            isAutoSnooze = isAutoSnooze
         )
     }
 
@@ -194,7 +197,8 @@ object TaskAlarmScheduler {
         triggerAtMillis: Long,
         requestCode: Int,
         message: String,
-        dueDate: Long
+        dueDate: Long,
+        isAutoSnooze: Boolean = false
     ) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
 
@@ -205,6 +209,7 @@ object TaskAlarmScheduler {
             putExtra(EXTRA_ALARM_TYPE, action)
             putExtra(EXTRA_ALERT_MESSAGE, message)
             putExtra(EXTRA_DUE_DATE, dueDate)
+            putExtra(EXTRA_IS_AUTO_SNOOZE, isAutoSnooze)
         }
 
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -225,6 +230,7 @@ object TaskAlarmScheduler {
                         putExtra(EXTRA_ALARM_TYPE, action)
                         putExtra(EXTRA_ALERT_MESSAGE, message)
                         putExtra(EXTRA_DUE_DATE, dueDate)
+                        putExtra(EXTRA_IS_AUTO_SNOOZE, isAutoSnooze)
                     }
                 }
                 val showPendingIntent = PendingIntent.getActivity(context, requestCode + 1000, showIntent, flags)

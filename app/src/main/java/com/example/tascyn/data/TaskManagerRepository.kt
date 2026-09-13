@@ -525,7 +525,7 @@ class TaskManagerRepository private constructor(context: Context?) {
     // Filter by Notion Views
     @Synchronized
     fun getTasksForView(view: NotionView, now: Long = System.currentTimeMillis()): List<Task> {
-        val all = tasks.toList()
+        val all = tasks.filter { it.parentTaskId == null }
 
         return when (view) {
             NotionView.PENDING -> {
@@ -546,10 +546,10 @@ class TaskManagerRepository private constructor(context: Context?) {
                     val inStatus = task.status == TaskStatus.NOT_STARTED ||
                                    task.status == TaskStatus.IN_PROGRESS ||
                                    task.status == TaskStatus.PROCRASTINATED
-                    val inToday = task.remainderDate != null &&
-                                  task.remainderDate!! in todayStart..todayEnd
+                    val taskDate = task.dueDate ?: task.remainderDate
+                    val inToday = taskDate != null && taskDate <= todayEnd
                     inStatus && inToday
-                }.sortedBy { it.remainderDate ?: Long.MAX_VALUE }
+                }.sortedBy { it.dueDate ?: it.remainderDate ?: Long.MAX_VALUE }
             }
 
             NotionView.TOMORROW -> {
@@ -559,10 +559,10 @@ class TaskManagerRepository private constructor(context: Context?) {
                     val inStatus = task.status == TaskStatus.NOT_STARTED ||
                                    task.status == TaskStatus.IN_PROGRESS ||
                                    task.status == TaskStatus.PROCRASTINATED
-                    val inTomorrow = task.remainderDate != null &&
-                                     task.remainderDate!! in tomorrowStart..tomorrowEnd
+                    val taskDate = task.dueDate ?: task.remainderDate
+                    val inTomorrow = taskDate != null && taskDate in tomorrowStart..tomorrowEnd
                     inStatus && inTomorrow
-                }.sortedBy { it.remainderDate ?: Long.MAX_VALUE }
+                }.sortedBy { it.dueDate ?: it.remainderDate ?: Long.MAX_VALUE }
             }
 
             NotionView.THIS_WEEK -> {
@@ -572,10 +572,10 @@ class TaskManagerRepository private constructor(context: Context?) {
                     val inStatus = task.status == TaskStatus.NOT_STARTED ||
                                    task.status == TaskStatus.IN_PROGRESS ||
                                    task.status == TaskStatus.PROCRASTINATED
-                    val inWeek = task.remainderDate != null &&
-                                 task.remainderDate!! in weekStart..weekEnd
+                    val taskDate = task.dueDate ?: task.remainderDate
+                    val inWeek = taskDate != null && taskDate <= weekEnd
                     inStatus && inWeek
-                }.sortedBy { it.remainderDate ?: Long.MAX_VALUE }
+                }.sortedBy { it.dueDate ?: it.remainderDate ?: Long.MAX_VALUE }
             }
 
             NotionView.ACADEMIC -> {
@@ -599,14 +599,14 @@ class TaskManagerRepository private constructor(context: Context?) {
                 all.filter {
                     it.status == TaskStatus.DONE || it.status == TaskStatus.LEFT
                 }.sortedByDescending {
-                    it.completedAt ?: it.remainderDate ?: it.createdAt
+                    it.completedAt ?: it.dueDate ?: it.remainderDate ?: it.createdAt
                 }.take(MAX_COMPLETED_TASKS)
             }
 
             NotionView.TIMELINE -> {
                 all.filter {
                     it.status != TaskStatus.DONE
-                }.sortedBy { it.remainderDate ?: it.dueDate ?: Long.MAX_VALUE }
+                }.sortedBy { it.dueDate ?: it.remainderDate ?: Long.MAX_VALUE }
             }
 
             NotionView.TIMESHEETS -> {

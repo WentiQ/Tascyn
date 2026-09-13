@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet"
+    android:outlineProvider="background"
+    android:clipToOutline="true"
     android:padding="20dp">
 
     <LinearLayout
@@ -932,7 +934,7 @@
             android:layout_marginBottom="16dp"
             android:gravity="center"
             android:fontFamily="sans-serif"
-            android:text="Tascyn v1.0 · Notion Task Manager Engine"
+            android:text="Tascyn v1.0"
             android:textColor="@color/color_text_tertiary"
             android:textSize="11.5sp" />
 

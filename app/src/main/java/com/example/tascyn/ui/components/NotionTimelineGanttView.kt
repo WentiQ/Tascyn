@@ -1,6 +1,7 @@
 package com.example.tascyn.ui.components
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.*
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -21,6 +22,11 @@ class NotionTimelineGanttView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
+    private fun isDarkMode(): Boolean {
+        val nightModeFlags = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+    }
 
     private val density = resources.displayMetrics.density
     private fun dp(v: Float): Float = v * density
@@ -59,7 +65,10 @@ class NotionTimelineGanttView @JvmOverloads constructor(
     private val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
     private val dayOfWeekFormat = SimpleDateFormat("EEE", Locale.getDefault())
 
-    // Header & Grid Paints
+    // Base Canvas & Grid Paints
+    private val canvasBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
     private val headerBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#FFFFFF")
         style = Paint.Style.FILL
@@ -163,16 +172,17 @@ class NotionTimelineGanttView @JvmOverloads constructor(
     }
 
     fun updateThemeColors() {
+        canvasBgPaint.color = ContextCompat.getColor(context, R.color.color_canvas)
         headerBgPaint.color = ContextCompat.getColor(context, R.color.color_canvas)
         gridLinePaint.color = ContextCompat.getColor(context, R.color.color_timeline_grid)
         weekendPaint.color = ContextCompat.getColor(context, R.color.color_timeline_weekend)
         todayColumnPaint.color = ContextCompat.getColor(context, R.color.color_timeline_today)
         todayPillPaint.color = ContextCompat.getColor(context, R.color.color_accent)
         textHeaderDayNamePaint.color = ContextCompat.getColor(context, R.color.color_text_tertiary)
-        textHeaderDayNumberPaint.color = ContextCompat.getColor(context, R.color.color_text_secondary)
+        textHeaderDayNumberPaint.color = ContextCompat.getColor(context, R.color.color_text_primary)
         textHeaderTodayDayPaint.color = Color.WHITE
         textHeaderTodayLabelPaint.color = ContextCompat.getColor(context, R.color.color_accent)
-        cardBgPaint.color = ContextCompat.getColor(context, R.color.color_card_bg)
+        cardBgPaint.color = ContextCompat.getColor(context, R.color.color_timeline_card_bg)
         cardBorderPaint.color = ContextCompat.getColor(context, R.color.color_card_border)
         taskTitlePaint.color = ContextCompat.getColor(context, R.color.color_text_primary)
         reminderTimePaint.color = ContextCompat.getColor(context, R.color.color_accent)
@@ -316,6 +326,9 @@ class NotionTimelineGanttView @JvmOverloads constructor(
         val visibleLeft = if (viewportWidth > 0) max(leftGutterWidth, viewportScrollX.toFloat()) else leftGutterWidth
         val visibleRight = if (viewportWidth > 0) (viewportScrollX + viewportWidth).toFloat() else totalWidth
 
+        // 0. Base Canvas Fill (pure black in dark mode)
+        canvas.drawRect(0f, 0f, totalWidth, height.toFloat(), canvasBgPaint)
+
         // 1. Draw Columns & Weekend / Today Stripes
         val tempCal = Calendar.getInstance()
         tempCal.timeInMillis = startCalendar.timeInMillis
@@ -427,15 +440,20 @@ class NotionTimelineGanttView @JvmOverloads constructor(
                 // Urgency theme for the off-screen highlight
                 val qResult = NotionFormulas.calculateQuadrant(task)
                 val tlResult = NotionFormulas.calculateTimeLeft(task)
+                val isDark = isDarkMode()
                 val (accentColor, badgeBgColor, badgeTextColor) = when {
                     task.isCompleted ->
-                        Triple("#9CA3AF", "#F3F4F6", "#6B7280")
+                        if (isDark) Triple("#71717A", "#1F2026", "#9CA3AF")
+                        else Triple("#9CA3AF", "#F3F4F6", "#6B7280")
                     reminderInfo.milestoneType == NotionFormulas.MilestoneType.OVERDUE || tlResult.urgencyLevel == UrgencyLevel.OVERDUE || reminderInfo.milestoneType == NotionFormulas.MilestoneType.URGENT || tlResult.urgencyLevel == UrgencyLevel.URGENT || qResult.qNumber in 1..15 ->
-                        Triple("#EF4444", "#FEE2E2", "#DC2626")
+                        if (isDark) Triple("#EF4444", "#3B1818", "#F87171")
+                        else Triple("#EF4444", "#FEE2E2", "#DC2626")
                     reminderInfo.milestoneType == NotionFormulas.MilestoneType.ATTENTION || qResult.qNumber in 16..45 ->
-                        Triple("#F59E0B", "#FEF3C7", "#D97706")
+                        if (isDark) Triple("#F59E0B", "#3A200A", "#FBBF24")
+                        else Triple("#F59E0B", "#FEF3C7", "#D97706")
                     else ->
-                        Triple("#4F46E5", "#EEF2FF", "#4F46E5")
+                        if (isDark) Triple("#818CF8", "#1E1B4B", "#A5B4FC")
+                        else Triple("#4F46E5", "#EEF2FF", "#4F46E5")
                 }
 
                 val indBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -474,15 +492,20 @@ class NotionTimelineGanttView @JvmOverloads constructor(
                 // Urgency theme for the off-screen highlight
                 val qResult = NotionFormulas.calculateQuadrant(task)
                 val tlResult = NotionFormulas.calculateTimeLeft(task)
+                val isDark = isDarkMode()
                 val (accentColor, badgeBgColor, badgeTextColor) = when {
                     task.isCompleted ->
-                        Triple("#9CA3AF", "#F3F4F6", "#6B7280")
+                        if (isDark) Triple("#71717A", "#1F2026", "#9CA3AF")
+                        else Triple("#9CA3AF", "#F3F4F6", "#6B7280")
                     reminderInfo.milestoneType == NotionFormulas.MilestoneType.OVERDUE || tlResult.urgencyLevel == UrgencyLevel.OVERDUE || reminderInfo.milestoneType == NotionFormulas.MilestoneType.URGENT || tlResult.urgencyLevel == UrgencyLevel.URGENT || qResult.qNumber in 1..15 ->
-                        Triple("#EF4444", "#FEE2E2", "#DC2626")
+                        if (isDark) Triple("#EF4444", "#3B1818", "#F87171")
+                        else Triple("#EF4444", "#FEE2E2", "#DC2626")
                     reminderInfo.milestoneType == NotionFormulas.MilestoneType.ATTENTION || qResult.qNumber in 16..45 ->
-                        Triple("#F59E0B", "#FEF3C7", "#D97706")
+                        if (isDark) Triple("#F59E0B", "#3A200A", "#FBBF24")
+                        else Triple("#F59E0B", "#FEF3C7", "#D97706")
                     else ->
-                        Triple("#4F46E5", "#EEF2FF", "#4F46E5")
+                        if (isDark) Triple("#818CF8", "#1E1B4B", "#A5B4FC")
+                        else Triple("#4F46E5", "#EEF2FF", "#4F46E5")
                 }
 
                 val indBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -519,25 +542,32 @@ class NotionTimelineGanttView @JvmOverloads constructor(
                 // Quadrant and Urgency Metrics
                 val qResult = NotionFormulas.calculateQuadrant(task)
                 val tlResult = NotionFormulas.calculateTimeLeft(task)
+                val isDark = isDarkMode()
 
                 val (accentColor, badgeBgColor, badgeTextColor, badgeLabel) = when {
                     task.isCompleted ->
-                        QuadTheme("#9CA3AF", "#F3F4F6", "#6B7280", "Done")
+                        if (isDark) QuadTheme("#71717A", "#1F2026", "#9CA3AF", "Done")
+                        else QuadTheme("#9CA3AF", "#F3F4F6", "#6B7280", "Done")
                     reminderInfo.milestoneType == NotionFormulas.MilestoneType.OVERDUE || tlResult.urgencyLevel == UrgencyLevel.OVERDUE ->
-                        QuadTheme("#EF4444", "#FEE2E2", "#DC2626", "Overdue")
+                        if (isDark) QuadTheme("#EF4444", "#3B1818", "#F87171", "Overdue")
+                        else QuadTheme("#EF4444", "#FEE2E2", "#DC2626", "Overdue")
                     reminderInfo.milestoneType == NotionFormulas.MilestoneType.URGENT || tlResult.urgencyLevel == UrgencyLevel.URGENT || qResult.qNumber in 1..15 ->
-                        QuadTheme("#EF4444", "#FEE2E2", "#DC2626", if (qResult.isValid) "Q${qResult.qNumber} · Urgent" else "Urgent")
+                        if (isDark) QuadTheme("#EF4444", "#3B1818", "#F87171", if (qResult.isValid) "Q${qResult.qNumber} · Urgent" else "Urgent")
+                        else QuadTheme("#EF4444", "#FEE2E2", "#DC2626", if (qResult.isValid) "Q${qResult.qNumber} · Urgent" else "Urgent")
                     reminderInfo.milestoneType == NotionFormulas.MilestoneType.ATTENTION || tlResult.urgencyLevel == UrgencyLevel.ATTENTION_NEEDED || qResult.qNumber in 16..45 ->
-                        QuadTheme("#F59E0B", "#FEF3C7", "#D97706", if (qResult.isValid) "Q${qResult.qNumber} · Attention" else "Attention")
+                        if (isDark) QuadTheme("#F59E0B", "#3A200A", "#FBBF24", if (qResult.isValid) "Q${qResult.qNumber} · Attention" else "Attention")
+                        else QuadTheme("#F59E0B", "#FEF3C7", "#D97706", if (qResult.isValid) "Q${qResult.qNumber} · Attention" else "Attention")
                     reminderInfo.milestoneType == NotionFormulas.MilestoneType.CUSTOM_REMINDER ->
-                        QuadTheme("#6366F1", "#EEF2FF", "#4F46E5", "Reminder")
+                        if (isDark) QuadTheme("#818CF8", "#1E1B4B", "#A5B4FC", "Reminder")
+                        else QuadTheme("#6366F1", "#EEF2FF", "#4F46E5", "Reminder")
                     else ->
-                        QuadTheme("#10B981", "#D1FAE5", "#059669", if (qResult.isValid) "Q${qResult.qNumber} · On Track" else "On Track")
+                        if (isDark) QuadTheme("#10B981", "#064E3B", "#34D399", if (qResult.isValid) "Q${qResult.qNumber} · On Track" else "On Track")
+                        else QuadTheme("#10B981", "#D1FAE5", "#059669", if (qResult.isValid) "Q${qResult.qNumber} · On Track" else "On Track")
                 }
 
                 // Draw Card Body
                 canvas.drawRoundRect(rect, barCorner, barCorner, cardBgPaint)
-                cardBorderPaint.color = Color.parseColor(if (task.isCompleted) "#E5E7EB" else "#E2E8F0")
+                cardBorderPaint.color = if (task.isCompleted) ContextCompat.getColor(context, R.color.color_divider) else ContextCompat.getColor(context, R.color.color_card_border)
                 canvas.drawRoundRect(rect, barCorner, barCorner, cardBorderPaint)
 
                 // Draw Left Color Accent Strip (5dp width)
@@ -565,7 +595,7 @@ class NotionTimelineGanttView @JvmOverloads constructor(
                 }
 
                 // Draw Remainder Time
-                reminderTimePaint.color = if (task.isCompleted) Color.parseColor("#9CA3AF") else Color.parseColor(accentColor)
+                reminderTimePaint.color = if (task.isCompleted) ContextCompat.getColor(context, R.color.color_text_tertiary) else Color.parseColor(accentColor)
                 val remainderX = barLeft + dp(10f)
                 val remainderY = topY + dp(16f)
                 canvas.drawText(remainderStr, remainderX, remainderY, reminderTimePaint)
@@ -591,7 +621,7 @@ class NotionTimelineGanttView @JvmOverloads constructor(
                 canvas.drawText(badgeLabel, badgeLeft + dp(6f), badgeTop + dp(11.5f), badgeTextPaint)
 
                 // Draw Task Title
-                taskTitlePaint.color = if (task.isCompleted) Color.parseColor("#9CA3AF") else Color.parseColor("#111827")
+                taskTitlePaint.color = if (task.isCompleted) ContextCompat.getColor(context, R.color.color_text_tertiary) else ContextCompat.getColor(context, R.color.color_text_primary)
                 if (task.isCompleted) {
                     taskTitlePaint.flags = taskTitlePaint.flags or Paint.STRIKE_THRU_TEXT_FLAG
                 } else {
