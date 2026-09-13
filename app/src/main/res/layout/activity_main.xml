@@ -644,84 +644,27 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <!-- Notion Top Navigation Header Bar -->
+                <!-- Timeline Page Header (Matching Tasks & Work Session pages) -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="14dp">
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="4dp">
 
-                    <!-- Back Chevron -->
-                    <ImageView
-                        android:id="@+id/btnTimelineBack"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:src="@drawable/ic_chevron_left"
-                        app:tint="#0E0E10" />
-
-                    <!-- Title & Subtitle column -->
-                    <LinearLayout
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Task Manager"
-                            android:textColor="#0E0E10"
-                            android:textSize="15.5sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif"
-                            android:text="Private"
-                            android:textColor="#6B7280"
-                            android:textSize="11.5sp" />
-                    </LinearLayout>
-
-                    <!-- Share Icon -->
-                    <ImageView
-                        android:id="@+id/btnTimelineShare"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:src="@drawable/ic_share_precision"
-                        app:tint="#0E0E10" />
-
-                    <!-- More Options -->
-                    <TextView
-                        android:id="@+id/btnTimelineMore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:fontFamily="sans-serif-bold"
-                        android:padding="4dp"
-                        android:text="···"
+                        android:fontFamily="sans-serif-black"
+                        android:text="Timeline"
                         android:textColor="#0E0E10"
-                        android:textSize="20sp" />
-                </LinearLayout>
+                        android:textSize="29sp"
+                        android:textStyle="bold" />
 
-                <!-- Database View Selector Toolbar -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="14dp">
-
-                    <!-- Pending Tasks timeline pill dropdown -->
+                    <!-- Database View Selector Toolbar -->
                     <LinearLayout
                         android:id="@+id/btnTimelineViewSelector"
                         android:layout_width="wrap_content"
@@ -755,66 +698,6 @@
                             android:layout_marginStart="6dp"
                             android:src="@drawable/ic_chevron_down"
                             app:tint="#6B7280" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-
-                    <!-- Search Icon -->
-                    <ImageView
-                        android:id="@+id/btnTimelineSearch"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginEnd="12dp"
-                        android:src="@drawable/ic_search_precision"
-                        app:tint="#4B5563" />
-
-                    <!-- Filter Icon -->
-                    <ImageView
-                        android:id="@+id/btnTimelineFilter"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginEnd="12dp"
-                        android:src="@drawable/ic_filter_precision"
-                        app:tint="#4B5563" />
-
-                    <!-- Sort Icon -->
-                    <ImageView
-                        android:id="@+id/btnTimelineSort"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginEnd="12dp"
-                        android:src="@drawable/ic_sort_precision"
-                        app:tint="#4B5563" />
-
-                    <!-- Blue Notion + New Button -->
-                    <LinearLayout
-                        android:id="@+id/btnTimelineNewTask"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:background="@drawable/bg_notion_btn_blue"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="+"
-                            android:textColor="#FFFFFF"
-                            android:textSize="16sp" />
-
-                        <ImageView
-                            android:layout_width="10dp"
-                            android:layout_height="10dp"
-                            android:layout_marginStart="6dp"
-                            android:src="@drawable/ic_chevron_down"
-                            app:tint="#FFFFFF" />
                     </LinearLayout>
                 </LinearLayout>
 

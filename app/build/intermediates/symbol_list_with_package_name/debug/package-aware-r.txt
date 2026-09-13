@@ -2978,16 +2978,9 @@ id btnTestGeminiKey
 id btnThemeDark
 id btnThemeLight
 id btnThemeSystem
-id btnTimelineBack
-id btnTimelineFilter
 id btnTimelineGoToToday
-id btnTimelineMore
-id btnTimelineNewTask
 id btnTimelineNextMonth
 id btnTimelinePrevMonth
-id btnTimelineSearch
-id btnTimelineShare
-id btnTimelineSort
 id btnTimelineViewSelector
 id btnTimelineZoomGranularity
 id btnToggleApiKeyVisibility

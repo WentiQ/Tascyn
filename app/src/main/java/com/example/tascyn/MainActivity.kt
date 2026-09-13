@@ -209,15 +209,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnTimelinePrevMonth: ImageView
     private lateinit var btnTimelineNextMonth: ImageView
     private lateinit var btnTimelineGoToToday: TextView
-    private lateinit var btnTimelineNewTask: LinearLayout
     private lateinit var btnTimelineViewSelector: LinearLayout
     private lateinit var txtTimelineViewName: TextView
-    private lateinit var btnTimelineBack: ImageView
-    private lateinit var btnTimelineShare: ImageView
-    private lateinit var btnTimelineMore: TextView
-    private lateinit var btnTimelineSearch: ImageView
-    private lateinit var btnTimelineFilter: ImageView
-    private lateinit var btnTimelineSort: ImageView
     private lateinit var btnTimelineZoomGranularity: LinearLayout
     private lateinit var txtTimelineGranularity: TextView
 
@@ -477,15 +470,8 @@ class MainActivity : AppCompatActivity() {
         btnTimelinePrevMonth = findViewById(R.id.btnTimelinePrevMonth)
         btnTimelineNextMonth = findViewById(R.id.btnTimelineNextMonth)
         btnTimelineGoToToday = findViewById(R.id.btnTimelineGoToToday)
-        btnTimelineNewTask = findViewById(R.id.btnTimelineNewTask)
         btnTimelineViewSelector = findViewById(R.id.btnTimelineViewSelector)
         txtTimelineViewName = findViewById(R.id.txtTimelineViewName)
-        btnTimelineBack = findViewById(R.id.btnTimelineBack)
-        btnTimelineShare = findViewById(R.id.btnTimelineShare)
-        btnTimelineMore = findViewById(R.id.btnTimelineMore)
-        btnTimelineSearch = findViewById(R.id.btnTimelineSearch)
-        btnTimelineFilter = findViewById(R.id.btnTimelineFilter)
-        btnTimelineSort = findViewById(R.id.btnTimelineSort)
         btnTimelineZoomGranularity = findViewById(R.id.btnTimelineZoomGranularity)
         txtTimelineGranularity = findViewById(R.id.txtTimelineGranularity)
 
@@ -495,13 +481,6 @@ class MainActivity : AppCompatActivity() {
             viewNotionTimelineGantt.goToToday()
             scrollTimelineToToday()
         }
-        btnTimelineNewTask.setOnClickListener { showTaskDetailBottomSheet(null) }
-        btnTimelineBack.setOnClickListener { selectTab(AppNavTab.TODAY) }
-        btnTimelineShare.setOnClickListener { Toast.makeText(this, "Schedule exported", Toast.LENGTH_SHORT).show() }
-        btnTimelineMore.setOnClickListener { showTimelineOptionsMenu(it) }
-        btnTimelineSearch.setOnClickListener { selectTab(AppNavTab.TASKS) }
-        btnTimelineFilter.setOnClickListener { showTimelineFilterMenu(it) }
-        btnTimelineSort.setOnClickListener { showTimelineSortMenu(it) }
         btnTimelineViewSelector.setOnClickListener { showTimelineViewSelectorMenu(it) }
         btnTimelineZoomGranularity.setOnClickListener { showTimelineZoomMenu(it) }
 
@@ -1385,82 +1364,6 @@ class MainActivity : AppCompatActivity() {
             txtTimelineGranularity.text = level
             viewNotionTimelineGantt.setGranularity(level)
             scrollTimelineToToday()
-            true
-        }
-        popup.show()
-    }
-
-    private fun showTimelineFilterMenu(anchor: View) {
-        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
-        popup.menu.add("Filter by: All Categories")
-        popup.menu.add("Filter by: Academic")
-        popup.menu.add("Filter by: Assignment")
-        popup.menu.add("Filter by: Project")
-        popup.menu.add("Filter by: Personal")
-        popup.menu.add("Filter by: Urgent only")
-
-        popup.setOnMenuItemClickListener { item ->
-            val filterText = item.title.toString()
-            when {
-                filterText.contains("Academic") -> {
-                    val tasks = repository.getAllTasks().filter { it.taskTypes.contains(TaskType.ACADEMIC) }
-                    viewNotionTimelineGantt.setTasks(tasks)
-                }
-                filterText.contains("Assignment") -> {
-                    val tasks = repository.getAllTasks().filter { it.taskTypes.contains(TaskType.ASSIGNMENT) }
-                    viewNotionTimelineGantt.setTasks(tasks)
-                }
-                filterText.contains("Project") -> {
-                    val tasks = repository.getAllTasks().filter { it.taskTypes.contains(TaskType.PROJECT) }
-                    viewNotionTimelineGantt.setTasks(tasks)
-                }
-                filterText.contains("Personal") -> {
-                    val tasks = repository.getAllTasks().filter { it.taskTypes.contains(TaskType.PERSONAL) }
-                    viewNotionTimelineGantt.setTasks(tasks)
-                }
-                filterText.contains("Urgent") -> {
-                    val tasks = repository.getAllTasks().filter { NotionFormulas.calculateTimeLeft(it).urgencyLevel == UrgencyLevel.URGENT }
-                    viewNotionTimelineGantt.setTasks(tasks)
-                }
-                else -> refreshTimelinePageView()
-            }
-            Toast.makeText(this, filterText, Toast.LENGTH_SHORT).show()
-            true
-        }
-        popup.show()
-    }
-
-    private fun showTimelineSortMenu(anchor: View) {
-        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
-        popup.menu.add("Sort by: Due Date (Ascending)")
-        popup.menu.add("Sort by: Due Date (Descending)")
-        popup.menu.add("Sort by: Priority (High to Low)")
-        popup.menu.add("Sort by: Title A-Z")
-
-        popup.setOnMenuItemClickListener { item ->
-            val currentTasks = repository.getTasksForView(currentTimelineView).toMutableList()
-            when (item.title.toString()) {
-                "Sort by: Due Date (Ascending)" -> currentTasks.sortBy { it.dueDate ?: Long.MAX_VALUE }
-                "Sort by: Due Date (Descending)" -> currentTasks.sortByDescending { it.dueDate ?: 0L }
-                "Sort by: Priority (High to Low)" -> currentTasks.sortBy { it.priority.formulaIndex }
-                "Sort by: Title A-Z" -> currentTasks.sortBy { it.title.lowercase() }
-            }
-            viewNotionTimelineGantt.setTasks(currentTasks)
-            Toast.makeText(this, item.title, Toast.LENGTH_SHORT).show()
-            true
-        }
-        popup.show()
-    }
-
-    private fun showTimelineOptionsMenu(anchor: View) {
-        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
-        popup.menu.add("Layout options")
-        popup.menu.add("Timeline settings")
-        popup.menu.add("Export view")
-        popup.menu.add("Duplicate view")
-
-        popup.setOnMenuItemClickListener { item ->
-            Toast.makeText(this, item.title, Toast.LENGTH_SHORT).show()
             true
         }
         popup.show()
