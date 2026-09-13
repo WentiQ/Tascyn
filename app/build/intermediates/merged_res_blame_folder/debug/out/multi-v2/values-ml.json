@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.tascyn.app-mergeDebugResources-27:/values-ml/values-ml.xml",
+            "outputFile": "com.example.tascyn.app-mergeDebugResources-28:/values-ml/values-ml.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dines\\.gradle\\caches\\transforms-3\\76411c7520f0d995d1e8fc516856d8c3\\transformed\\core-1.8.0\\res\\values-ml\\values-ml.xml",

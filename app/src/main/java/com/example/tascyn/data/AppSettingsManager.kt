@@ -15,6 +15,12 @@ class AppSettingsManager(context: Context) {
         private const val KEY_NOTIFICATIONS = "notifications_enabled"
         private const val KEY_DEFAULT_SESSION_MIN = "default_session_minutes"
 
+        private const val KEY_THEME_MODE = "app_theme_mode"
+
+        const val THEME_SYSTEM = "system"
+        const val THEME_LIGHT = "light"
+        const val THEME_DARK = "dark"
+
         @Volatile
         private var instance: AppSettingsManager? = null
 
@@ -22,6 +28,36 @@ class AppSettingsManager(context: Context) {
             return instance ?: synchronized(this) {
                 instance ?: AppSettingsManager(context.applicationContext).also { instance = it }
             }
+        }
+    }
+
+    private val appContext: Context = context.applicationContext
+
+    var themeMode: String
+        get() = prefs.getString(KEY_THEME_MODE, THEME_SYSTEM) ?: THEME_SYSTEM
+        set(value) = prefs.edit().putString(KEY_THEME_MODE, value).apply()
+
+    fun applyTheme(mode: String = themeMode, context: Context? = null) {
+        val nightMode = when (mode) {
+            THEME_LIGHT -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+            THEME_DARK -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+            else -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(nightMode)
+
+        // Ensure MainActivity component is enabled without killing or closing the app
+        val targetCtx = context ?: appContext
+        try {
+            val pm = targetCtx.packageManager
+            val pkg = targetCtx.packageName
+            val mainComp = android.content.ComponentName(pkg, "$pkg.MainActivity")
+            pm.setComponentEnabledSetting(
+                mainComp,
+                android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                android.content.pm.PackageManager.DONT_KILL_APP
+            )
+        } catch (e: Exception) {
+            // ignore
         }
     }
 
@@ -38,8 +74,8 @@ class AppSettingsManager(context: Context) {
         set(value) = prefs.edit().putBoolean(KEY_IS_GOOGLE_SYNCED, value).apply()
 
     var selectedAiModel: String
-        get() = prefs.getString(KEY_AI_MODEL, "gemini-3.7-flash") ?: "gemini-3.7-flash"
-        set(value) = prefs.edit().putString(KEY_AI_MODEL, value).apply()
+        get() = prefs.getString(KEY_AI_MODEL, "gemini-2.5-flash") ?: "gemini-2.5-flash"
+        set(value) = prefs.edit().putString(KEY_AI_MODEL, value.trim()).apply()
 
     var notificationsEnabled: Boolean
         get() = prefs.getBoolean(KEY_NOTIFICATIONS, true)

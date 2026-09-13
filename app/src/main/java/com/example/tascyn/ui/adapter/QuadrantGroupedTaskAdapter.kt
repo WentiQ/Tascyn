@@ -75,9 +75,9 @@ class QuadrantGroupedTaskAdapter(
 
     inner class TaskCardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val layoutCardRoot: LinearLayout = itemView.findViewById(R.id.layoutTaskCardRoot)
-        private val imgTaskCheckbox: ImageView = itemView.findViewById(R.id.imgTaskCheckbox)
+        val viewTaskCheckbox: com.example.tascyn.ui.components.TaskCheckboxPulseView = itemView.findViewById(R.id.viewTaskCheckbox)
         private val viewStatusDot: View = itemView.findViewById(R.id.viewStatusDot)
-        private val txtTaskTitle: TextView = itemView.findViewById(R.id.txtTaskTitle)
+        val txtTaskTitle: TextView = itemView.findViewById(R.id.txtTaskTitle)
         private val btnStartTask: LinearLayout = itemView.findViewById(R.id.btnStartTask)
         private val txtStartPlayIcon: TextView = itemView.findViewById(R.id.txtStartPlayIcon)
         private val txtStartLabel: TextView = itemView.findViewById(R.id.txtStartLabel)
@@ -88,68 +88,72 @@ class QuadrantGroupedTaskAdapter(
             val category = taskItem.category
 
             txtTaskTitle.text = task.title
+            viewTaskCheckbox.setState(task)
 
             if (task.isCompleted) {
                 txtTaskTitle.paintFlags = txtTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 txtTaskTitle.setTextColor(Color.parseColor("#9CA3AF"))
-                imgTaskCheckbox.setImageResource(R.drawable.ic_precision_check)
-                imgTaskCheckbox.setColorFilter(Color.parseColor("#10B981"))
+                layoutCardRoot.setBackgroundResource(R.drawable.bg_task_next_card)
+                btnStartTask.visibility = View.GONE
+                txtTaskFormulaMetadata.visibility = View.GONE
+                viewStatusDot.visibility = View.GONE
             } else {
                 txtTaskTitle.paintFlags = txtTaskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-                txtTaskTitle.setTextColor(Color.parseColor("#0E0E10"))
-                imgTaskCheckbox.setImageResource(R.drawable.ic_precision_circle)
-                imgTaskCheckbox.setColorFilter(Color.parseColor("#9CA3AF"))
+                txtTaskTitle.setTextColor(androidx.core.content.ContextCompat.getColor(itemView.context, R.color.color_text_primary))
+                btnStartTask.visibility = View.VISIBLE
+                txtTaskFormulaMetadata.visibility = View.VISIBLE
+                viewStatusDot.visibility = View.VISIBLE
+
+                val qResult = NotionFormulas.calculateQuadrant(task)
+                val tlResult = NotionFormulas.calculateTimeLeft(task)
+
+                when (category) {
+                    TaskUrgencyCategory.NOW -> {
+                        layoutCardRoot.setBackgroundResource(R.drawable.bg_task_now_card)
+                        setDotColor("#EF4444")
+                        btnStartTask.setBackgroundResource(R.drawable.bg_btn_start_urgent)
+                        txtStartPlayIcon.setTextColor(Color.parseColor("#DC2626"))
+                        txtStartLabel.setTextColor(Color.parseColor("#DC2626"))
+                        txtTaskFormulaMetadata.setTextColor(Color.parseColor("#EF4444"))
+
+                        val statusLabel = if (tlResult.urgencyLevel == UrgencyLevel.OVERDUE) "Overdue · Overdue" else "Urgent"
+                        val timeStr = if (tlResult.formattedTime.isNotBlank()) tlResult.formattedTime else "Due Soon"
+                        val qLabel = if (qResult.isValid) "Q${qResult.qNumber} · ${qResult.action}" else ""
+                        txtTaskFormulaMetadata.text = "$statusLabel · $timeStr · $qLabel"
+                    }
+
+                    TaskUrgencyCategory.NEXT -> {
+                        layoutCardRoot.setBackgroundResource(R.drawable.bg_task_next_card)
+                        setDotColor("#F59E0B")
+                        btnStartTask.setBackgroundResource(R.drawable.bg_btn_start_neutral)
+                        txtStartPlayIcon.setTextColor(androidx.core.content.ContextCompat.getColor(itemView.context, R.color.color_text_primary))
+                        txtStartLabel.setTextColor(androidx.core.content.ContextCompat.getColor(itemView.context, R.color.color_text_primary))
+                        txtTaskFormulaMetadata.setTextColor(Color.parseColor("#D97706"))
+
+                        val statusLabel = "Attention Needed"
+                        val timeStr = if (tlResult.formattedTime.isNotBlank()) "${tlResult.formattedTime} left" else "Tomorrow"
+                        val qLabel = if (qResult.isValid) "Q${qResult.qNumber} · ${qResult.action}" else ""
+                        txtTaskFormulaMetadata.text = "$statusLabel · $timeStr · $qLabel"
+                    }
+
+                    TaskUrgencyCategory.LATER -> {
+                        layoutCardRoot.setBackgroundResource(R.drawable.bg_task_next_card)
+                        val dotColor = if (tlResult.urgencyLevel == UrgencyLevel.ON_TRACK) "#10B981" else "#3B82F6"
+                        setDotColor(dotColor)
+                        btnStartTask.setBackgroundResource(R.drawable.bg_btn_start_neutral)
+                        txtStartPlayIcon.setTextColor(androidx.core.content.ContextCompat.getColor(itemView.context, R.color.color_text_primary))
+                        txtStartLabel.setTextColor(androidx.core.content.ContextCompat.getColor(itemView.context, R.color.color_text_primary))
+                        txtTaskFormulaMetadata.setTextColor(Color.parseColor("#059669"))
+
+                        val statusLabel = if (tlResult.urgencyLevel == UrgencyLevel.ON_TRACK) "On Track" else "Scheduled"
+                        val timeStr = if (tlResult.formattedTime.isNotBlank()) tlResult.formattedTime else "No deadline"
+                        val qLabel = if (qResult.isValid) "Q${qResult.qNumber} · ${qResult.action}" else ""
+                        txtTaskFormulaMetadata.text = "$statusLabel · $timeStr · $qLabel"
+                    }
+                }
             }
 
-            val qResult = NotionFormulas.calculateQuadrant(task)
-            val tlResult = NotionFormulas.calculateTimeLeft(task)
-
-            when (category) {
-                TaskUrgencyCategory.NOW -> {
-                    layoutCardRoot.setBackgroundResource(R.drawable.bg_task_now_card)
-                    setDotColor("#EF4444")
-                    btnStartTask.setBackgroundResource(R.drawable.bg_btn_start_urgent)
-                    txtStartPlayIcon.setTextColor(Color.parseColor("#DC2626"))
-                    txtStartLabel.setTextColor(Color.parseColor("#DC2626"))
-                    txtTaskFormulaMetadata.setTextColor(Color.parseColor("#EF4444"))
-
-                    val statusLabel = if (tlResult.urgencyLevel == UrgencyLevel.OVERDUE) "Overdue · Overdue" else "Urgent"
-                    val timeStr = if (tlResult.formattedTime.isNotBlank()) tlResult.formattedTime else "Due Soon"
-                    val qLabel = if (qResult.isValid) "Q${qResult.qNumber} · ${qResult.action}" else ""
-                    txtTaskFormulaMetadata.text = "$statusLabel · $timeStr · $qLabel"
-                }
-
-                TaskUrgencyCategory.NEXT -> {
-                    layoutCardRoot.setBackgroundResource(R.drawable.bg_task_next_card)
-                    setDotColor("#F59E0B")
-                    btnStartTask.setBackgroundResource(R.drawable.bg_btn_start_neutral)
-                    txtStartPlayIcon.setTextColor(Color.parseColor("#1F2937"))
-                    txtStartLabel.setTextColor(Color.parseColor("#1F2937"))
-                    txtTaskFormulaMetadata.setTextColor(Color.parseColor("#D97706"))
-
-                    val statusLabel = "Attention Needed"
-                    val timeStr = if (tlResult.formattedTime.isNotBlank()) "${tlResult.formattedTime} left" else "Tomorrow"
-                    val qLabel = if (qResult.isValid) "Q${qResult.qNumber} · ${qResult.action}" else ""
-                    txtTaskFormulaMetadata.text = "$statusLabel · $timeStr · $qLabel"
-                }
-
-                TaskUrgencyCategory.LATER -> {
-                    layoutCardRoot.setBackgroundResource(R.drawable.bg_task_next_card)
-                    val dotColor = if (tlResult.urgencyLevel == UrgencyLevel.ON_TRACK) "#10B981" else "#3B82F6"
-                    setDotColor(dotColor)
-                    btnStartTask.setBackgroundResource(R.drawable.bg_btn_start_neutral)
-                    txtStartPlayIcon.setTextColor(Color.parseColor("#1F2937"))
-                    txtStartLabel.setTextColor(Color.parseColor("#1F2937"))
-                    txtTaskFormulaMetadata.setTextColor(Color.parseColor("#059669"))
-
-                    val statusLabel = if (tlResult.urgencyLevel == UrgencyLevel.ON_TRACK) "On Track" else "Scheduled"
-                    val timeStr = if (tlResult.formattedTime.isNotBlank()) tlResult.formattedTime else "No deadline"
-                    val qLabel = if (qResult.isValid) "Q${qResult.qNumber} · ${qResult.action}" else ""
-                    txtTaskFormulaMetadata.text = "$statusLabel · $timeStr · $qLabel"
-                }
-            }
-
-            imgTaskCheckbox.setOnClickListener {
+            viewTaskCheckbox.setOnClickListener {
                 onTaskCheckToggled(task)
             }
 

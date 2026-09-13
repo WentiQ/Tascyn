@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="@color/color_canvas">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -50,37 +50,6 @@
                 android:focusable="true"
                 android:src="@drawable/ic_settings_precision"
                 app:tint="#0E0E10" />
-
-            <!-- Bell Notification with Badge 2 -->
-            <FrameLayout
-                android:id="@+id/btnHeaderNotifications"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_bell_notification"
-                    app:tint="#0E0E10" />
-
-                <TextView
-                    android:id="@+id/txtNotificationBadge"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:layout_gravity="top|end"
-                    android:background="@drawable/bg_notification_badge"
-                    android:fontFamily="sans-serif-medium"
-                    android:gravity="center"
-                    android:text="2"
-                    android:textColor="#FFFFFF"
-                    android:textSize="9.5sp"
-                    android:textStyle="bold" />
-            </FrameLayout>
         </LinearLayout>
 
         <!-- ============================================================= -->
@@ -1233,9 +1202,9 @@
         <LinearLayout
             android:id="@+id/layoutBottomNav"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="#FFFFFF"
-            android:elevation="8dp"
+            android:layout_height="58dp"
+            android:background="@drawable/bg_bottom_navigation"
+            android:elevation="0dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="8dp"
@@ -1254,28 +1223,18 @@
 
                 <FrameLayout
                     android:id="@+id/pillNavToday"
-                    android:layout_width="48dp"
-                    android:layout_height="30dp"
+                    android:layout_width="52dp"
+                    android:layout_height="34dp"
                     android:background="@drawable/bg_nav_selected_pill">
 
                     <ImageView
                         android:id="@+id/iconNavToday"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_nav_today"
                         app:tint="#4F46E5" />
                 </FrameLayout>
-
-                <TextView
-                    android:id="@+id/labelNavToday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Today"
-                    android:textColor="#0E0E10"
-                    android:textSize="11sp" />
             </LinearLayout>
 
             <!-- 2. Tasks -->
@@ -1291,27 +1250,17 @@
 
                 <FrameLayout
                     android:id="@+id/pillNavTasks"
-                    android:layout_width="48dp"
-                    android:layout_height="30dp">
+                    android:layout_width="52dp"
+                    android:layout_height="34dp">
 
                     <ImageView
                         android:id="@+id/iconNavTasks"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_nav_tasks"
                         app:tint="#6B7280" />
                 </FrameLayout>
-
-                <TextView
-                    android:id="@+id/labelNavTasks"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Tasks"
-                    android:textColor="#6B7280"
-                    android:textSize="11sp" />
             </LinearLayout>
 
             <!-- 3. AI (Center) -->
@@ -1327,26 +1276,16 @@
 
                 <FrameLayout
                     android:id="@+id/pillNavAi"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:background="@drawable/bg_nav_ai_black_circle">
 
                     <com.example.tascyn.ui.components.InterlockingGeometryView
                         android:id="@+id/viewNavAiGeometry"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_gravity="center" />
                 </FrameLayout>
-
-                <TextView
-                    android:id="@+id/labelNavAi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="AI"
-                    android:textColor="#6B7280"
-                    android:textSize="11sp" />
             </LinearLayout>
 
             <!-- 4. Timeline -->
@@ -1362,27 +1301,17 @@
 
                 <FrameLayout
                     android:id="@+id/pillNavTimeline"
-                    android:layout_width="48dp"
-                    android:layout_height="30dp">
+                    android:layout_width="52dp"
+                    android:layout_height="34dp">
 
                     <ImageView
                         android:id="@+id/iconNavTimeline"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_timeline_precision"
                         app:tint="#6B7280" />
                 </FrameLayout>
-
-                <TextView
-                    android:id="@+id/labelNavTimeline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Timeline"
-                    android:textColor="#6B7280"
-                    android:textSize="11sp" />
             </LinearLayout>
 
             <!-- 5. Sessions -->
@@ -1398,31 +1327,30 @@
 
                 <FrameLayout
                     android:id="@+id/pillNavSessions"
-                    android:layout_width="48dp"
-                    android:layout_height="30dp">
+                    android:layout_width="52dp"
+                    android:layout_height="34dp">
 
                     <ImageView
                         android:id="@+id/iconNavSessions"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_timer_precision"
                         app:tint="#6B7280" />
                 </FrameLayout>
-
-                <TextView
-                    android:id="@+id/labelNavSessions"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Sessions"
-                    android:textColor="#6B7280"
-                    android:textSize="11sp" />
             </LinearLayout>
 
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ============================================================= -->
+    <!-- VOICE MODE OVERLAY (Hold-to-listen, radial expand from AI btn)-->
+    <!-- Rendered last so it sits above all other content              -->
+    <!-- ============================================================= -->
+    <include
+        layout="@layout/overlay_voice_mode"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

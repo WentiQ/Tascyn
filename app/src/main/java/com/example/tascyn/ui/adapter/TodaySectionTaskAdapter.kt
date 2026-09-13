@@ -42,9 +42,9 @@ class TodaySectionTaskAdapter(
 
     inner class TodayTaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val layoutCardRoot: LinearLayout = itemView.findViewById(R.id.layoutTaskCardRoot)
-        private val imgTaskCheckbox: ImageView = itemView.findViewById(R.id.imgTaskCheckbox)
+        val viewTaskCheckbox: com.example.tascyn.ui.components.TaskCheckboxPulseView = itemView.findViewById(R.id.viewTaskCheckbox)
         private val viewStatusDot: View = itemView.findViewById(R.id.viewStatusDot)
-        private val txtTaskTitle: TextView = itemView.findViewById(R.id.txtTaskTitle)
+        val txtTaskTitle: TextView = itemView.findViewById(R.id.txtTaskTitle)
         private val btnStartTask: LinearLayout = itemView.findViewById(R.id.btnStartTask)
         private val txtStartPlayIcon: TextView = itemView.findViewById(R.id.txtStartPlayIcon)
         private val txtStartLabel: TextView = itemView.findViewById(R.id.txtStartLabel)
@@ -52,18 +52,15 @@ class TodaySectionTaskAdapter(
 
         fun bind(task: Task) {
             txtTaskTitle.text = task.title
+            viewTaskCheckbox.setState(task)
 
-            // Completion strikethrough & checkbox
+            // Completion strikethrough & styling
             if (task.isCompleted) {
                 txtTaskTitle.paintFlags = txtTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 txtTaskTitle.setTextColor(Color.parseColor("#9CA3AF"))
-                imgTaskCheckbox.setImageResource(R.drawable.ic_precision_check)
-                imgTaskCheckbox.setColorFilter(Color.parseColor("#10B981"))
             } else {
                 txtTaskTitle.paintFlags = txtTaskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-                txtTaskTitle.setTextColor(Color.parseColor("#0E0E10"))
-                imgTaskCheckbox.setImageResource(R.drawable.ic_precision_circle)
-                imgTaskCheckbox.setColorFilter(Color.parseColor("#9CA3AF"))
+                txtTaskTitle.setTextColor(ContextCompat.getColor(itemView.context, R.color.color_text_primary))
             }
 
             val qResult = NotionFormulas.calculateQuadrant(task)
@@ -89,8 +86,8 @@ class TodaySectionTaskAdapter(
                     layoutCardRoot.setBackgroundResource(R.drawable.bg_task_next_card)
                     setDotColor("#F59E0B")
                     btnStartTask.setBackgroundResource(R.drawable.bg_btn_start_neutral)
-                    txtStartPlayIcon.setTextColor(Color.parseColor("#1F2937"))
-                    txtStartLabel.setTextColor(Color.parseColor("#1F2937"))
+                    txtStartPlayIcon.setTextColor(ContextCompat.getColor(itemView.context, R.color.color_text_primary))
+                    txtStartLabel.setTextColor(ContextCompat.getColor(itemView.context, R.color.color_text_primary))
                     txtTaskFormulaMetadata.setTextColor(Color.parseColor("#D97706"))
 
                     val statusLabel = "Attention Needed"
@@ -103,9 +100,9 @@ class TodaySectionTaskAdapter(
                     layoutCardRoot.setBackgroundResource(R.drawable.bg_task_next_card)
                     setDotColor("#3B82F6")
                     btnStartTask.setBackgroundResource(R.drawable.bg_btn_start_neutral)
-                    txtStartPlayIcon.setTextColor(Color.parseColor("#1F2937"))
-                    txtStartLabel.setTextColor(Color.parseColor("#1F2937"))
-                    txtTaskFormulaMetadata.setTextColor(Color.parseColor("#6B7280"))
+                    txtStartPlayIcon.setTextColor(ContextCompat.getColor(itemView.context, R.color.color_text_primary))
+                    txtStartLabel.setTextColor(ContextCompat.getColor(itemView.context, R.color.color_text_primary))
+                    txtTaskFormulaMetadata.setTextColor(ContextCompat.getColor(itemView.context, R.color.color_text_secondary))
 
                     val statusLabel = if (tlResult.urgencyLevel == UrgencyLevel.ON_TRACK) "On Track" else "Scheduled"
                     val timeStr = if (tlResult.formattedTime.isNotBlank()) tlResult.formattedTime else "Upcoming"
@@ -114,7 +111,7 @@ class TodaySectionTaskAdapter(
                 }
             }
 
-            imgTaskCheckbox.setOnClickListener {
+            viewTaskCheckbox.setOnClickListener {
                 onTaskCheckToggled(task)
             }
 

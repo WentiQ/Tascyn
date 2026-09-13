@@ -11,9 +11,15 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <!-- Alarm & Notification Permissions -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
@@ -22,7 +28,25 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" /> <!-- TODO replace above two with next line after Android 4.2 -->
+    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+
     <application
+        android:name="com.example.tascyn.TascynApplication"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
@@ -34,7 +58,8 @@
         android:usesCleartextTraffic="true" >
         <activity
             android:name="com.example.tascyn.MainActivity"
-            android:exported="true" >
+            android:exported="true"
+            android:theme="@style/Theme.Tascyn" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -42,13 +67,21 @@
             </intent-filter>
         </activity>
 
+        <!-- Foreground Service for Continuous Live Session Notifications in Background -->
+        <service
+            android:name="com.example.tascyn.service.SessionForegroundService"
+            android:exported="false" />
+
         <!-- Full-Screen Alarm Alert Screen -->
         <activity
             android:name="com.example.tascyn.ui.alarm.AlarmAlertActivity"
             android:excludeFromRecents="true"
-            android:exported="false"
-            android:launchMode="singleTask"
+            android:exported="true"
+            android:inheritShowWhenLocked="true"
+            android:launchMode="singleInstance"
+            android:showOnLockScreen="true"
             android:showWhenLocked="true"
+            android:taskAffinity="com.example.tascyn.alarm"
             android:theme="@style/Theme.Tascyn"
             android:turnScreenOn="true" />
 
@@ -68,6 +101,25 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <!-- File Provider for Backup Export & Sharing -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.tascyn.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:clearTaskOnLaunch="true"
+            android:screenOrientation="sensorLandscape"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"

@@ -1,8 +1,25 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.tascyn.app-mergeDebugResources-27:/values-tr/values-tr.xml",
+            "outputFile": "com.example.tascyn.app-mergeDebugResources-28:/values-tr/values-tr.xml",
             "map": [
+                {
+                    "source": "C:\\Users\\dines\\.gradle\\caches\\transforms-3\\d1dbc84fd4b64413bb2dd53d31547bb6\\transformed\\jetified-zxing-android-embedded-4.3.0\\res\\values-tr\\values-tr.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,116,166,313",
+                        "endColumns": "60,49,146,119",
+                        "endOffsets": "111,161,308,428"
+                    },
+                    "to": {
+                        "startLines": "92,93,94,95",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "7630,7691,7741,7888",
+                        "endColumns": "60,49,146,119",
+                        "endOffsets": "7686,7736,7883,8003"
+                    }
+                },
                 {
                     "source": "C:\\Users\\dines\\.gradle\\caches\\transforms-3\\8a2ec3dcaff7cb2dcb5e290d7acf860b\\transformed\\appcompat-1.5.1\\res\\values-tr\\values-tr.xml",
                     "from": {

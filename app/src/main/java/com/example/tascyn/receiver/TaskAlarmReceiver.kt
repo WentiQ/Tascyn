@@ -23,11 +23,22 @@ class TaskAlarmReceiver : BroadcastReceiver() {
             PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
             "Tascyn:AlarmWakeLock"
         )
-        wakeLock?.acquire(15000L) // hold wakelock for up to 15s
+        wakeLock?.acquire(10000L) // hold wakelock for up to 10s to ensure screen and activity turn on
+        var shouldKeepWakeLockForActivity = false
 
         try {
-            val taskId = intent.getStringExtra(TaskAlarmScheduler.EXTRA_TASK_ID) ?: return
             val action = intent.action ?: return
+
+            // Handle ending active session directly from notification action
+            if (action == SessionNotificationManager.ACTION_END_ACTIVE_SESSION) {
+                val repository = TaskManagerRepository.get()
+                repository.attachContext(context)
+                repository.endCurrentActiveSession()
+                SessionNotificationManager.cancelSessionNotification(context)
+                return
+            }
+
+            val taskId = intent.getStringExtra(TaskAlarmScheduler.EXTRA_TASK_ID) ?: return
             val alertMessage = intent.getStringExtra(TaskAlarmScheduler.EXTRA_ALERT_MESSAGE) ?: "Task requires your attention"
             val dueDate = intent.getLongExtra(TaskAlarmScheduler.EXTRA_DUE_DATE, 0L)
 
@@ -125,13 +136,14 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 // Also launch Activity directly
                 try {
                     context.startActivity(alarmIntent)
+                    shouldKeepWakeLockForActivity = true
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
 
         } finally {
-            if (wakeLock?.isHeld == true) {
+            if (!shouldKeepWakeLockForActivity && wakeLock?.isHeld == true) {
                 try {
                     wakeLock.release()
                 } catch (e: Exception) {

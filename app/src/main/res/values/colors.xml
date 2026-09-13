@@ -8,11 +8,47 @@
     <color name="color_mist">#E7E8EB</color>
     <color name="color_pearl">#F4F5F7</color>
     <color name="color_white">#FFFFFF</color>
-    <color name="color_canvas">#FFFFFF</color>
 
-    <!-- Semantic Urgency & Action Colors -->
+    <!-- Semantic Canvas & Surfaces (Day) -->
+    <color name="color_canvas">#FFFFFF</color>
+    <color name="color_surface">#FFFFFF</color>
+    <color name="color_surface_secondary">#F4F5F7</color>
+    <color name="color_card_bg">#FFFFFF</color>
+    <color name="color_card_border">#E5E7EB</color>
+    <color name="color_card_inner_bg">#F9FAFB</color>
+    <color name="color_dock_bg">#F9FAFB</color>
+    <color name="color_dock_border">#E5E7EB</color>
+    <color name="color_input_bg">#F9FAFB</color>
+    <color name="color_input_border">#E5E7EB</color>
+    <color name="color_divider">#E5E7EB</color>
+
+    <!-- Navigation & Bottom Sheets (Day) -->
+    <color name="color_bottom_nav_bg">#FFFFFF</color>
+    <color name="color_bottom_nav_border">#E5E7EB</color>
+    <color name="color_bottom_nav_indicator">#EEF2FF</color>
+    <color name="color_bottom_sheet_bg">#FFFFFF</color>
+    <color name="color_bottom_sheet_handle">#E5E7EB</color>
+
+    <!-- Typography & Icons (Day) -->
+    <color name="color_text_primary">#0E0E10</color>
+    <color name="color_text_secondary">#4B5563</color>
+    <color name="color_text_tertiary">#9CA3AF</color>
+    <color name="color_icon_primary">#0E0E10</color>
+    <color name="color_icon_secondary">#6B7280</color>
+
+    <!-- Primary & Secondary Buttons (Day) -->
+    <color name="color_btn_primary_bg">#0E0E10</color>
+    <color name="color_btn_primary_text">#FFFFFF</color>
+    <color name="color_btn_secondary_bg">#F3F4F6</color>
+    <color name="color_btn_secondary_text">#0E0E10</color>
+    <color name="color_chip_bg">#F4F5F7</color>
+
+    <!-- Accents & Semantic Urgency (Day) -->
+    <color name="color_accent">#4F46E5</color>
+    <color name="color_accent_subtle">#EEF2FF</color>
     <color name="color_urgent_red">#DC2626</color>
     <color name="color_urgent_red_bg">#1ADC2626</color>
+    <color name="color_urgent_red_light">#FEE2E2</color>
     <color name="color_attention_orange">#EA580C</color>
     <color name="color_attention_orange_bg">#1AEA580C</color>
     <color name="color_on_track_green">#16A34A</color>
@@ -20,7 +56,20 @@
     <color name="color_neutral_blue">#2563EB</color>
     <color name="color_success">#10B981</color>
 
-    <!-- Dark Theme Canvas Colors -->
+    <!-- Status Badges (Day) -->
+    <color name="color_badge_connected_bg">#ECFDF5</color>
+    <color name="color_badge_connected_border">#A7F3D0</color>
+    <color name="color_badge_connected_text">#059669</color>
+    <color name="color_badge_disconnected_bg">#FEF2F2</color>
+    <color name="color_badge_disconnected_border">#FECACA</color>
+    <color name="color_badge_disconnected_text">#DC2626</color>
+
+    <!-- Notion Gantt / Timeline Tokens (Day) -->
+    <color name="color_timeline_grid">#F1F3F5</color>
+    <color name="color_timeline_weekend">#FAFAFB</color>
+    <color name="color_timeline_today">#F5F7FF</color>
+
+    <!-- Dark Theme Canvas Colors (for fallback references) -->
     <color name="color_dark_canvas">#121316</color>
     <color name="color_dark_surface">#1C1D22</color>
     <color name="color_dark_text_primary">#F4F5F7</color>

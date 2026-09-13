@@ -6,28 +6,28 @@
 
     <style name="TextAppearance.Tascyn.Display" parent="TextAppearance.MaterialComponents.Headline1">
         <item name="android:textSize">@dimen/text_display</item>
-        <item name="android:textColor">@color/color_void</item>
+        <item name="android:textColor">@color/color_text_primary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:letterSpacing">-0.02</item>
     </style>
 
     <style name="TextAppearance.Tascyn.LargeHeading" parent="TextAppearance.MaterialComponents.Headline2">
         <item name="android:textSize">@dimen/text_large_heading</item>
-        <item name="android:textColor">@color/color_void</item>
+        <item name="android:textColor">@color/color_text_primary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:letterSpacing">-0.01</item>
     </style>
 
     <style name="TextAppearance.Tascyn.SectionHeading" parent="TextAppearance.MaterialComponents.Headline3">
         <item name="android:textSize">@dimen/text_section_heading</item>
-        <item name="android:textColor">@color/color_void</item>
+        <item name="android:textColor">@color/color_text_primary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:letterSpacing">0.0</item>
     </style>
 
     <style name="TextAppearance.Tascyn.TaskTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
         <item name="android:textSize">@dimen/text_task_title</item>
-        <item name="android:textColor">@color/color_void</item>
+        <item name="android:textColor">@color/color_text_primary</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:letterSpacing">0.0</item>
         <item name="android:lineSpacingExtra">2dp</item>
@@ -35,20 +35,20 @@
 
     <style name="TextAppearance.Tascyn.Secondary" parent="TextAppearance.MaterialComponents.Body2">
         <item name="android:textSize">@dimen/text_secondary</item>
-        <item name="android:textColor">@color/color_steel</item>
+        <item name="android:textColor">@color/color_text_secondary</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="TextAppearance.Tascyn.Metadata" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">@dimen/text_metadata</item>
-        <item name="android:textColor">@color/color_steel</item>
+        <item name="android:textColor">@color/color_text_secondary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:letterSpacing">0.01</item>
     </style>
 
     <style name="TextAppearance.Tascyn.Micro" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">@dimen/text_micro</item>
-        <item name="android:textColor">@color/color_steel</item>
+        <item name="android:textColor">@color/color_text_tertiary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:letterSpacing">0.06</item>
@@ -59,17 +59,17 @@
     <!-- ================================================================= -->
 
     <style name="Widget.Tascyn.Card" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/color_white</item>
+        <item name="cardBackgroundColor">@color/color_card_bg</item>
         <item name="cardCornerRadius">@dimen/radius_large</item>
         <item name="cardElevation">0dp</item>
-        <item name="strokeColor">@color/color_mist</item>
+        <item name="strokeColor">@color/color_card_border</item>
         <item name="strokeWidth">@dimen/border_precision_width</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 
     <style name="Widget.Tascyn.Button.Primary" parent="Widget.MaterialComponents.Button">
-        <item name="android:backgroundTint">@color/color_void</item>
-        <item name="android:textColor">@color/color_white</item>
+        <item name="android:backgroundTint">@color/color_btn_primary_bg</item>
+        <item name="android:textColor">@color/color_btn_primary_text</item>
         <item name="android:textSize">@dimen/text_task_title</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="cornerRadius">@dimen/button_radius_primary</item>
@@ -81,11 +81,11 @@
     </style>
 
     <style name="Widget.Tascyn.Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:backgroundTint">@color/color_white</item>
-        <item name="android:textColor">@color/color_void</item>
+        <item name="android:backgroundTint">@color/color_btn_secondary_bg</item>
+        <item name="android:textColor">@color/color_btn_secondary_text</item>
         <item name="android:textSize">@dimen/text_secondary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="strokeColor">@color/color_mist</item>
+        <item name="strokeColor">@color/color_card_border</item>
         <item name="strokeWidth">@dimen/border_precision_width</item>
         <item name="cornerRadius">@dimen/button_radius_primary</item>
         <item name="android:minHeight">@dimen/button_height_primary</item>

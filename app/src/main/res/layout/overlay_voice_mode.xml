@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Voice Mode Radial Disc Overlay
+    Expands as a circular disc centered at the AI nav button.
+    The circular arc boundary touches the middle of the screen (50% height).
+    Design: pure white canvas (#FFFFFF) inside the disc, void-black typography (#0E0E10),
+    secondary gray hints (#4B5563) — strictly Tascyn white-canvas system.
+-->
+<com.example.tascyn.ui.components.VoiceDiscOverlayLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layoutVoiceModeOverlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Horizontal guideline at 50% screen height (apex of circular arc) -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineMidScreen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <!-- Status label: "Listening..." positioned just below the arc boundary -->
+        <TextView
+            android:id="@+id/txtVoiceListeningStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-black"
+            android:text="Listening…"
+            android:textColor="#0E0E10"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.01"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guidelineMidScreen" />
+
+        <!-- Subtitle / hint -->
+        <TextView
+            android:id="@+id/txtVoiceHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:text="Release to convert to text"
+            android:textColor="#6B7280"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtVoiceListeningStatus" />
+
+        <!-- Centre: 5 very thick rounded bars ChatGPT-style waveform animation -->
+        <com.example.tascyn.ui.components.VoiceWaveformView
+            android:id="@+id/viewVoiceWaveform"
+            android:layout_width="140dp"
+            android:layout_height="110dp"
+            app:layout_constraintBottom_toTopOf="@id/layoutVoiceBottomHint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtVoiceHint" />
+
+        <!-- Bottom area: small AI icon + instruction label sitting above the bottom nav -->
+        <LinearLayout
+            android:id="@+id/layoutVoiceBottomHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="72dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.example.tascyn.ui.components.InterlockingGeometryView
+                android:id="@+id/viewVoiceAiIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="AI Voice Input · Release to send"
+                android:textColor="#9CA3AF"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.example.tascyn.ui.components.VoiceDiscOverlayLayout>

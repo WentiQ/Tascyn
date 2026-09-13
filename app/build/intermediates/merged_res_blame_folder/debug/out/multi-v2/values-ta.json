@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.tascyn.app-mergeDebugResources-27:/values-ta/values-ta.xml",
+            "outputFile": "com.example.tascyn.app-mergeDebugResources-28:/values-ta/values-ta.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dines\\.gradle\\caches\\transforms-3\\8a2ec3dcaff7cb2dcb5e290d7acf860b\\transformed\\appcompat-1.5.1\\res\\values-ta\\values-ta.xml",

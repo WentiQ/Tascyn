@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.tascyn.app-mergeDebugResources-27:/values-zh-rCN/values-zh-rCN.xml",
+            "outputFile": "com.example.tascyn.app-mergeDebugResources-28:/values-zh-rCN/values-zh-rCN.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dines\\.gradle\\caches\\transforms-3\\8a2ec3dcaff7cb2dcb5e290d7acf860b\\transformed\\appcompat-1.5.1\\res\\values-zh-rCN\\values-zh-rCN.xml",
@@ -18,6 +18,23 @@
                         "startOffsets": "297,392,487,587,669,766,872,949,1024,1115,1208,1305,1401,1495,1588,1683,1775,1866,1957,2035,2131,2226,2321,2418,2514,2612,2760,6808",
                         "endColumns": "94,94,99,81,96,105,76,74,90,92,96,95,93,92,94,91,90,90,77,95,94,94,96,95,97,147,93,78",
                         "endOffsets": "387,482,582,664,761,867,944,1019,1110,1203,1300,1396,1490,1583,1678,1770,1861,1952,2030,2126,2221,2316,2413,2509,2607,2755,2849,6882"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dines\\.gradle\\caches\\transforms-3\\d1dbc84fd4b64413bb2dd53d31547bb6\\transformed\\jetified-zxing-android-embedded-4.3.0\\res\\values-zh-rCN\\values-zh-rCN.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,104,151,238",
+                        "endColumns": "48,46,86,68",
+                        "endOffsets": "99,146,233,302"
+                    },
+                    "to": {
+                        "startLines": "92,93,94,95",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "6988,7037,7084,7171",
+                        "endColumns": "48,46,86,68",
+                        "endOffsets": "7032,7079,7166,7235"
                     }
                 },
                 {

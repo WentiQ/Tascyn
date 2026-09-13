@@ -1,18 +1,64 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.Tascyn" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Brand Dark Base Colors -->
-        <item name="colorPrimary">@color/color_dark_text_primary</item>
-        <item name="colorPrimaryVariant">@color/color_carbon</item>
-        <item name="colorOnPrimary">@color/color_void</item>
-        <item name="colorSecondary">@color/color_dark_text_primary</item>
+        <!-- Base Semantic Colors (Night) -->
+        <item name="colorPrimary">@color/color_text_primary</item>
+        <item name="colorPrimaryVariant">@color/color_surface_secondary</item>
+        <item name="colorOnPrimary">@color/color_btn_primary_text</item>
+        <item name="colorSecondary">@color/color_accent</item>
         <item name="colorOnSecondary">@color/color_void</item>
-        <item name="android:windowBackground">@color/color_dark_canvas</item>
-        <item name="android:colorBackground">@color/color_dark_canvas</item>
+        <item name="android:windowBackground">@color/color_canvas</item>
+        <item name="android:colorBackground">@color/color_canvas</item>
         <item name="android:windowNoTitle">true</item>
 
-        <!-- Status Bar & Navigation Bar: Anodized Dark Metal -->
-        <item name="android:statusBarColor">@color/color_dark_canvas</item>
+        <!-- Status Bar & Navigation Bar: Anodized Dark Canvas with light icons -->
+        <item name="android:statusBarColor">@color/color_canvas</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:navigationBarColor">@color/color_dark_canvas</item>
+        <item name="android:navigationBarColor">@color/color_canvas</item>
+        <item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@android:color/transparent</item>
+
+        <!-- Splash Screen Background (Night) -->
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/color_canvas</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/ic_splash_logo</item>
+    </style>
+
+    <!-- Dedicated Light Theme (Pure White Splash & Canvas even in night mode) -->
+    <style name="Theme.Tascyn.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">#0E0E10</item>
+        <item name="colorPrimaryVariant">#F4F5F7</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#4F46E5</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">#FFFFFF</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@android:color/transparent</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">#FFFFFF</item>
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="31">#FFFFFF</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/ic_splash_logo</item>
+    </style>
+
+    <!-- Dedicated Dark Theme (Pure Dark Splash & Canvas) -->
+    <style name="Theme.Tascyn.Dark" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">#F3F4F6</item>
+        <item name="colorPrimaryVariant">#23252E</item>
+        <item name="colorOnPrimary">#0E0E10</item>
+        <item name="colorSecondary">#818CF8</item>
+        <item name="colorOnSecondary">#F4F5F7</item>
+        <item name="android:windowBackground">#111216</item>
+        <item name="android:colorBackground">#111216</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">#111216</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">#111216</item>
+        <item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@android:color/transparent</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">#111216</item>
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="31">#111216</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/ic_splash_logo</item>
     </style>
 </resources>

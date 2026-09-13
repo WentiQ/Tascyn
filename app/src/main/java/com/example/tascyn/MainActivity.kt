@@ -1,9 +1,13 @@
 package com.example.tascyn
 
 import android.Manifest
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.app.AlarmManager
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.view.animation.DecelerateInterpolator
+import androidx.core.animation.doOnEnd
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,9 +19,13 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
+import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.view.MotionEvent
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -32,14 +41,20 @@ import com.example.tascyn.data.*
 import com.example.tascyn.domain.GeminiAiService
 import com.example.tascyn.domain.NotionFormulas
 import com.example.tascyn.domain.TaskParseResult
+import com.example.tascyn.receiver.SessionNotificationManager
 import com.example.tascyn.receiver.TaskAlarmScheduler
 import com.example.tascyn.ui.adapter.*
 import com.example.tascyn.ui.components.InterlockingGeometryView
+import com.example.tascyn.ui.components.TaskItemTouchHelperCallback
+import com.example.tascyn.ui.components.VoiceDiscOverlayLayout
+import com.example.tascyn.ui.components.VoiceWaveformView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 enum class AppNavTab {
     TODAY,
@@ -227,7 +242,15 @@ class MainActivity : AppCompatActivity() {
     private val sessionTickerHandler = Handler(Looper.getMainLooper())
     private val sessionTickerRunnable = object : Runnable {
         override fun run() {
-            updateLiveSessionUi()
+            val activeState = repository.getActiveSessionState()
+            if (activeState != null) {
+                SessionNotificationManager.showOrUpdateSessionNotification(this@MainActivity, activeState)
+            } else {
+                SessionNotificationManager.cancelSessionNotification(this@MainActivity)
+            }
+            if (currentTab == AppNavTab.SESSIONS) {
+                updateLiveSessionUi()
+            }
             sessionTickerHandler.postDelayed(this, 1000L)
         }
     }
@@ -251,15 +274,105 @@ class MainActivity : AppCompatActivity() {
     private lateinit var iconNavSessions: ImageView
     private lateinit var viewNavAiGeometry: com.example.tascyn.ui.components.InterlockingGeometryView
 
-    private lateinit var labelNavToday: TextView
-    private lateinit var labelNavTasks: TextView
-    private lateinit var labelNavTimeline: TextView
-    private lateinit var labelNavSessions: TextView
-    private lateinit var labelNavAi: TextView
+    // ─── Voice Mode Overlay ───────────────────────────────────────────────────
+    private lateinit var layoutVoiceModeOverlay: VoiceDiscOverlayLayout
+    private lateinit var viewVoiceWaveform: VoiceWaveformView
+
+    /** Live SpeechRecognizer used for the hold-to-listen overlay (not the system dialog). */
+    private var speechRecognizer: SpeechRecognizer? = null
+
+    /** Transcript accumulated while the user holds the AI button. */
+    private var voiceTranscript: String = ""
+
+    /** True while the overlay is showing. */
+    private var isVoiceOverlayVisible = false
+
+    /** True while the user's finger is actively holding down the AI button. */
+    private var isUserHoldingAi = false
+
+    /** Runtime RECORD_AUDIO permission launcher (for the voice overlay path). */
+    private val micPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            // Retry voice overlay after permission granted — user must long-press again
+            Toast.makeText(this, "Mic permission granted. Hold the AI button to speak.", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Microphone permission is required for voice input.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // QR Code Scanner Launcher using ZXing embedded
+    private val qrScanLauncher = registerForActivityResult(com.journeyapps.barcodescanner.ScanContract()) { result ->
+        if (result.contents != null) {
+            handleScannedQrPayload(result.contents)
+        }
+    }
+
+    // JSON File Import Picker Launcher
+    private val importJsonLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            handleImportJsonUri(uri)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val settings = AppSettingsManager.getInstance(this)
+        settings.applyTheme()
+        val nightMode = when (settings.themeMode) {
+            AppSettingsManager.THEME_LIGHT -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+            AppSettingsManager.THEME_DARK -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+            else -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        delegate.localNightMode = nightMode
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            splashScreen.setOnExitAnimationListener { splashScreenView ->
+                val iconView = splashScreenView.iconView
+                val animDuration = 280L
+                val interpolator = DecelerateInterpolator()
+
+                val fadeOut = ObjectAnimator.ofFloat(splashScreenView, View.ALPHA, 1f, 0f).apply {
+                    duration = animDuration
+                    this.interpolator = interpolator
+                }
+
+                if (iconView != null) {
+                    val scaleX = ObjectAnimator.ofFloat(iconView, View.SCALE_X, 1f, 0.8f).apply {
+                        duration = animDuration
+                        this.interpolator = interpolator
+                    }
+                    val scaleY = ObjectAnimator.ofFloat(iconView, View.SCALE_Y, 1f, 0.8f).apply {
+                        duration = animDuration
+                        this.interpolator = interpolator
+                    }
+                    val fadeIcon = ObjectAnimator.ofFloat(iconView, View.ALPHA, 1f, 0f).apply {
+                        duration = animDuration
+                        this.interpolator = interpolator
+                    }
+
+                    AnimatorSet().apply {
+                        playTogether(fadeOut, scaleX, scaleY, fadeIcon)
+                        doOnEnd {
+                            splashScreenView.remove()
+                        }
+                        start()
+                    }
+                } else {
+                    fadeOut.doOnEnd {
+                        splashScreenView.remove()
+                    }
+                    fadeOut.start()
+                }
+            }
+        }
+
         setContentView(R.layout.activity_main)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.navigationBarDividerColor = android.graphics.Color.TRANSPARENT
+        }
 
         repository.attachContext(this)
         TaskAlarmScheduler.createNotificationChannels(this)
@@ -274,11 +387,35 @@ class MainActivity : AppCompatActivity() {
         setupTasksPageFilters()
         setupBottomNavigation()
         refreshData()
+
+        if (intent?.getStringExtra("EXTRA_NAV_TAB") == "SESSIONS") {
+            selectTab(AppNavTab.SESSIONS)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getStringExtra("EXTRA_NAV_TAB") == "SESSIONS") {
+            selectTab(AppNavTab.SESSIONS)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshData()
+        if (repository.getActiveSession() != null) {
+            SessionNotificationManager.startSessionService(this)
+        }
+        sessionTickerHandler.removeCallbacks(sessionTickerRunnable)
+        sessionTickerHandler.post(sessionTickerRunnable)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         sessionTickerHandler.removeCallbacks(sessionTickerRunnable)
+        speechRecognizer?.destroy()
+        speechRecognizer = null
     }
 
     private fun initViews() {
@@ -383,6 +520,7 @@ class MainActivity : AppCompatActivity() {
 
         btnEndActiveSessionMain.setOnClickListener {
             repository.endCurrentActiveSession()
+            SessionNotificationManager.cancelSessionNotification(this)
             Toast.makeText(this, "Session ended and logged.", Toast.LENGTH_SHORT).show()
             refreshSessionsPageView()
             refreshData()
@@ -392,14 +530,15 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btnHeaderSettings).setOnClickListener {
             showSettingsBottomSheet()
         }
-        findViewById<View>(R.id.btnHeaderNotifications).setOnClickListener {
-            Toast.makeText(this, "2 urgent reminders pending for today", Toast.LENGTH_SHORT).show()
-        }
 
         // Floating Action Button (+)
         findViewById<View>(R.id.btnFloatingAdd).setOnClickListener {
             showTaskDetailBottomSheet(null)
         }
+
+        // Voice Mode Overlay Views
+        layoutVoiceModeOverlay = findViewById(R.id.layoutVoiceModeOverlay)
+        viewVoiceWaveform = findViewById(R.id.viewVoiceWaveform)
     }
 
     private fun setupAdapters() {
@@ -427,12 +566,51 @@ class MainActivity : AppCompatActivity() {
 
         recyclerSectionNow.layoutManager = LinearLayoutManager(this)
         recyclerSectionNow.adapter = adapterNow
+        ItemTouchHelper(TaskItemTouchHelperCallback(
+            context = this,
+            onSwipeRight = { pos ->
+                if (pos in 0 until adapterNow.currentList.size) {
+                    onSwipeCompleteTask(adapterNow.currentList[pos])
+                }
+            },
+            onSwipeLeft = { pos ->
+                if (pos in 0 until adapterNow.currentList.size) {
+                    onSwipeLeaveTask(adapterNow.currentList[pos])
+                }
+            }
+        )).attachToRecyclerView(recyclerSectionNow)
 
         recyclerSectionNext.layoutManager = LinearLayoutManager(this)
         recyclerSectionNext.adapter = adapterNext
+        ItemTouchHelper(TaskItemTouchHelperCallback(
+            context = this,
+            onSwipeRight = { pos ->
+                if (pos in 0 until adapterNext.currentList.size) {
+                    onSwipeCompleteTask(adapterNext.currentList[pos])
+                }
+            },
+            onSwipeLeft = { pos ->
+                if (pos in 0 until adapterNext.currentList.size) {
+                    onSwipeLeaveTask(adapterNext.currentList[pos])
+                }
+            }
+        )).attachToRecyclerView(recyclerSectionNext)
 
         recyclerSectionLater.layoutManager = LinearLayoutManager(this)
         recyclerSectionLater.adapter = adapterLater
+        ItemTouchHelper(TaskItemTouchHelperCallback(
+            context = this,
+            onSwipeRight = { pos ->
+                if (pos in 0 until adapterLater.currentList.size) {
+                    onSwipeCompleteTask(adapterLater.currentList[pos])
+                }
+            },
+            onSwipeLeft = { pos ->
+                if (pos in 0 until adapterLater.currentList.size) {
+                    onSwipeLeaveTask(adapterLater.currentList[pos])
+                }
+            }
+        )).attachToRecyclerView(recyclerSectionLater)
 
         // Tasks Page Grouped Adapter
         tasksGroupedAdapter = QuadrantGroupedTaskAdapter(
@@ -442,6 +620,25 @@ class MainActivity : AppCompatActivity() {
         )
         recyclerTasksGrouped.layoutManager = LinearLayoutManager(this)
         recyclerTasksGrouped.adapter = tasksGroupedAdapter
+        ItemTouchHelper(TaskItemTouchHelperCallback(
+            context = this,
+            onSwipeRight = { pos ->
+                if (pos in 0 until tasksGroupedAdapter.currentList.size) {
+                    val item = tasksGroupedAdapter.currentList[pos]
+                    if (item is QuadrantListItem.TaskCard) {
+                        onSwipeCompleteTask(item.task)
+                    }
+                }
+            },
+            onSwipeLeft = { pos ->
+                if (pos in 0 until tasksGroupedAdapter.currentList.size) {
+                    val item = tasksGroupedAdapter.currentList[pos]
+                    if (item is QuadrantListItem.TaskCard) {
+                        onSwipeLeaveTask(item.task)
+                    }
+                }
+            }
+        )).attachToRecyclerView(recyclerTasksGrouped)
 
         // Timeline Gantt Setup
         viewNotionTimelineGantt.onTaskClicked = { task -> showTaskDetailBottomSheet(task) }
@@ -503,8 +700,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun selectTasksTimeTab(tab: TasksTimeTab) {
         selectedTasksTimeTab = tab
-        val activeColor = Color.parseColor("#0E0E10")
-        val inactiveColor = Color.parseColor("#6B7280")
+        val activeColor = ContextCompat.getColor(this, R.color.color_text_primary)
+        val inactiveColor = ContextCompat.getColor(this, R.color.color_text_tertiary)
 
         lblTabPending.setTextColor(if (tab == TasksTimeTab.PENDING) activeColor else inactiveColor)
         lblTabPending.setTypeface(null, if (tab == TasksTimeTab.PENDING) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
@@ -538,11 +735,11 @@ class MainActivity : AppCompatActivity() {
 
         fun updateChip(chip: TextView, isSelected: Boolean) {
             if (isSelected) {
-                chip.setBackgroundResource(R.drawable.bg_fab_dark)
-                chip.setTextColor(Color.WHITE)
+                chip.setBackgroundResource(R.drawable.bg_button_primary)
+                chip.setTextColor(ContextCompat.getColor(this, R.color.color_btn_primary_text))
             } else {
                 chip.setBackgroundResource(R.drawable.bg_ai_chip)
-                chip.setTextColor(Color.parseColor("#4B5563"))
+                chip.setTextColor(ContextCompat.getColor(this, R.color.color_text_secondary))
             }
         }
 
@@ -566,16 +763,64 @@ class MainActivity : AppCompatActivity() {
             TasksTimeTab.TOMORROW -> repository.getTasksForView(NotionView.TOMORROW, now)
             TasksTimeTab.THIS_WEEK -> repository.getTasksForView(NotionView.THIS_WEEK, now)
             TasksTimeTab.COMPLETED -> repository.getTasksForView(NotionView.COMPLETED, now)
-            TasksTimeTab.ALL -> repository.getTopLevelTasks()
+            TasksTimeTab.ALL -> repository.getTopLevelTasks().filter { !it.isCompleted && it.status != TaskStatus.LEFT }
+        }
+
+        val activeFilteredTasks = if (selectedTasksTimeTab == TasksTimeTab.COMPLETED) {
+            baseTasks
+        } else {
+            baseTasks.filter { !it.isCompleted && it.status != TaskStatus.LEFT }
         }
 
         val filteredTasks = if (selectedTaskTypeFilter == null) {
-            baseTasks
+            activeFilteredTasks
         } else {
-            baseTasks.filter { task ->
+            activeFilteredTasks.filter { task ->
                 task.taskTypes.contains(selectedTaskTypeFilter) ||
                 (selectedTaskTypeFilter == TaskType.ACADEMIC && (task.taskTypes.contains(TaskType.LAB) || task.taskTypes.contains(TaskType.ASSIGNMENT) || task.taskTypes.contains(TaskType.EXAM)))
             }
+        }
+
+        // When viewing Completed tasks, do NOT show in order of Q; show in order of recency when completed
+        if (selectedTasksTimeTab == TasksTimeTab.COMPLETED) {
+            val sortedCompleted = filteredTasks.sortedByDescending { it.completedAt ?: it.createdAt }
+            val items = mutableListOf<QuadrantListItem>()
+
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = now
+            cal.set(Calendar.HOUR_OF_DAY, 0)
+            cal.set(Calendar.MINUTE, 0)
+            cal.set(Calendar.SECOND, 0)
+            cal.set(Calendar.MILLISECOND, 0)
+            val todayStart = cal.timeInMillis
+            val yesterdayStart = todayStart - (24 * 3600 * 1000L)
+            val weekStart = todayStart - (6 * 24 * 3600 * 1000L)
+
+            val groupedByRecency = sortedCompleted.groupBy { task ->
+                val compTime = task.completedAt ?: task.createdAt
+                when {
+                    compTime >= todayStart -> "Completed Today"
+                    compTime >= yesterdayStart -> "Completed Yesterday"
+                    compTime >= weekStart -> "Completed This Week"
+                    else -> "Completed Earlier"
+                }
+            }
+
+            for ((sectionTitle, taskList) in groupedByRecency) {
+                val headerColor = when (sectionTitle) {
+                    "Completed Today" -> "#10B981"
+                    "Completed Yesterday" -> "#3B82F6"
+                    "Completed This Week" -> "#F59E0B"
+                    else -> "#6B7280"
+                }
+                items.add(QuadrantListItem.Header(title = "• $sectionTitle (${taskList.size})", colorHex = headerColor))
+                for (task in taskList) {
+                    items.add(QuadrantListItem.TaskCard(task = task, category = TaskUrgencyCategory.LATER))
+                }
+            }
+
+            tasksGroupedAdapter.submitList(items)
+            return
         }
 
         // Group by Quadrant
@@ -607,6 +852,7 @@ class MainActivity : AppCompatActivity() {
         if (activeState == null) {
             layoutInactiveSessionCard.visibility = View.VISIBLE
             layoutActiveSessionCard.visibility = View.GONE
+            SessionNotificationManager.cancelSessionNotification(this)
         } else {
             layoutInactiveSessionCard.visibility = View.GONE
             layoutActiveSessionCard.visibility = View.VISIBLE
@@ -628,6 +874,8 @@ class MainActivity : AppCompatActivity() {
                 txtSessionActiveCountdown.text = "No minimum time set"
                 txtSessionActiveCountdown.setTextColor(Color.parseColor("#6B7280"))
             }
+
+            SessionNotificationManager.showOrUpdateSessionNotification(this, activeState)
         }
     }
 
@@ -707,29 +955,298 @@ class MainActivity : AppCompatActivity() {
         viewNavAiGeometry = findViewById(R.id.viewNavAiGeometry)
         viewNavAiGeometry.isDarkBackground = true
 
-        labelNavToday = findViewById(R.id.labelNavToday)
-        labelNavTasks = findViewById(R.id.labelNavTasks)
-        labelNavTimeline = findViewById(R.id.labelNavTimeline)
-        labelNavSessions = findViewById(R.id.labelNavSessions)
-        labelNavAi = findViewById(R.id.labelNavAi)
-
         tabNavToday.setOnClickListener { selectTab(AppNavTab.TODAY) }
         tabNavTasks.setOnClickListener { selectTab(AppNavTab.TASKS) }
         tabNavTimeline.setOnClickListener { selectTab(AppNavTab.TIMELINE) }
         tabNavSessions.setOnClickListener { selectTab(AppNavTab.SESSIONS) }
+
+        // AI button: tap → text input bottom sheet; hold → voice overlay
+        setupAiButtonGestures()
+    }
+
+    /**
+     * Attaches gesture handling to the AI nav button:
+     * - Short tap  → opens the AI natural-language text input bottom sheet (existing behavior)
+     * - Long-press → expands white disc up to screen middle and listens directly
+     * - Release    → stops listening, converts speech to text, passes to AI parser
+     */
+    @Suppress("ClickableViewAccessibility")
+    private fun setupAiButtonGestures() {
+        val longPressThresholdMs = 320L
+        var isFingerDown = false
+
+        val longPressRunnable = Runnable {
+            if (isFingerDown) {
+                isUserHoldingAi = true
+                tabNavAi.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+
+                // Compute button center relative to the overlay layout
+                val btnLocation = IntArray(2)
+                pillNavAi.getLocationOnScreen(btnLocation)
+                val overlayLocation = IntArray(2)
+                layoutVoiceModeOverlay.getLocationOnScreen(overlayLocation)
+
+                val cx = (btnLocation[0] + pillNavAi.width / 2f) - overlayLocation[0]
+                val cy = (btnLocation[1] + pillNavAi.height / 2f) - overlayLocation[1]
+
+                onAiButtonLongPress(cx, cy)
+            }
+        }
+
+        tabNavAi.setOnTouchListener { v, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    isFingerDown = true
+                    isUserHoldingAi = false
+                    v.parent?.requestDisallowInterceptTouchEvent(true)
+                    v.postDelayed(longPressRunnable, longPressThresholdMs)
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    v.removeCallbacks(longPressRunnable)
+                    isFingerDown = false
+                    if (isUserHoldingAi) {
+                        isUserHoldingAi = false
+                        onAiButtonReleased()
+                    } else {
+                        // Short tap: trigger click
+                        v.performClick()
+                    }
+                    true
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    v.removeCallbacks(longPressRunnable)
+                    isFingerDown = false
+                    if (isUserHoldingAi) {
+                        isUserHoldingAi = false
+                        onAiButtonReleased()
+                    }
+                    true
+                }
+
+                else -> true
+            }
+        }
+
+        // Normal tap opens the text-input bottom sheet
         tabNavAi.setOnClickListener { showAiNaturalLanguageBottomSheet() }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Voice Mode Overlay — Core Logic
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /** Called when the user has held the AI button long enough. */
+    private fun onAiButtonLongPress(cx: Float, cy: Float) {
+        // Check RECORD_AUDIO permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            isUserHoldingAi = false
+            micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            return
+        }
+
+        showVoiceOverlay(cx, cy)
+    }
+
+    /** Called when the user releases the AI button after a long-press. */
+    private fun onAiButtonReleased() {
+        if (!isVoiceOverlayVisible) return
+
+        // Stop speech recognizer and waveform animation
+        viewVoiceWaveform.stopListeningAnimation()
+        try {
+            speechRecognizer?.stopListening()
+        } catch (e: Exception) {
+            // ignore
+        }
+
+        // Safety fallback: if recognizer doesn't emit onResults within 1.2s, dismiss with whatever was gathered
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (isVoiceOverlayVisible && !isUserHoldingAi) {
+                dismissVoiceOverlay(voiceTranscript)
+            }
+        }, 1200)
+    }
+
+    /**
+     * Radially expands the white disc from (cx, cy) until its circular arc boundary
+     * touches the middle of the screen (height / 2).
+     */
+    private fun showVoiceOverlay(revealX: Float, revealY: Float) {
+        isVoiceOverlayVisible = true
+        voiceTranscript = ""
+
+        // Expand the circular disc up to the middle of the screen
+        layoutVoiceModeOverlay.startExpand(revealX, revealY)
+
+        // Start waveform animation
+        viewVoiceWaveform.startListeningAnimation()
+
+        // Start SpeechRecognizer
+        startSpeechRecognition()
+    }
+
+    /**
+     * Shrinks the disc back into the AI button and opens the AI bottom sheet
+     * with the captured [transcript].
+     */
+    private fun dismissVoiceOverlay(transcript: String) {
+        if (!isVoiceOverlayVisible) return
+        isVoiceOverlayVisible = false
+
+        viewVoiceWaveform.releaseAnimator()
+
+        layoutVoiceModeOverlay.startCollapse {
+            val cleanText = transcript.trim()
+            if (cleanText.isNotBlank()) {
+                showAiNaturalLanguageBottomSheet(initialPrompt = cleanText)
+            }
+            // When no input detected: do not open the AI box at all, just close smoothly back.
+        }
+    }
+
+    /**
+     * Starts continuous listening using [SpeechRecognizer].
+     * If errors or timeouts occur while the user is STILL holding the button,
+     * it silently restarts listening instead of prematurely closing the overlay.
+     */
+    private fun startSpeechRecognition() {
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            Toast.makeText(this, "Speech recognition not available on this device.", Toast.LENGTH_SHORT).show()
+            dismissVoiceOverlay("")
+            return
+        }
+
+        // Reuse existing recognizer or create once
+        if (speechRecognizer == null) {
+            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        }
+
+        try {
+            speechRecognizer?.cancel()
+        } catch (e: Exception) {
+            // ignore
+        }
+
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+
+            override fun onReadyForSpeech(params: android.os.Bundle?) {
+                // Microphone open and ready
+            }
+
+            override fun onBeginningOfSpeech() { /* user speaking */ }
+
+            override fun onRmsChanged(rmsdB: Float) {
+                val normalised = ((rmsdB + 2f) / 12f).coerceIn(0f, 1f)
+                viewVoiceWaveform.setAmplitude(normalised)
+            }
+
+            override fun onBufferReceived(buffer: ByteArray?) { /* raw audio */ }
+
+            override fun onEndOfSpeech() {
+                viewVoiceWaveform.stopListeningAnimation()
+            }
+
+            override fun onError(error: Int) {
+                // User is STILL holding the AI button! DO NOT CLOSE!
+                // Silently restart listening so user can speak when ready
+                if (isUserHoldingAi) {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (isUserHoldingAi && isVoiceOverlayVisible) {
+                            try {
+                                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                                    putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                                }
+                                speechRecognizer?.startListening(intent)
+                            } catch (e: Exception) {
+                                // ignore
+                            }
+                        }
+                    }, 120)
+                    return
+                }
+
+                // User has already lifted finger — dismiss with whatever transcript was gathered
+                dismissVoiceOverlay(voiceTranscript)
+            }
+
+            override fun onResults(results: android.os.Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    val text = matches[0]
+                    if (text.isNotBlank()) {
+                        voiceTranscript = if (voiceTranscript.isBlank()) text else "$voiceTranscript $text"
+                    }
+                }
+
+                if (isUserHoldingAi) {
+                    // User is STILL holding — keep listening for more speech
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (isUserHoldingAi && isVoiceOverlayVisible) {
+                            try {
+                                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                                    putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                                }
+                                speechRecognizer?.startListening(intent)
+                            } catch (e: Exception) {
+                                // ignore
+                            }
+                        }
+                    }, 120)
+                } else {
+                    dismissVoiceOverlay(voiceTranscript)
+                }
+            }
+
+            override fun onPartialResults(partialResults: android.os.Bundle?) {
+                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    val text = matches[0]
+                    if (text.isNotBlank()) {
+                        voiceTranscript = text
+                    }
+                }
+            }
+
+            override fun onEvent(eventType: Int, params: android.os.Bundle?) { /* unused */ }
+        })
+
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (isVoiceOverlayVisible) {
+                try {
+                    speechRecognizer?.startListening(intent)
+                } catch (e: Exception) {
+                    // ignore
+                }
+            }
+        }, 120)
     }
 
     private fun selectTab(tab: AppNavTab) {
         currentTab = tab
         resetNavUi()
 
+        val accent = ContextCompat.getColor(this, R.color.color_accent)
+        val activeTextColor = ContextCompat.getColor(this, R.color.color_text_primary)
+
         when (tab) {
             AppNavTab.TODAY -> {
                 pillNavToday.setBackgroundResource(R.drawable.bg_nav_selected_pill)
-                iconNavToday.setColorFilter(Color.parseColor("#4F46E5"))
-                labelNavToday.setTextColor(Color.parseColor("#0E0E10"))
-                labelNavToday.setTypeface(null, android.graphics.Typeface.BOLD)
+                iconNavToday.setColorFilter(accent)
 
                 layoutTopHeader.visibility = View.VISIBLE
                 scrollTodayView.visibility = View.VISIBLE
@@ -740,9 +1257,7 @@ class MainActivity : AppCompatActivity() {
 
             AppNavTab.TASKS -> {
                 pillNavTasks.setBackgroundResource(R.drawable.bg_nav_selected_pill)
-                iconNavTasks.setColorFilter(Color.parseColor("#4F46E5"))
-                labelNavTasks.setTextColor(Color.parseColor("#0E0E10"))
-                labelNavTasks.setTypeface(null, android.graphics.Typeface.BOLD)
+                iconNavTasks.setColorFilter(accent)
 
                 layoutTopHeader.visibility = View.GONE
                 scrollTodayView.visibility = View.GONE
@@ -755,9 +1270,7 @@ class MainActivity : AppCompatActivity() {
 
             AppNavTab.TIMELINE -> {
                 pillNavTimeline.setBackgroundResource(R.drawable.bg_nav_selected_pill)
-                iconNavTimeline.setColorFilter(Color.parseColor("#4F46E5"))
-                labelNavTimeline.setTextColor(Color.parseColor("#0E0E10"))
-                labelNavTimeline.setTypeface(null, android.graphics.Typeface.BOLD)
+                iconNavTimeline.setColorFilter(accent)
 
                 layoutTopHeader.visibility = View.GONE
                 scrollTodayView.visibility = View.GONE
@@ -771,9 +1284,7 @@ class MainActivity : AppCompatActivity() {
 
             AppNavTab.SESSIONS -> {
                 pillNavSessions.setBackgroundResource(R.drawable.bg_nav_selected_pill)
-                iconNavSessions.setColorFilter(Color.parseColor("#4F46E5"))
-                labelNavSessions.setTextColor(Color.parseColor("#0E0E10"))
-                labelNavSessions.setTypeface(null, android.graphics.Typeface.BOLD)
+                iconNavSessions.setColorFilter(accent)
 
                 layoutTopHeader.visibility = View.GONE
                 scrollTodayView.visibility = View.GONE
@@ -788,8 +1299,6 @@ class MainActivity : AppCompatActivity() {
 
             AppNavTab.AI -> {
                 pillNavAi.setBackgroundResource(R.drawable.bg_nav_ai_black_circle)
-                labelNavAi.setTextColor(Color.parseColor("#0E0E10"))
-                labelNavAi.setTypeface(null, android.graphics.Typeface.BOLD)
                 showAiNaturalLanguageBottomSheet()
             }
         }
@@ -802,23 +1311,11 @@ class MainActivity : AppCompatActivity() {
         pillNavSessions.background = null
         pillNavAi.setBackgroundResource(R.drawable.bg_nav_ai_black_circle)
 
-        val grey = Color.parseColor("#6B7280")
-        iconNavToday.setColorFilter(grey)
-        iconNavTasks.setColorFilter(grey)
-        iconNavTimeline.setColorFilter(grey)
-        iconNavSessions.setColorFilter(grey)
-
-        labelNavToday.setTextColor(grey)
-        labelNavTasks.setTextColor(grey)
-        labelNavTimeline.setTextColor(grey)
-        labelNavSessions.setTextColor(grey)
-        labelNavAi.setTextColor(grey)
-
-        labelNavToday.setTypeface(null, android.graphics.Typeface.NORMAL)
-        labelNavTasks.setTypeface(null, android.graphics.Typeface.NORMAL)
-        labelNavTimeline.setTypeface(null, android.graphics.Typeface.NORMAL)
-        labelNavSessions.setTypeface(null, android.graphics.Typeface.NORMAL)
-        labelNavAi.setTypeface(null, android.graphics.Typeface.NORMAL)
+        val inactiveColor = ContextCompat.getColor(this, R.color.color_text_secondary)
+        iconNavToday.setColorFilter(inactiveColor)
+        iconNavTasks.setColorFilter(inactiveColor)
+        iconNavTimeline.setColorFilter(inactiveColor)
+        iconNavSessions.setColorFilter(inactiveColor)
     }
 
     private fun refreshTimelinePageView() {
@@ -1065,9 +1562,58 @@ class MainActivity : AppCompatActivity() {
         refreshData()
     }
 
+    private fun onSwipeCompleteTask(task: Task) {
+        val prevStatus = task.status
+        val prevCompletedAt = task.completedAt
+
+        task.status = TaskStatus.DONE
+        task.completedAt = System.currentTimeMillis()
+        repository.updateTask(task)
+        TaskAlarmScheduler.cancelTaskAlarms(this, task.id)
+        refreshData()
+
+        val rootView = findViewById<View>(android.R.id.content)
+        Snackbar.make(rootView, "Task marked as completed", Snackbar.LENGTH_LONG)
+            .setAction("UNDO") {
+                task.status = prevStatus
+                task.completedAt = prevCompletedAt
+                repository.updateTask(task)
+                if (!task.isCompleted) {
+                    TaskAlarmScheduler.scheduleTaskAlarms(this, task)
+                }
+                refreshData()
+            }
+            .show()
+    }
+
+    private fun onSwipeLeaveTask(task: Task) {
+        val taskToRestore = task.copy()
+        val sessionsToRestore = repository.getSessionsForTask(task.id)
+
+        TaskAlarmScheduler.cancelTaskAlarms(this, task.id)
+        repository.deleteTask(task.id)
+        refreshData()
+
+        val rootView = findViewById<View>(android.R.id.content)
+        Snackbar.make(rootView, "Task left & removed", Snackbar.LENGTH_LONG)
+            .setAction("UNDO") {
+                repository.restoreTask(taskToRestore, sessionsToRestore)
+                if (!taskToRestore.isCompleted) {
+                    TaskAlarmScheduler.scheduleTaskAlarms(this, taskToRestore)
+                }
+                refreshData()
+            }
+            .show()
+    }
+
     private fun startWorkSessionForTask(task: Task) {
         repository.startSession(task.id, "Work: ${task.title}")
+        val activeState = repository.getActiveSessionState()
+        if (activeState != null) {
+            SessionNotificationManager.showOrUpdateSessionNotification(this, activeState)
+        }
         Toast.makeText(this, "Started session for '${task.title}'", Toast.LENGTH_SHORT).show()
+        refreshData()
         if (currentTab == AppNavTab.SESSIONS) {
             refreshSessionsPageView()
         } else {
@@ -1257,8 +1803,13 @@ class MainActivity : AppCompatActivity() {
             val taskId = existingTask?.id
             val title = edtTitle.text.toString().ifBlank { "Working Session" }
             repository.startSession(taskId, "Work: $title")
+            val activeState = repository.getActiveSessionState()
+            if (activeState != null) {
+                SessionNotificationManager.showOrUpdateSessionNotification(this, activeState)
+            }
             dialog.dismiss()
-            showTimesheetsBottomSheet()
+            refreshData()
+            selectTab(AppNavTab.SESSIONS)
         }
 
         btnDelete.setOnClickListener {
@@ -1517,41 +2068,170 @@ class MainActivity : AppCompatActivity() {
         val settings = AppSettingsManager.getInstance(this)
 
         val btnClose = view.findViewById<ImageView>(R.id.btnCloseSettingsSheet)
-        val txtGoogleEmail = view.findViewById<TextView>(R.id.txtGoogleAccountEmail)
-        val switchGoogleSync = view.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switchGoogleSync)
         val txtGeminiBadge = view.findViewById<TextView>(R.id.txtGeminiStatusBadge)
         val edtGeminiKey = view.findViewById<EditText>(R.id.edtGeminiApiKey)
         val btnToggleKeyVis = view.findViewById<ImageView>(R.id.btnToggleApiKeyVisibility)
+        val btnGeminiModelsLink = view.findViewById<TextView>(R.id.btnGeminiModelsLink)
         val spinnerAiModel = view.findViewById<Spinner>(R.id.spinnerAiModel)
+        val layoutCustomModel = view.findViewById<View>(R.id.layoutCustomModel)
+        val edtCustomAiModel = view.findViewById<EditText>(R.id.edtCustomAiModel)
         val btnTestKey = view.findViewById<Button>(R.id.btnTestGeminiKey)
         val btnSaveKey = view.findViewById<Button>(R.id.btnSaveGeminiKey)
         val switchNotifications = view.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switchNotifications)
         val btnExportData = view.findViewById<View>(R.id.btnExportData)
+        val btnImportData = view.findViewById<View>(R.id.btnImportData)
+        val btnScanQrData = view.findViewById<View>(R.id.btnScanQrData)
+        val cardQrTransfer = view.findViewById<View>(R.id.cardQrTransfer)
+        val btnCardScanQr = view.findViewById<Button>(R.id.btnCardScanQr)
+        val imgSyncQrCode = view.findViewById<ImageView>(R.id.imgSyncQrCode)
+        val txtQrTaskSummary = view.findViewById<TextView>(R.id.txtQrTaskSummary)
+        val scrollSettingsSheet = view.findViewById<NestedScrollView>(R.id.scrollSettingsSheet)
 
         btnClose.setOnClickListener { dialog.dismiss() }
 
-        // Google Account
-        txtGoogleEmail.text = settings.googleAccountEmail
-        switchGoogleSync.isChecked = settings.isGoogleSynced
-        switchGoogleSync.setOnCheckedChangeListener { _, isChecked ->
-            settings.isGoogleSynced = isChecked
-            Toast.makeText(this, if (isChecked) "Google Cloud Sync enabled" else "Google Cloud Sync disabled", Toast.LENGTH_SHORT).show()
+        // Theme Selector
+        val btnThemeLight = view.findViewById<View>(R.id.btnThemeLight)
+        val btnThemeDark = view.findViewById<View>(R.id.btnThemeDark)
+        val btnThemeSystem = view.findViewById<View>(R.id.btnThemeSystem)
+        val iconThemeLight = view.findViewById<ImageView>(R.id.iconThemeLight)
+        val iconThemeDark = view.findViewById<ImageView>(R.id.iconThemeDark)
+        val iconThemeSystem = view.findViewById<ImageView>(R.id.iconThemeSystem)
+        val lblThemeLight = view.findViewById<TextView>(R.id.lblThemeLight)
+        val lblThemeDark = view.findViewById<TextView>(R.id.lblThemeDark)
+        val lblThemeSystem = view.findViewById<TextView>(R.id.lblThemeSystem)
+
+        fun updateThemeSelectorUi(mode: String) {
+            val isLight = mode == AppSettingsManager.THEME_LIGHT
+            val isDark = mode == AppSettingsManager.THEME_DARK
+            val isSystem = mode == AppSettingsManager.THEME_SYSTEM
+
+            val accent = ContextCompat.getColor(this, R.color.color_accent)
+            val normalText = ContextCompat.getColor(this, R.color.color_text_primary)
+
+            btnThemeLight.setBackgroundResource(if (isLight) R.drawable.bg_theme_option_selected else R.drawable.bg_theme_option_unselected)
+            iconThemeLight.setColorFilter(if (isLight) accent else normalText)
+            lblThemeLight.setTextColor(if (isLight) accent else normalText)
+
+            btnThemeDark.setBackgroundResource(if (isDark) R.drawable.bg_theme_option_selected else R.drawable.bg_theme_option_unselected)
+            iconThemeDark.setColorFilter(if (isDark) accent else normalText)
+            lblThemeDark.setTextColor(if (isDark) accent else normalText)
+
+            btnThemeSystem.setBackgroundResource(if (isSystem) R.drawable.bg_theme_option_selected else R.drawable.bg_theme_option_unselected)
+            iconThemeSystem.setColorFilter(if (isSystem) accent else normalText)
+            lblThemeSystem.setTextColor(if (isSystem) accent else normalText)
         }
 
-        // AI Model Spinner Setup with latest Gemini models
-        val models = listOf("gemini-3.7-flash", "gemini-3.7-pro", "gemini-2.5-flash", "gemini-2.0-flash")
-        val modelDisplayNames = listOf("Gemini 3.7 Flash (Latest & Recommended)", "Gemini 3.7 Pro (Deep Reasoning)", "Gemini 2.5 Flash", "Gemini 2.0 Flash")
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, modelDisplayNames)
+        updateThemeSelectorUi(settings.themeMode)
+
+        btnThemeLight.setOnClickListener {
+            if (settings.themeMode != AppSettingsManager.THEME_LIGHT) {
+                settings.themeMode = AppSettingsManager.THEME_LIGHT
+                delegate.localNightMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+                settings.applyTheme(AppSettingsManager.THEME_LIGHT, this)
+                updateThemeSelectorUi(AppSettingsManager.THEME_LIGHT)
+                Toast.makeText(this, "Light theme activated", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+
+        btnThemeDark.setOnClickListener {
+            if (settings.themeMode != AppSettingsManager.THEME_DARK) {
+                settings.themeMode = AppSettingsManager.THEME_DARK
+                delegate.localNightMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+                settings.applyTheme(AppSettingsManager.THEME_DARK, this)
+                updateThemeSelectorUi(AppSettingsManager.THEME_DARK)
+                Toast.makeText(this, "Dark theme activated", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+
+        btnThemeSystem.setOnClickListener {
+            if (settings.themeMode != AppSettingsManager.THEME_SYSTEM) {
+                settings.themeMode = AppSettingsManager.THEME_SYSTEM
+                delegate.localNightMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                settings.applyTheme(AppSettingsManager.THEME_SYSTEM, this)
+                updateThemeSelectorUi(AppSettingsManager.THEME_SYSTEM)
+                Toast.makeText(this, "Following system default theme", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+
+        // Available Models Link
+        btnGeminiModelsLink.setOnClickListener {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://ai.google.dev/gemini-api/docs/models/gemini"))
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Could not open browser", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // AI Model Spinner Setup with presets and custom option
+        val presetModels = listOf(
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro"
+        )
+        val modelDisplayNames = listOf(
+            "Gemini 2.5 Flash (Recommended)",
+            "Gemini 2.5 Pro (Advanced Reasoning)",
+            "Gemini 2.0 Flash",
+            "Gemini 1.5 Flash",
+            "Gemini 1.5 Pro",
+            "Custom Model (Enter custom ID)..."
+        )
+        val customModelIndex = modelDisplayNames.size - 1
+
+        val spinnerAdapter = ArrayAdapter(this, R.layout.item_spinner_selected, modelDisplayNames).apply {
+            setDropDownViewResource(R.layout.item_spinner_dropdown)
+        }
         spinnerAiModel.adapter = spinnerAdapter
-        val currentModelIndex = models.indexOf(settings.selectedAiModel).coerceAtLeast(0)
-        spinnerAiModel.setSelection(currentModelIndex)
+
+        val savedModel = settings.selectedAiModel.trim()
+        val foundIndex = presetModels.indexOf(savedModel)
+        if (foundIndex != -1) {
+            spinnerAiModel.setSelection(foundIndex)
+            layoutCustomModel.visibility = View.GONE
+            edtCustomAiModel.setText("")
+        } else {
+            spinnerAiModel.setSelection(customModelIndex)
+            layoutCustomModel.visibility = View.VISIBLE
+            edtCustomAiModel.setText(savedModel)
+        }
+
+        spinnerAiModel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
+                if (position == customModelIndex) {
+                    layoutCustomModel.visibility = View.VISIBLE
+                    edtCustomAiModel.requestFocus()
+                } else {
+                    layoutCustomModel.visibility = View.GONE
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        fun getSelectedModel(): String {
+            val selectedPos = spinnerAiModel.selectedItemPosition
+            return if (selectedPos == customModelIndex) {
+                val custom = edtCustomAiModel.text.toString().trim()
+                if (custom.isNotBlank()) custom else "gemini-2.5-flash"
+            } else if (selectedPos in presetModels.indices) {
+                presetModels[selectedPos]
+            } else {
+                "gemini-2.5-flash"
+            }
+        }
 
         // Gemini AI API Key
         edtGeminiKey.setText(settings.geminiApiKey)
 
         fun updateGeminiBadge() {
             if (settings.hasValidGeminiKey()) {
-                txtGeminiBadge.text = "Active (${settings.selectedAiModel})"
+                txtGeminiBadge.text = "Active"
                 txtGeminiBadge.setBackgroundResource(R.drawable.bg_badge_connected)
                 txtGeminiBadge.setTextColor(Color.parseColor("#059669"))
             } else {
@@ -1575,22 +2255,20 @@ class MainActivity : AppCompatActivity() {
 
         btnTestKey.setOnClickListener {
             val key = edtGeminiKey.text.toString().trim()
+            val modelToTest = getSelectedModel()
             if (key.isBlank()) {
                 Toast.makeText(this@MainActivity, "Please enter a Gemini API key first.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             btnTestKey.isEnabled = false
             btnTestKey.text = "Testing..."
-            GeminiAiService.testApiKey(key) { success: Boolean, message: String ->
+            GeminiAiService.testApiKey(key, modelToTest) { success: Boolean, message: String ->
                 btnTestKey.isEnabled = true
                 btnTestKey.text = "Test Key"
                 Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
                 if (success) {
                     settings.geminiApiKey = key
-                    val selectedPos = spinnerAiModel.selectedItemPosition
-                    if (selectedPos in models.indices) {
-                        settings.selectedAiModel = models[selectedPos]
-                    }
+                    settings.selectedAiModel = modelToTest
                     updateGeminiBadge()
                 }
             }
@@ -1598,13 +2276,11 @@ class MainActivity : AppCompatActivity() {
 
         btnSaveKey.setOnClickListener {
             val key = edtGeminiKey.text.toString().trim()
-            val selectedPos = spinnerAiModel.selectedItemPosition
-            if (selectedPos in models.indices) {
-                settings.selectedAiModel = models[selectedPos]
-            }
+            val modelToSave = getSelectedModel()
+            settings.selectedAiModel = modelToSave
             settings.geminiApiKey = key
             updateGeminiBadge()
-            Toast.makeText(this@MainActivity, if (key.isNotBlank()) "Gemini settings saved!" else "API key cleared. Local parser will be used.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, if (key.isNotBlank()) "Gemini settings saved ($modelToSave)!" else "API key cleared. Local parser will be used.", Toast.LENGTH_SHORT).show()
         }
 
         // Preferences
@@ -1719,9 +2395,273 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnExportData.setOnClickListener {
-            val allTasks = repository.getAllTasks()
-            val allSessions = repository.getAllSessions()
-            Toast.makeText(this@MainActivity, "Exported ${allTasks.size} tasks & ${allSessions.size} sessions to backup", Toast.LENGTH_LONG).show()
+            exportBackupToFile()
+        }
+
+        btnImportData.setOnClickListener {
+            dialog.dismiss()
+            try {
+                importJsonLauncher.launch("*/*")
+            } catch (e: Exception) {
+                importJsonLauncher.launch("application/json")
+            }
+        }
+
+        val launchQrScanner = {
+            dialog.dismiss()
+            val options = com.journeyapps.barcodescanner.ScanOptions().apply {
+                setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.QR_CODE)
+                setPrompt("Scan Tascyn QR Code on another device")
+                setCameraId(0)
+                setBeepEnabled(true)
+                setOrientationLocked(false)
+            }
+            qrScanLauncher.launch(options)
+        }
+
+        btnScanQrData.setOnClickListener { launchQrScanner() }
+        btnCardScanQr.setOnClickListener { launchQrScanner() }
+
+        // Generate QR code for device-to-device task sync
+        try {
+            val qrPayload = repository.exportTasksSummaryForQr()
+            val activeTasksCount = repository.getAllTasks().count { it.status != TaskStatus.DONE && it.status != TaskStatus.LEFT }
+            txtQrTaskSummary.text = "$activeTasksCount active tasks ready to transfer"
+
+            val barcodeEncoder = com.journeyapps.barcodescanner.BarcodeEncoder()
+            val qrBitmap = barcodeEncoder.encodeBitmap(
+                qrPayload,
+                com.google.zxing.BarcodeFormat.QR_CODE,
+                460,
+                460
+            )
+            imgSyncQrCode.setImageBitmap(qrBitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // PhonePe-style dynamic scroll reveal & peek animation
+        cardQrTransfer.alpha = 0.5f
+        cardQrTransfer.scaleX = 0.94f
+        cardQrTransfer.scaleY = 0.94f
+        cardQrTransfer.translationY = 35f
+
+        scrollSettingsSheet?.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, _, _, _ ->
+            val location = IntArray(2)
+            cardQrTransfer.getLocationOnScreen(location)
+            val screenHeight = resources.displayMetrics.heightPixels
+            val cardY = location[1]
+
+            val threshold = screenHeight * 0.90f
+            if (cardY < threshold) {
+                val progress = ((threshold - cardY) / (screenHeight * 0.30f)).coerceIn(0f, 1f)
+                val currentScale = 0.94f + (0.06f * progress)
+                val currentAlpha = 0.5f + (0.5f * progress)
+                val currentTransY = 35f * (1f - progress)
+                cardQrTransfer.animate()
+                    .scaleX(currentScale)
+                    .scaleY(currentScale)
+                    .alpha(currentAlpha)
+                    .translationY(currentTransY)
+                    .setDuration(120)
+                    .start()
+            }
+        })
+
+        cardQrTransfer.setOnClickListener {
+            cardQrTransfer.animate()
+                .scaleX(1.02f).scaleY(1.02f)
+                .setDuration(90)
+                .withEndAction {
+                    cardQrTransfer.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start()
+                }.start()
+        }
+
+        dialog.show()
+    }
+
+    private fun exportBackupToFile() {
+        try {
+            val backupJson = repository.exportBackupJson()
+            val fileName = "tascyn_backup_${System.currentTimeMillis()}.json"
+            val cacheFile = java.io.File(cacheDir, fileName)
+            cacheFile.writeText(backupJson)
+
+            val fileUri = androidx.core.content.FileProvider.getUriForFile(
+                this,
+                "${packageName}.fileprovider",
+                cacheFile
+            )
+
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/json"
+                putExtra(Intent.EXTRA_STREAM, fileUri)
+                putExtra(Intent.EXTRA_SUBJECT, "Tascyn Backup")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Export Tascyn Backup"))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Export failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun handleImportJsonUri(uri: Uri) {
+        try {
+            val jsonStr = contentResolver.openInputStream(uri)?.use { stream ->
+                stream.bufferedReader(Charsets.UTF_8).readText()
+            } ?: ""
+            if (jsonStr.isBlank()) {
+                Toast.makeText(this, "The selected file is empty.", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val tasksInJson = repository.parseTasksFromQrPayload(jsonStr)
+            if (tasksInJson.isNotEmpty()) {
+                showImportTasksSelectionDialog(tasksInJson)
+            } else {
+                val (tCount, sCount) = repository.importBackupJson(jsonStr)
+                TaskAlarmScheduler.createNotificationChannels(this)
+                TaskAlarmScheduler.scheduleAllAlarms(this)
+                refreshData()
+                Toast.makeText(this, "Imported $tCount tasks & $sCount sessions successfully!", Toast.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Could not import backup: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun handleScannedQrPayload(scannedText: String) {
+        try {
+            val tasks = repository.parseTasksFromQrPayload(scannedText)
+            if (tasks.isNotEmpty()) {
+                showImportTasksSelectionDialog(tasks)
+            } else {
+                val (tCount, sCount) = repository.importBackupJson(scannedText)
+                if (tCount > 0 || sCount > 0) {
+                    TaskAlarmScheduler.createNotificationChannels(this)
+                    TaskAlarmScheduler.scheduleAllAlarms(this)
+                    refreshData()
+                    Toast.makeText(this, "Imported $tCount tasks & $sCount sessions from QR!", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, "No valid Tascyn data detected in QR code.", Toast.LENGTH_LONG).show()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Failed to read QR: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showImportTasksSelectionDialog(tasks: List<Task>) {
+        if (tasks.isEmpty()) {
+            Toast.makeText(this, "No valid tasks found to import.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val dialog = BottomSheetDialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_import_tasks_selection, null)
+        dialog.setContentView(view)
+
+        val txtSubtitle = view.findViewById<TextView>(R.id.txtImportDialogSubtitle)
+        val btnClose = view.findViewById<ImageView>(R.id.btnCloseImportDialog)
+        val chkSelectAll = view.findViewById<CheckBox>(R.id.chkSelectAllImport)
+        val txtSelectedCount = view.findViewById<TextView>(R.id.txtImportSelectedCount)
+        val recycler = view.findViewById<RecyclerView>(R.id.recyclerImportTasks)
+        val btnCancel = view.findViewById<Button>(R.id.btnCancelImport)
+        val btnConfirm = view.findViewById<Button>(R.id.btnConfirmImport)
+
+        txtSubtitle.text = "Found ${tasks.size} tasks on device. Select tasks to import:"
+
+        val selectedIds = tasks.map { it.id }.toMutableSet()
+
+        fun updateSelectedSummary() {
+            txtSelectedCount.text = "${selectedIds.size} of ${tasks.size} selected"
+            btnConfirm.text = "Import (${selectedIds.size})"
+            btnConfirm.isEnabled = selectedIds.isNotEmpty()
+            chkSelectAll.isChecked = selectedIds.size == tasks.size
+        }
+
+        class ImportTaskAdapter : RecyclerView.Adapter<ImportTaskAdapter.ViewHolder>() {
+            inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+                val chk = itemView.findViewById<CheckBox>(R.id.chkImportTask)
+                val title = itemView.findViewById<TextView>(R.id.txtImportTaskTitle)
+                val priority = itemView.findViewById<TextView>(R.id.txtImportTaskPriority)
+                val dueDate = itemView.findViewById<TextView>(R.id.txtImportTaskDueDate)
+            }
+
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.item_import_task_checkbox, parent, false)
+                return ViewHolder(v)
+            }
+
+            override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+                val task = tasks[position]
+                holder.title.text = task.title
+                holder.priority.text = task.priority.name
+                holder.dueDate.text = if (task.dueDate != null) {
+                    val sdf = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
+                    "Due: ${sdf.format(Date(task.dueDate!!))}"
+                } else {
+                    "No due date"
+                }
+
+                holder.chk.setOnCheckedChangeListener(null)
+                holder.chk.isChecked = selectedIds.contains(task.id)
+
+                val toggleCheck = {
+                    if (selectedIds.contains(task.id)) {
+                        selectedIds.remove(task.id)
+                    } else {
+                        selectedIds.add(task.id)
+                    }
+                    holder.chk.isChecked = selectedIds.contains(task.id)
+                    updateSelectedSummary()
+                }
+
+                holder.chk.setOnClickListener { toggleCheck() }
+                holder.itemView.setOnClickListener { toggleCheck() }
+            }
+
+            override fun getItemCount(): Int = tasks.size
+        }
+
+        val adapter = ImportTaskAdapter()
+        recycler.layoutManager = LinearLayoutManager(this)
+        recycler.adapter = adapter
+
+        updateSelectedSummary()
+
+        chkSelectAll.setOnClickListener {
+            if (chkSelectAll.isChecked) {
+                selectedIds.addAll(tasks.map { it.id })
+            } else {
+                selectedIds.clear()
+            }
+            adapter.notifyDataSetChanged()
+            updateSelectedSummary()
+        }
+
+        btnClose.setOnClickListener { dialog.dismiss() }
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnConfirm.setOnClickListener {
+            val tasksToImport = tasks.filter { selectedIds.contains(it.id) }
+            if (tasksToImport.isEmpty()) {
+                Toast.makeText(this, "Please select at least one task.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            for (t in tasksToImport) {
+                repository.saveTask(t)
+            }
+
+            TaskAlarmScheduler.createNotificationChannels(this)
+            TaskAlarmScheduler.scheduleAllAlarms(this)
+            refreshData()
+            dialog.dismiss()
+            Toast.makeText(this, "Successfully imported ${tasksToImport.size} tasks!", Toast.LENGTH_LONG).show()
         }
 
         dialog.show()
@@ -1791,6 +2731,7 @@ class MainActivity : AppCompatActivity() {
 
         btnEndSession.setOnClickListener {
             repository.endCurrentActiveSession()
+            SessionNotificationManager.cancelSessionNotification(this)
             updateSheetLiveState()
             historyAdapter.submitList(repository.getAllSessions())
             refreshData()
@@ -1803,6 +2744,10 @@ class MainActivity : AppCompatActivity() {
             val linkedTaskId = if (selIdx > 0 && selIdx - 1 < allTasks.size) allTasks[selIdx - 1].id else null
 
             repository.startSession(linkedTaskId, title)
+            val activeState = repository.getActiveSessionState()
+            if (activeState != null) {
+                SessionNotificationManager.showOrUpdateSessionNotification(this, activeState)
+            }
             edtNewTitle.setText("")
             updateSheetLiveState()
             historyAdapter.submitList(repository.getAllSessions())

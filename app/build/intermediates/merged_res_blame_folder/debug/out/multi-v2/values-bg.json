@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.tascyn.app-mergeDebugResources-27:/values-bg/values-bg.xml",
+            "outputFile": "com.example.tascyn.app-mergeDebugResources-28:/values-bg/values-bg.xml",
             "map": [
                 {
                     "source": "C:\\Users\\dines\\.gradle\\caches\\transforms-3\\8a2ec3dcaff7cb2dcb5e290d7acf860b\\transformed\\appcompat-1.5.1\\res\\values-bg\\values-bg.xml",
@@ -54,6 +54,23 @@
                         "endLines": "5,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89",
                         "endColumns": "12,82,94,132,88,65,96,79,61,88,64,58,72,62,53,127,56,61,53,72,142,83,87,135,87,87,84,52,50,65,74,75,85,76,75,76,73,90,74,90,91,73,86,90,54,65,82,85,61,63,62,116,112,110,116,56,54,85",
                         "endOffsets": "310,3142,3237,3370,3459,3525,3622,3702,3764,3853,3918,3977,4050,4113,4167,4295,4352,4414,4468,4541,4684,4768,4856,4992,5080,5168,5253,5306,5357,5423,5498,5574,5660,5737,5813,5890,5964,6055,6130,6221,6313,6387,6474,6565,6620,6686,6769,6855,6917,6981,7044,7161,7274,7385,7502,7559,7614,7700"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dines\\.gradle\\caches\\transforms-3\\d1dbc84fd4b64413bb2dd53d31547bb6\\transformed\\jetified-zxing-android-embedded-4.3.0\\res\\values-bg\\values-bg.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,112,159,311",
+                        "endColumns": "56,46,151,110",
+                        "endOffsets": "107,154,306,417"
+                    },
+                    "to": {
+                        "startLines": "92,93,94,95",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "7890,7947,7994,8146",
+                        "endColumns": "56,46,151,110",
+                        "endOffsets": "7942,7989,8141,8252"
                     }
                 }
             ]

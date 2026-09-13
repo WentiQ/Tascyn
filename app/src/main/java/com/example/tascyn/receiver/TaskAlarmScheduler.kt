@@ -214,9 +214,12 @@ object TaskAlarmScheduler {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 // Use setAlarmClock for highest reliability to wake device from deep sleep & Doze
                 val showIntent = if (action == ACTION_TRIGGER_ATTENTION) {
-                    Intent(context, com.example.tascyn.MainActivity::class.java)
+                    Intent(context, com.example.tascyn.MainActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    }
                 } else {
                     Intent(context, com.example.tascyn.ui.alarm.AlarmAlertActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         putExtra(EXTRA_TASK_ID, taskId)
                         putExtra(EXTRA_TASK_TITLE, taskTitle)
                         putExtra(EXTRA_ALARM_TYPE, action)

@@ -3,9 +3,14 @@ package com.example.tascyn.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.tascyn.domain.NotionFormulas
+import com.example.tascyn.receiver.SessionNotificationManager
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.util.*
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 enum class NotionView(val displayName: String, val badgeText: String) {
     PENDING("Pending", "Sorted by Q#"),
@@ -150,9 +155,16 @@ class TaskManagerRepository private constructor(context: Context?) {
             val toKeep = sortedCompleted.take(MAX_COMPLETED_TASKS).map { it.id }.toSet()
             // Identify oldest completed tasks exceeding the 30 limit to permanently delete
             val toDelete = completed.filter { !toKeep.contains(it.id) }.map { it.id }.toSet()
+            val subtasksToDelete = tasks.filter { it.parentTaskId != null && toDelete.contains(it.parentTaskId) }.map { it.id }.toSet()
+            val allIdsToDelete = toDelete + subtasksToDelete
 
-            tasks.removeAll { toDelete.contains(it.id) || (it.parentTaskId != null && toDelete.contains(it.parentTaskId)) }
-            sessions.removeAll { it.taskId != null && toDelete.contains(it.taskId) }
+            val active = getActiveSession()
+            if (active != null && active.taskId != null && allIdsToDelete.contains(active.taskId)) {
+                sessions.remove(active)
+            }
+
+            tasks.removeAll { allIdsToDelete.contains(it.id) }
+            sessions.removeAll { it.taskId != null && allIdsToDelete.contains(it.taskId) }
 
             if (shouldSave) {
                 saveToStorage()
@@ -357,9 +369,16 @@ class TaskManagerRepository private constructor(context: Context?) {
 
     @Synchronized
     fun updateTask(task: Task) {
-        if (task.status == TaskStatus.DONE && task.completedAt == null) {
-            task.completedAt = System.currentTimeMillis()
-        } else if (task.status != TaskStatus.DONE) {
+        if (task.status == TaskStatus.DONE) {
+            if (task.completedAt == null) {
+                task.completedAt = System.currentTimeMillis()
+            }
+            // If there's an ongoing active session for this completed task, stop and log it
+            val active = getActiveSession()
+            if (active != null && active.taskId == task.id) {
+                endCurrentActiveSession()
+            }
+        } else {
             task.completedAt = null
         }
         val idx = tasks.indexOfFirst { it.id == task.id }
@@ -373,9 +392,36 @@ class TaskManagerRepository private constructor(context: Context?) {
     }
 
     @Synchronized
+    fun saveTask(task: Task) = updateTask(task)
+
+    @Synchronized
     fun deleteTask(id: String) {
-        tasks.removeAll { it.id == id || it.parentTaskId == id }
-        sessions.removeAll { it.taskId == id }
+        val childIds = tasks.filter { it.parentTaskId == id }.map { it.id }.toSet()
+        val allIdsToDelete = setOf(id) + childIds
+
+        val active = getActiveSession()
+        if (active != null && active.taskId != null && allIdsToDelete.contains(active.taskId)) {
+            sessions.remove(active)
+        }
+
+        tasks.removeAll { allIdsToDelete.contains(it.id) }
+        sessions.removeAll { it.taskId != null && allIdsToDelete.contains(it.taskId) }
+        saveToStorage()
+    }
+
+    @Synchronized
+    fun restoreTask(task: Task, taskSessions: List<TimesheetSession> = emptyList()) {
+        val idx = tasks.indexOfFirst { it.id == task.id }
+        if (idx < 0) {
+            tasks.add(0, task)
+        } else {
+            tasks[idx] = task
+        }
+        for (sess in taskSessions) {
+            if (sessions.none { it.id == sess.id }) {
+                sessions.add(0, sess)
+            }
+        }
         saveToStorage()
     }
 
@@ -395,6 +441,15 @@ class TaskManagerRepository private constructor(context: Context?) {
     fun startSession(taskId: String?, title: String = "Working Session"): TimesheetSession {
         endCurrentActiveSession()
 
+        // Automatically set the task status to In Progress
+        if (!taskId.isNullOrBlank()) {
+            val task = tasks.find { it.id == taskId }
+            if (task != null && task.status != TaskStatus.IN_PROGRESS && !task.isCompleted) {
+                task.status = TaskStatus.IN_PROGRESS
+                task.completedAt = null
+            }
+        }
+
         val newSession = TimesheetSession(
             id = "sess_" + System.currentTimeMillis(),
             title = title,
@@ -405,6 +460,7 @@ class TaskManagerRepository private constructor(context: Context?) {
         )
         sessions.add(0, newSession)
         saveToStorage()
+        appContext?.let { SessionNotificationManager.startSessionService(it) }
         return newSession
     }
 
@@ -414,6 +470,7 @@ class TaskManagerRepository private constructor(context: Context?) {
         active.status = TimesheetStatus.DONE
         active.endTime = System.currentTimeMillis()
         saveToStorage()
+        appContext?.let { SessionNotificationManager.stopSessionService(it) }
         return active
     }
 
@@ -423,6 +480,9 @@ class TaskManagerRepository private constructor(context: Context?) {
         session.status = TimesheetStatus.DONE
         session.endTime = System.currentTimeMillis()
         saveToStorage()
+        if (getActiveSession() == null) {
+            appContext?.let { SessionNotificationManager.stopSessionService(it) }
+        }
         return session
     }
 
@@ -496,8 +556,12 @@ class TaskManagerRepository private constructor(context: Context?) {
                 val tomorrowStart = getStartOfDay(now + 24 * 3600 * 1000L)
                 val tomorrowEnd = getEndOfDay(now + 24 * 3600 * 1000L)
                 all.filter { task ->
-                    task.remainderDate != null &&
-                    task.remainderDate!! in tomorrowStart..tomorrowEnd
+                    val inStatus = task.status == TaskStatus.NOT_STARTED ||
+                                   task.status == TaskStatus.IN_PROGRESS ||
+                                   task.status == TaskStatus.PROCRASTINATED
+                    val inTomorrow = task.remainderDate != null &&
+                                     task.remainderDate!! in tomorrowStart..tomorrowEnd
+                    inStatus && inTomorrow
                 }.sortedBy { it.remainderDate ?: Long.MAX_VALUE }
             }
 
@@ -569,5 +633,164 @@ class TaskManagerRepository private constructor(context: Context?) {
         cal.set(Calendar.SECOND, 59)
         cal.set(Calendar.MILLISECOND, 999)
         return cal.timeInMillis
+    }
+
+    // =========================================================================
+    // BACKUP IMPORT & EXPORT
+    // =========================================================================
+
+    @Synchronized
+    fun exportBackupJson(): String {
+        val root = JSONObject()
+        val tasksArr = JSONArray()
+        for (t in tasks) {
+            tasksArr.put(taskToJson(t))
+        }
+        val sessionsArr = JSONArray()
+        for (s in sessions) {
+            sessionsArr.put(sessionToJson(s))
+        }
+        root.put("version", 1)
+        root.put("exportedAt", System.currentTimeMillis())
+        root.put("tasks", tasksArr)
+        root.put("sessions", sessionsArr)
+        return root.toString(2)
+    }
+
+    @Synchronized
+    fun importBackupJson(jsonString: String, selectedTaskIds: Set<String>? = null): Pair<Int, Int> {
+        val root = JSONObject(jsonString)
+        val tasksArr = root.optJSONArray("tasks") ?: JSONArray()
+        val sessionsArr = root.optJSONArray("sessions") ?: JSONArray()
+
+        var taskCount = 0
+        for (i in 0 until tasksArr.length()) {
+            val taskObj = tasksArr.getJSONObject(i)
+            val task = taskFromJson(taskObj)
+            if (selectedTaskIds != null && !selectedTaskIds.contains(task.id)) {
+                continue
+            }
+            val existingIndex = tasks.indexOfFirst { it.id == task.id }
+            if (existingIndex != -1) {
+                tasks[existingIndex] = task
+            } else {
+                tasks.add(task)
+            }
+            taskCount++
+        }
+
+        var sessionCount = 0
+        for (i in 0 until sessionsArr.length()) {
+            val sessionObj = sessionsArr.getJSONObject(i)
+            val session = sessionFromJson(sessionObj)
+            val existingIndex = sessions.indexOfFirst { it.id == session.id }
+            if (existingIndex != -1) {
+                sessions[existingIndex] = session
+            } else {
+                sessions.add(session)
+            }
+            sessionCount++
+        }
+
+        enforceCompletedTaskLimit(shouldSave = false)
+        saveToStorage()
+        return Pair(taskCount, sessionCount)
+    }
+
+    // =========================================================================
+    // PHONE-TO-PHONE QR TASK TRANSFER
+    // =========================================================================
+
+    @Synchronized
+    fun exportTasksSummaryForQr(): String {
+        // Export pending & active tasks first (or all if under 20)
+        val candidateTasks = tasks.filter { it.status != TaskStatus.DONE && it.status != TaskStatus.LEFT }
+            .ifEmpty { tasks.take(20) }
+            .take(25)
+
+        val root = JSONObject()
+        val tasksArr = JSONArray()
+        for (t in candidateTasks) {
+            val obj = JSONObject().apply {
+                put("id", t.id)
+                put("t", t.title)
+                put("s", t.status.name)
+                put("p", t.priority.name)
+                put("m", t.minimumTimeRequired)
+                if (t.dueDate != null) put("d", t.dueDate)
+                if (t.remainderDate != null) put("r", t.remainderDate)
+                if (!t.comment.isNullOrBlank()) put("c", t.comment)
+                val typesArr = JSONArray()
+                t.taskTypes.forEach { typesArr.put(it.name) }
+                put("tt", typesArr)
+            }
+            tasksArr.put(obj)
+        }
+        root.put("tasks", tasksArr)
+        val jsonStr = root.toString()
+
+        // Compress via GZIP and Base64 for a clean, compact QR code
+        val bos = ByteArrayOutputStream()
+        GZIPOutputStream(bos).use { it.write(jsonStr.toByteArray(Charsets.UTF_8)) }
+        val compressedBytes = bos.toByteArray()
+        return "TASCYN_SYNC:" + android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
+    }
+
+    fun parseTasksFromQrPayload(qrData: String): List<Task> {
+        try {
+            val jsonStr = if (qrData.startsWith("TASCYN_SYNC:")) {
+                val b64 = qrData.substring("TASCYN_SYNC:".length).trim()
+                val bytes = android.util.Base64.decode(b64, android.util.Base64.NO_WRAP)
+                GZIPInputStream(ByteArrayInputStream(bytes)).bufferedReader(Charsets.UTF_8).use { it.readText() }
+            } else {
+                qrData
+            }
+
+            val root = JSONObject(jsonStr)
+            val tasksArr = root.optJSONArray("tasks") ?: JSONArray()
+            val result = mutableListOf<Task>()
+            for (i in 0 until tasksArr.length()) {
+                val obj = tasksArr.getJSONObject(i)
+                // Support both full keys and compact keys
+                val id = obj.optString("id", UUID.randomUUID().toString())
+                val title = if (obj.has("t")) obj.getString("t") else obj.optString("title", "Untitled Task")
+                val statusStr = if (obj.has("s")) obj.getString("s") else obj.optString("status", TaskStatus.NOT_STARTED.name)
+                val status = try { TaskStatus.valueOf(statusStr) } catch (e: Exception) { TaskStatus.NOT_STARTED }
+                val priorityStr = if (obj.has("p")) obj.getString("p") else obj.optString("priority", TaskPriority.MEDIUM.name)
+                val priority = try { TaskPriority.valueOf(priorityStr) } catch (e: Exception) { TaskPriority.MEDIUM }
+                val minTime = if (obj.has("m")) obj.getString("m") else obj.optString("minimumTimeRequired", "0d 1h 0m")
+                val dueDate = if (obj.has("d")) obj.optLong("d") else if (obj.has("dueDate")) obj.optLong("dueDate") else null
+                val remainderDate = if (obj.has("r")) obj.optLong("r") else if (obj.has("remainderDate")) obj.optLong("remainderDate") else null
+                val comment = if (obj.has("c")) obj.optString("c", "") else obj.optString("comment", "")
+
+                val types = mutableSetOf<TaskType>()
+                val typesArr = obj.optJSONArray("tt") ?: obj.optJSONArray("taskTypes")
+                if (typesArr != null) {
+                    for (k in 0 until typesArr.length()) {
+                        val tName = typesArr.getString(k)
+                        try { types.add(TaskType.valueOf(tName)) } catch (e: Exception) {}
+                    }
+                }
+
+                result.add(
+                    Task(
+                        id = id,
+                        title = title,
+                        status = status,
+                        priority = priority,
+                        taskTypes = types,
+                        comment = comment,
+                        minimumTimeRequired = minTime,
+                        dueDate = dueDate,
+                        remainderDate = remainderDate,
+                        createdAt = System.currentTimeMillis()
+                    )
+                )
+            }
+            return result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
+        }
     }
 }

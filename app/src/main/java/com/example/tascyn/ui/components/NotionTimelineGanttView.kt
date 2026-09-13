@@ -158,7 +158,28 @@ class NotionTimelineGanttView @JvmOverloads constructor(
     }
 
     init {
+        updateThemeColors()
         recomputeDates()
+    }
+
+    fun updateThemeColors() {
+        headerBgPaint.color = ContextCompat.getColor(context, R.color.color_canvas)
+        gridLinePaint.color = ContextCompat.getColor(context, R.color.color_timeline_grid)
+        weekendPaint.color = ContextCompat.getColor(context, R.color.color_timeline_weekend)
+        todayColumnPaint.color = ContextCompat.getColor(context, R.color.color_timeline_today)
+        todayPillPaint.color = ContextCompat.getColor(context, R.color.color_accent)
+        textHeaderDayNamePaint.color = ContextCompat.getColor(context, R.color.color_text_tertiary)
+        textHeaderDayNumberPaint.color = ContextCompat.getColor(context, R.color.color_text_secondary)
+        textHeaderTodayDayPaint.color = Color.WHITE
+        textHeaderTodayLabelPaint.color = ContextCompat.getColor(context, R.color.color_accent)
+        cardBgPaint.color = ContextCompat.getColor(context, R.color.color_card_bg)
+        cardBorderPaint.color = ContextCompat.getColor(context, R.color.color_card_border)
+        taskTitlePaint.color = ContextCompat.getColor(context, R.color.color_text_primary)
+        reminderTimePaint.color = ContextCompat.getColor(context, R.color.color_accent)
+        gutterBgPaint.color = ContextCompat.getColor(context, R.color.color_canvas)
+        newBtnBgPaint.color = ContextCompat.getColor(context, R.color.color_btn_secondary_bg)
+        newBtnBorderPaint.color = ContextCompat.getColor(context, R.color.color_card_border)
+        newBtnTextPaint.color = ContextCompat.getColor(context, R.color.color_text_secondary)
     }
 
     private fun recomputeDates() {
@@ -283,6 +304,7 @@ class NotionTimelineGanttView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        updateThemeColors()
         taskRects.clear()
         offscreenIndicators.clear()
 

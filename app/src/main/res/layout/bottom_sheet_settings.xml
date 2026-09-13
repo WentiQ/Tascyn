@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollSettingsSheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet"
@@ -29,7 +30,8 @@
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:src="@drawable/ic_settings_precision" />
+                android:src="@drawable/ic_settings_precision"
+                app:tint="@color/color_icon_primary" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -43,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
                     android:text="Settings"
-                    android:textColor="#0E0E10"
+                    android:textColor="@color/color_text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -51,8 +53,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="Account, Gemini AI &amp; preferences"
-                    android:textColor="#6B7280"
+                    android:text="Gemini AI, Theme &amp; Preferences"
+                    android:textColor="@color/color_text_secondary"
                     android:textSize="12.5sp" />
             </LinearLayout>
 
@@ -63,18 +65,18 @@
                 android:background="@drawable/bg_chip_pearl"
                 android:padding="6dp"
                 android:src="@drawable/ic_close_precision"
-                app:tint="#1E293B" />
+                app:tint="@color/color_icon_primary" />
         </LinearLayout>
 
-        <!-- SECTION 1: GOOGLE ACCOUNT -->
+        <!-- SECTION 1: APPEARANCE & THEME -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif-bold"
-            android:text="GOOGLE ACCOUNT &amp; SYNC"
-            android:textColor="#9CA3AF"
+            android:text="APPEARANCE &amp; THEME"
+            android:textColor="@color/color_text_tertiary"
             android:textSize="11.5sp" />
 
         <LinearLayout
@@ -84,81 +86,129 @@
             android:orientation="vertical"
             android:padding="14dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-bold"
+                android:text="Color Theme"
+                android:textColor="@color/color_text_primary"
+                android:textSize="13.5sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="sans-serif"
+                android:text="Choose Light, Dark or follow your Android system mode."
+                android:textColor="@color/color_text_secondary"
+                android:textSize="12sp" />
+
+            <!-- Theme Switcher Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="3">
 
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@drawable/ic_google_logo" />
-
+                <!-- Light Option -->
                 <LinearLayout
+                    android:id="@+id/btnThemeLight"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:background="@drawable/bg_theme_option_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="10dp"
+                    android:paddingHorizontal="4dp">
+
+                    <ImageView
+                        android:id="@+id/iconThemeLight"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_theme_light"
+                        app:tint="@color/color_text_primary" />
 
                     <TextView
-                        android:id="@+id/txtGoogleAccountEmail"
+                        android:id="@+id/lblThemeLight"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
                         android:fontFamily="sans-serif-bold"
-                        android:text="dinesh@gmail.com"
-                        android:textColor="#0E0E10"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:text="Connected &amp; Synced"
-                        android:textColor="#059669"
+                        android:text="Light"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/btnGoogleAccountAction"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_badge_connected"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="5dp"
-                    android:text="Connected"
-                    android:textColor="#059669"
-                    android:textSize="11.5sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginVertical="12dp"
-                android:background="#E5E7EB" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
+                <!-- Dark Option -->
+                <LinearLayout
+                    android:id="@+id/btnThemeDark"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2dp"
                     android:layout_weight="1"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Cloud Database Synchronization"
-                    android:textColor="#374151"
-                    android:textSize="13sp" />
+                    android:background="@drawable/bg_theme_option_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="10dp"
+                    android:paddingHorizontal="4dp">
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchGoogleSync"
-                    android:layout_width="wrap_content"
+                    <ImageView
+                        android:id="@+id/iconThemeDark"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_theme_dark"
+                        app:tint="@color/color_text_primary" />
+
+                    <TextView
+                        android:id="@+id/lblThemeDark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Dark"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- System Option -->
+                <LinearLayout
+                    android:id="@+id/btnThemeSystem"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:checked="true" />
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_theme_option_selected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="10dp"
+                    android:paddingHorizontal="4dp">
+
+                    <ImageView
+                        android:id="@+id/iconThemeSystem"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_theme_system"
+                        app:tint="@color/color_accent" />
+
+                    <TextView
+                        android:id="@+id/lblThemeSystem"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="System"
+                        android:textColor="@color/color_accent"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
@@ -170,7 +220,7 @@
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif-bold"
             android:text="GEMINI AI CONFIGURATION"
-            android:textColor="#9CA3AF"
+            android:textColor="@color/color_text_tertiary"
             android:textSize="11.5sp" />
 
         <LinearLayout
@@ -199,7 +249,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Google Gemini API Key"
-                    android:textColor="#0E0E10"
+                    android:textColor="@color/color_text_primary"
                     android:textSize="13.5sp" />
 
                 <TextView
@@ -210,7 +260,7 @@
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="3dp"
                     android:text="Active"
-                    android:textColor="#059669"
+                    android:textColor="@color/color_badge_connected_text"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -222,7 +272,7 @@
                 android:layout_marginBottom="10dp"
                 android:fontFamily="sans-serif"
                 android:text="Required for AI task parser, schema generation &amp; smart scheduling."
-                android:textColor="#6B7280"
+                android:textColor="@color/color_text_secondary"
                 android:textSize="12sp" />
 
             <!-- API Key Input Field -->
@@ -243,8 +293,8 @@
                     android:fontFamily="monospace"
                     android:hint="Paste API Key (AIzaSy...)"
                     android:inputType="textPassword"
-                    android:textColor="#0E0E10"
-                    android:textColorHint="#9CA3AF"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_tertiary"
                     android:textSize="12.5sp" />
 
                 <ImageView
@@ -255,14 +305,14 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:src="@drawable/ic_stats_bars"
-                    app:tint="#6B7280" />
+                    app:tint="@color/color_icon_secondary" />
             </LinearLayout>
 
-            <!-- AI Model Selector -->
+            <!-- AI Model Selector Header & Doc Link -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -270,17 +320,82 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Active LLM Model"
-                    android:textColor="#374151"
-                    android:textSize="12.5sp" />
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Gemini Model"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="13sp" />
 
-                <Spinner
-                    android:id="@+id/spinnerAiModel"
+                <TextView
+                    android:id="@+id/btnGeminiModelsLink"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:background="@drawable/bg_chip_pearl"
-                    android:paddingHorizontal="8dp" />
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:paddingVertical="4dp"
+                    android:paddingHorizontal="6dp"
+                    android:text="Available Models ↗"
+                    android:textColor="@color/color_accent"
+                    android:textSize="11.5sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif"
+                android:text="Select a model or enter a custom model identifier."
+                android:textColor="@color/color_text_secondary"
+                android:textSize="11.5sp" />
+
+            <!-- Model Dropdown Spinner (Full Width) -->
+            <Spinner
+                android:id="@+id/spinnerAiModel"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_input_field" />
+
+            <!-- Custom Model Input Field (Shown when Custom Model option is selected) -->
+            <LinearLayout
+                android:id="@+id/layoutCustomModel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Custom Model ID"
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="11.5sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_input_field"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp">
+
+                    <EditText
+                        android:id="@+id/edtCustomAiModel"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:fontFamily="monospace"
+                        android:hint="e.g. gemini-2.5-flash or gemini-3.0-pro"
+                        android:inputType="textNoSuggestions|textVisiblePassword"
+                        android:singleLine="true"
+                        android:textColor="@color/color_text_primary"
+                        android:textColorHint="@color/color_text_tertiary"
+                        android:textSize="12.5sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Test Connection & Save Action Buttons -->
@@ -301,10 +416,10 @@
                     android:fontFamily="sans-serif-bold"
                     android:text="Test Key"
                     android:textAllCaps="false"
-                    android:textColor="#0E0E10"
+                    android:textColor="@color/color_text_primary"
                     android:textSize="12.5sp"
                     app:cornerRadius="8dp"
-                    app:strokeColor="#D1D5DB" />
+                    app:strokeColor="@color/color_card_border" />
 
                 <Button
                     android:id="@+id/btnSaveGeminiKey"
@@ -312,17 +427,17 @@
                     android:layout_height="40dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
-                    android:backgroundTint="#0E0E10"
+                    android:backgroundTint="@color/color_btn_primary_bg"
                     android:fontFamily="sans-serif-bold"
                     android:text="Save Key"
                     android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/color_btn_primary_text"
                     android:textSize="12.5sp"
                     app:cornerRadius="8dp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- SECTION 3: BACKGROUND ACTIVITY & ALARM PERMISSIONS -->
+        <!-- SECTION 4: BACKGROUND ACTIVITY & ALARM PERMISSIONS -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -330,7 +445,7 @@
             android:layout_marginBottom="4dp"
             android:fontFamily="sans-serif-bold"
             android:text="BACKGROUND ACTIVITY &amp; ALARMS"
-            android:textColor="#9CA3AF"
+            android:textColor="@color/color_text_tertiary"
             android:textSize="11.5sp" />
 
         <TextView
@@ -339,7 +454,7 @@
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif"
             android:text="Ensure alerts &amp; alarms fire on time even when phone is locked or asleep."
-            android:textColor="#6B7280"
+            android:textColor="@color/color_text_secondary"
             android:textSize="12sp" />
 
         <LinearLayout
@@ -367,7 +482,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Notification Alerts"
-                        android:textColor="#0E0E10"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="13.5sp" />
 
                     <TextView
@@ -375,7 +490,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="Push notifications for attention-needed tasks"
-                        android:textColor="#6B7280"
+                        android:textColor="@color/color_text_secondary"
                         android:textSize="11.5sp" />
                 </LinearLayout>
 
@@ -387,7 +502,7 @@
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="3dp"
                     android:text="Granted"
-                    android:textColor="#059669"
+                    android:textColor="@color/color_badge_connected_text"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -402,16 +517,16 @@
                 android:paddingVertical="0dp"
                 android:text="Configure Notification Permission"
                 android:textAllCaps="false"
-                android:textColor="#0E0E10"
+                android:textColor="@color/color_text_primary"
                 android:textSize="12sp"
                 app:cornerRadius="6dp"
-                app:strokeColor="#D1D5DB" />
+                app:strokeColor="@color/color_card_border" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="12dp"
-                android:background="#E5E7EB" />
+                android:background="@color/color_divider" />
 
             <!-- 2. Exact Alarms Permission -->
             <LinearLayout
@@ -431,7 +546,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Exact Alarm &amp; Full-Screen Alerts"
-                        android:textColor="#0E0E10"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="13.5sp" />
 
                     <TextView
@@ -439,7 +554,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="Full-screen alarm clock alerts for urgent/overdue"
-                        android:textColor="#6B7280"
+                        android:textColor="@color/color_text_secondary"
                         android:textSize="11.5sp" />
                 </LinearLayout>
 
@@ -451,7 +566,7 @@
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="3dp"
                     android:text="Granted"
-                    android:textColor="#059669"
+                    android:textColor="@color/color_badge_connected_text"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -466,16 +581,16 @@
                 android:paddingVertical="0dp"
                 android:text="Allow Exact Alarms Setting"
                 android:textAllCaps="false"
-                android:textColor="#0E0E10"
+                android:textColor="@color/color_text_primary"
                 android:textSize="12sp"
                 app:cornerRadius="6dp"
-                app:strokeColor="#D1D5DB" />
+                app:strokeColor="@color/color_card_border" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="12dp"
-                android:background="#E5E7EB" />
+                android:background="@color/color_divider" />
 
             <!-- 3. Battery Optimization (Doze Whitelist) -->
             <LinearLayout
@@ -495,7 +610,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Battery Optimization Exemption"
-                        android:textColor="#0E0E10"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="13.5sp" />
 
                     <TextView
@@ -503,7 +618,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="Prevents OS from sleeping/killing alarms"
-                        android:textColor="#6B7280"
+                        android:textColor="@color/color_text_secondary"
                         android:textSize="11.5sp" />
                 </LinearLayout>
 
@@ -515,7 +630,7 @@
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="3dp"
                     android:text="Unrestricted"
-                    android:textColor="#059669"
+                    android:textColor="@color/color_badge_connected_text"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -530,32 +645,32 @@
                 android:paddingVertical="0dp"
                 android:text="Disable Battery Optimization"
                 android:textAllCaps="false"
-                android:textColor="#0E0E10"
+                android:textColor="@color/color_text_primary"
                 android:textSize="12sp"
                 app:cornerRadius="6dp"
-                app:strokeColor="#D1D5DB" />
+                app:strokeColor="@color/color_card_border" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="12dp"
-                android:background="#E5E7EB" />
+                android:background="@color/color_divider" />
 
             <!-- 4. System App Settings / Full Screen Over Other Apps -->
             <Button
                 android:id="@+id/btnOpenAppSettings"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:backgroundTint="#0E0E10"
+                android:backgroundTint="@color/color_btn_primary_bg"
                 android:fontFamily="sans-serif-bold"
                 android:text="Open System App Info &amp; Permissions"
                 android:textAllCaps="false"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/color_btn_primary_text"
                 android:textSize="12.5sp"
                 app:cornerRadius="8dp" />
         </LinearLayout>
 
-        <!-- SECTION 4: APP PREFERENCES -->
+        <!-- SECTION 5: APP PREFERENCES -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -563,7 +678,7 @@
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif-bold"
             android:text="APP PREFERENCES"
-            android:textColor="#9CA3AF"
+            android:textColor="@color/color_text_tertiary"
             android:textSize="11.5sp" />
 
         <LinearLayout
@@ -585,7 +700,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-medium"
                     android:text="Urgent &amp; Overdue Notifications"
-                    android:textColor="#374151"
+                    android:textColor="@color/color_text_secondary"
                     android:textSize="13sp" />
 
                 <androidx.appcompat.widget.SwitchCompat
@@ -599,7 +714,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="12dp"
-                android:background="#E5E7EB" />
+                android:background="@color/color_divider" />
 
             <LinearLayout
                 android:id="@+id/btnExportData"
@@ -610,23 +725,203 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingVertical="4dp">
+                android:paddingVertical="6dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-medium"
-                    android:text="Export Tasks &amp; Sessions (JSON / Notion)"
-                    android:textColor="#374151"
+                    android:text="Export Tasks &amp; Sessions (JSON)"
+                    android:textColor="@color/color_text_secondary"
                     android:textSize="13sp" />
 
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="#9CA3AF" />
+                    app:tint="@color/color_icon_secondary" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="@color/color_divider" />
+
+            <LinearLayout
+                android:id="@+id/btnImportData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Import Tasks &amp; Sessions (JSON File)"
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/color_icon_secondary" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="@color/color_divider" />
+
+            <LinearLayout
+                android:id="@+id/btnScanQrData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Scan QR to Import Tasks from Phone"
+                    android:textColor="@color/color_accent"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/color_accent" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- SECTION 5: PHONE-TO-PHONE TASK TRANSFER QR -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="DEVICE SYNC &amp; TASK TRANSFER QR"
+            android:textColor="@color/color_text_tertiary"
+            android:textSize="11.5sp" />
+
+        <LinearLayout
+            android:id="@+id/cardQrTransfer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_settings_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Card Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_stats_bars"
+                    app:tint="@color/color_accent" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="My Task Sync QR"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/txtQrTaskSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="Scan with another phone to transfer tasks"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnCardScanQr"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="0dp"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Scan QR"
+                    android:textAllCaps="false"
+                    android:textColor="@color/color_accent"
+                    android:textSize="11.5sp"
+                    app:cornerRadius="6dp"
+                    app:strokeColor="@color/color_accent" />
+            </LinearLayout>
+
+            <!-- PhonePe-style QR Preview Container -->
+            <LinearLayout
+                android:id="@+id/layoutQrContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="2dp">
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp">
+
+                        <ImageView
+                            android:id="@+id/imgSyncQrCode"
+                            android:layout_width="190dp"
+                            android:layout_height="190dp"
+                            android:scaleType="fitCenter" />
+                    </FrameLayout>
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Scan this code from Tascyn on another phone to import"
+                    android:textColor="@color/color_text_tertiary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <!-- Version Footer -->
@@ -638,7 +933,7 @@
             android:gravity="center"
             android:fontFamily="sans-serif"
             android:text="Tascyn v1.0 · Notion Task Manager Engine"
-            android:textColor="#9CA3AF"
+            android:textColor="@color/color_text_tertiary"
             android:textSize="11.5sp" />
 
     </LinearLayout>

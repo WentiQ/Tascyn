@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#FEF2F2" />
+    <solid android:color="@color/color_badge_disconnected_bg" />
     <corners android:radius="6dp" />
-    <stroke android:width="1dp" android:color="#FECACA" />
+    <stroke android:width="1dp" android:color="@color/color_badge_disconnected_border" />
 </shape>

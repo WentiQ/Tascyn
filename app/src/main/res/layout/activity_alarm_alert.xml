@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="@color/color_canvas">
 
     <!-- Scrollable Content Area -->
     <androidx.core.widget.NestedScrollView
@@ -219,7 +219,7 @@
         android:id="@+id/layoutAlarmActionsBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
+        android:background="@color/color_canvas"
         android:elevation="8dp"
         android:orientation="vertical"
         android:paddingHorizontal="24dp"
@@ -231,30 +231,54 @@
         <Button
             android:id="@+id/btnAlarmSnooze10m"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:backgroundTint="#0E0E10"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/color_btn_primary_bg"
             android:fontFamily="sans-serif-bold"
             android:text="Snooze 10 Minutes"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
+            android:textColor="@color/color_btn_primary_text"
+            android:textSize="14.5sp"
             app:cornerRadius="12dp" />
 
-        <!-- Button 2: Reschedule / Custom Reminder (Outlined White Pill) -->
-        <Button
-            android:id="@+id/btnAlarmReschedule"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        <!-- Button 2 & 3: Dual Reschedule Due Date & Add Reminder -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="10dp"
-            android:fontFamily="sans-serif-bold"
-            android:text="Reschedule / Custom Reminder"
-            android:textAllCaps="false"
-            android:textColor="#0E0E10"
-            android:textSize="14sp"
-            app:cornerRadius="12dp"
-            app:strokeColor="#D1D5DB"
-            app:strokeWidth="1.5dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnAlarmRescheduleDueDate"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-bold"
+                android:text="Reschedule Due"
+                android:textAllCaps="false"
+                android:textColor="@color/color_text_primary"
+                android:textSize="12sp"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/color_card_border"
+                app:strokeWidth="1.5dp" />
+
+            <Button
+                android:id="@+id/btnAlarmAddCustomReminder"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-bold"
+                android:text="Add Reminder"
+                android:textAllCaps="false"
+                android:textColor="@color/color_text_primary"
+                android:textSize="12sp"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/color_card_border"
+                app:strokeWidth="1.5dp" />
+        </LinearLayout>
 
         <!-- Bottom Action Row: Mark Done & Dismiss -->
         <LinearLayout
@@ -288,7 +312,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:text="Dismiss"
                 android:textAllCaps="false"
-                android:textColor="#6B7280"
+                android:textColor="@color/color_text_secondary"
                 android:textSize="13.5sp" />
         </LinearLayout>
 

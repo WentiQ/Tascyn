@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Monochrome / Metallic Palette -->
+    <color name="color_void">#F4F5F7</color>
+    <color name="color_graphite">#E2E4E9</color>
+    <color name="color_carbon">#C8C9CE</color>
+    <color name="color_steel">#9CA3AF</color>
+    <color name="color_silver">#4B5563</color>
+    <color name="color_mist">#262832</color>
+    <color name="color_pearl">#1F2027</color>
+    <color name="color_white">#111216</color>
+
+    <!-- Semantic Canvas & Surfaces (Night) -->
+    <color name="color_canvas">#111216</color>
+    <color name="color_surface">#1B1C22</color>
+    <color name="color_surface_secondary">#23252E</color>
+    <color name="color_card_bg">#1B1C22</color>
+    <color name="color_card_border">#2C2E38</color>
+    <color name="color_card_inner_bg">#23252E</color>
+    <color name="color_dock_bg">#1B1C22</color>
+    <color name="color_dock_border">#2C2E38</color>
+    <color name="color_input_bg">#23252E</color>
+    <color name="color_input_border">#383A46</color>
+    <color name="color_divider">#282933</color>
+
+    <!-- Navigation & Bottom Sheets (Night) -->
+    <color name="color_bottom_nav_bg">#16171D</color>
+    <color name="color_bottom_nav_border">#282933</color>
+    <color name="color_bottom_nav_indicator">#2D325A</color>
+    <color name="color_bottom_sheet_bg">#1B1C22</color>
+    <color name="color_bottom_sheet_handle">#383A46</color>
+
+    <!-- Typography & Icons (Night) -->
+    <color name="color_text_primary">#F3F4F6</color>
+    <color name="color_text_secondary">#9CA3AF</color>
+    <color name="color_text_tertiary">#6B7280</color>
+    <color name="color_icon_primary">#F3F4F6</color>
+    <color name="color_icon_secondary">#9CA3AF</color>
+
+    <!-- Primary & Secondary Buttons (Night) -->
+    <color name="color_btn_primary_bg">#F3F4F6</color>
+    <color name="color_btn_primary_text">#0E0E10</color>
+    <color name="color_btn_secondary_bg">#2A2C36</color>
+    <color name="color_btn_secondary_text">#F3F4F6</color>
+    <color name="color_chip_bg">#262832</color>
+
+    <!-- Accents & Semantic Urgency (Night) -->
+    <color name="color_accent">#818CF8</color>
+    <color name="color_accent_subtle">#1E1B4B</color>
+    <color name="color_urgent_red">#EF4444</color>
+    <color name="color_urgent_red_bg">#33EF4444</color>
+    <color name="color_urgent_red_light">#3B1818</color>
+    <color name="color_attention_orange">#F97316</color>
+    <color name="color_attention_orange_bg">#33F97316</color>
+    <color name="color_on_track_green">#22C55E</color>
+    <color name="color_ontrack_green_bg">#3322C55E</color>
+    <color name="color_neutral_blue">#3B82F6</color>
+    <color name="color_success">#10B981</color>
+
+    <!-- Status Badges (Night) -->
+    <color name="color_badge_connected_bg">#064E3B</color>
+    <color name="color_badge_connected_border">#047857</color>
+    <color name="color_badge_connected_text">#34D399</color>
+    <color name="color_badge_disconnected_bg">#450A0A</color>
+    <color name="color_badge_disconnected_border">#991B1B</color>
+    <color name="color_badge_disconnected_text">#F87171</color>
+
+    <!-- Notion Gantt / Timeline Tokens (Night) -->
+    <color name="color_timeline_grid">#262832</color>
+    <color name="color_timeline_weekend">#1A1B22</color>
+    <color name="color_timeline_today">#222640</color>
+
+    <!-- Fallback / Legacy tokens -->
+    <color name="color_dark_canvas">#111216</color>
+    <color name="color_dark_surface">#1B1C22</color>
+    <color name="color_dark_text_primary">#F4F5F7</color>
+    <color name="color_dark_text_secondary">#9CA3AF</color>
+
+    <color name="purple_500">#818CF8</color>
+    <color name="purple_700">#4F46E5</color>
+    <color name="teal_200">#10B981</color>
+    <color name="black">#FFFFFF</color>
+    <color name="white">#111216</color>
+</resources>

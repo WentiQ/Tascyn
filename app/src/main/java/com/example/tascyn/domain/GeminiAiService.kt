@@ -27,8 +27,9 @@ object GeminiAiService {
     private val executor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    fun testApiKey(apiKey: String, onResult: (success: Boolean, message: String) -> Unit) {
+    fun testApiKey(apiKey: String, model: String = "gemini-2.5-flash", onResult: (success: Boolean, message: String) -> Unit) {
         val cleanKey = apiKey.trim()
+        val cleanModel = model.trim().ifBlank { "gemini-2.5-flash" }
         if (cleanKey.isBlank()) {
             onResult(false, "API Key cannot be empty.")
             return
@@ -36,7 +37,7 @@ object GeminiAiService {
 
         executor.execute {
             try {
-                val url = URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=$cleanKey")
+                val url = URL("https://generativelanguage.googleapis.com/v1beta/models/$cleanModel:generateContent?key=$cleanKey")
                 val conn = (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     setRequestProperty("Content-Type", "application/json; charset=UTF-8")
@@ -65,7 +66,7 @@ object GeminiAiService {
 
                 val responseCode = conn.responseCode
                 if (responseCode == 200) {
-                    mainHandler.post { onResult(true, "Gemini API Key is valid and active (Gemini 3.7 Flash)!") }
+                    mainHandler.post { onResult(true, "Gemini API Key is valid and model '$cleanModel' is working!") }
                 } else {
                     val errorStream = conn.errorStream
                     val errorMsg = if (errorStream != null) {
@@ -78,7 +79,7 @@ object GeminiAiService {
                     } catch (e: Exception) {
                         errorMsg
                     }
-                    mainHandler.post { onResult(false, "Authentication failed ($responseCode): $parsedMsg") }
+                    mainHandler.post { onResult(false, "Test failed ($responseCode): $parsedMsg") }
                 }
             } catch (e: Exception) {
                 mainHandler.post { onResult(false, "Connection error: ${e.localizedMessage ?: "Unknown error"}") }

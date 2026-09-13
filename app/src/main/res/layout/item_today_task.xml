@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layoutTaskCardRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -19,12 +20,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/imgTaskCheckbox"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:src="@drawable/ic_precision_circle"
-            android:tint="#9CA3AF" />
+        <com.example.tascyn.ui.components.TaskCheckboxPulseView
+            android:id="@+id/viewTaskCheckbox"
+            android:layout_width="24dp"
+            android:layout_height="24dp" />
 
         <View
             android:id="@+id/viewStatusDot"
@@ -43,7 +42,7 @@
             android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
             android:maxLines="2"
-            android:textColor="#0E0E10"
+            android:textColor="@color/color_text_primary"
             android:textSize="15.5sp"
             tools:text="Finish robotics assignment" />
 
@@ -65,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="▶"
-                android:textColor="#1F2937"
+                android:textColor="@color/color_text_primary"
                 android:textSize="10sp" />
 
             <TextView
@@ -75,7 +74,7 @@
                 android:layout_marginStart="4dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="Start"
-                android:textColor="#1F2937"
+                android:textColor="@color/color_text_primary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -91,7 +90,7 @@
         android:ellipsize="end"
         android:fontFamily="sans-serif"
         android:maxLines="1"
-        android:textColor="#EF4444"
+        android:textColor="@color/color_urgent_red"
         android:textSize="12sp"
         tools:text="Overdue · Overdue · 10h 10m · Q2 · Recover Immedia..." />
 

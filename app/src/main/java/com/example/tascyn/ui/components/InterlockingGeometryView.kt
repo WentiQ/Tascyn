@@ -33,7 +33,7 @@ class InterlockingGeometryView @JvmOverloads constructor(
 
     private var currentMode: Mode = Mode.STATIC_METALLIC
 
-    var isDarkBackground: Boolean = false
+    var isDarkBackground: Boolean = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
         set(value) {
             field = value
             updateGradients(width, height)
