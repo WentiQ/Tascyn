@@ -2465,23 +2465,118 @@ class MainActivity : AppCompatActivity() {
         btnScanQrData.setOnClickListener { launchQrScanner() }
         btnCardScanQr.setOnClickListener { launchQrScanner() }
 
-        // Generate QR code for device-to-device task sync
-        try {
-            val qrPayload = repository.exportTasksSummaryForQr()
-            val activeTasksCount = repository.getAllTasks().count { it.status != TaskStatus.DONE && it.status != TaskStatus.LEFT }
-            txtQrTaskSummary.text = "$activeTasksCount active tasks ready to transfer"
+        // =========================================================================
+        // DYNAMIC DEVICE QR WITH 30s AUTO-BLUR & 5-MIN EXPIRATION
+        // =========================================================================
+        val viewQrBlurOverlay = view.findViewById<View>(R.id.viewQrBlurOverlay)
+        val btnUnhideQr = view.findViewById<View>(R.id.btnUnhideQr)
+        val txtQrStatusTicker = view.findViewById<TextView>(R.id.txtQrStatusTicker)
+        val dotQrStatusLive = view.findViewById<View>(R.id.dotQrStatusLive)
+        val txtBlurOverlaySubtitle = view.findViewById<TextView>(R.id.txtBlurOverlaySubtitle)
+        val txtQrExpirationInfo = view.findViewById<TextView>(R.id.txtQrExpirationInfo)
 
-            val barcodeEncoder = com.journeyapps.barcodescanner.BarcodeEncoder()
-            val qrBitmap = barcodeEncoder.encodeBitmap(
-                qrPayload,
-                com.google.zxing.BarcodeFormat.QR_CODE,
-                460,
-                460
-            )
-            imgSyncQrCode.setImageBitmap(qrBitmap)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        val deviceSyncId = DynamicQrSyncManager.getDeviceSyncId(this)
+        val activeTasksCount = repository.getAllTasks().count { it.status != TaskStatus.DONE && it.status != TaskStatus.LEFT }
+        txtQrTaskSummary.text = "Device ID: $deviceSyncId • $activeTasksCount active tasks"
+
+        // Generate permanent Dynamic QR bitmap once for this device
+        val cleanQrBitmap = DynamicQrSyncManager.getDeviceQrBitmap(this)
+        val blurredQrBitmap = DynamicQrSyncManager.getBlurredDeviceQrBitmap(this)
+
+        val qrTickerHandler = Handler(Looper.getMainLooper())
+
+        fun formatDurationMmSs(ms: Long): String {
+            val totalSec = (ms / 1000).coerceAtLeast(0)
+            val min = totalSec / 60
+            val sec = totalSec % 60
+            return String.format(Locale.getDefault(), "%02d:%02d", min, sec)
         }
+
+        fun updateQrUiState() {
+            val session = DynamicQrSyncManager.getCurrentSession(this)
+            val now = System.currentTimeMillis()
+            val isUnhiddenNow = !session.isExpired && now < session.unhideExpiresAt
+            val isDataActive = !session.isExpired && now < session.expiresAt && session.tasksPayload != null
+
+            if (isUnhiddenNow) {
+                // State: Crisp QR visible for 30 seconds
+                val unhideSecLeft = ((session.unhideExpiresAt - now) / 1000).coerceAtLeast(0)
+                imgSyncQrCode.setImageBitmap(cleanQrBitmap)
+                viewQrBlurOverlay.visibility = View.GONE
+                dotQrStatusLive.setBackgroundResource(R.drawable.bg_urgency_green)
+                txtQrStatusTicker.text = "Active • Auto-blurs in ${unhideSecLeft}s"
+                val expMsLeft = session.expiresAt - now
+                txtQrExpirationInfo.text = "Data active (${formatDurationMmSs(expMsLeft)} left) • Auto-blurring in ${unhideSecLeft}s"
+            } else if (isDataActive) {
+                // State: 30s passed, re-blurred, but data remains active within 5 minutes
+                val expMsLeft = session.expiresAt - now
+                imgSyncQrCode.setImageBitmap(blurredQrBitmap)
+                viewQrBlurOverlay.visibility = View.VISIBLE
+                viewQrBlurOverlay.alpha = 1.0f
+                dotQrStatusLive.setBackgroundResource(R.drawable.bg_urgency_orange)
+                txtQrStatusTicker.text = "Blurred (Protected) • Valid for ${formatDurationMmSs(expMsLeft)}"
+                txtBlurOverlaySubtitle.text = "Data valid for ${formatDurationMmSs(expMsLeft)} • Tap to unhide"
+                txtQrExpirationInfo.text = "QR blurred for privacy • Data active for ${formatDurationMmSs(expMsLeft)}"
+            } else {
+                // State: Data expired (> 5 min) or initial state
+                imgSyncQrCode.setImageBitmap(blurredQrBitmap)
+                viewQrBlurOverlay.visibility = View.VISIBLE
+                viewQrBlurOverlay.alpha = 1.0f
+                dotQrStatusLive.setBackgroundResource(R.drawable.bg_urgency_red)
+                txtQrStatusTicker.text = if (session.expiresAt > 0L) "Data Expired (Erased) • Tap Unhide" else "Blurred • Tap to Unhide"
+                txtBlurOverlaySubtitle.text = "Syncs tasks at unhide • Visible for 30s"
+                txtQrExpirationInfo.text = if (session.expiresAt > 0L) "Associated data erased after 5 mins. Tap Unhide to reload." else "Dynamic Device QR • Updates only when unhidden"
+            }
+        }
+
+        val qrTickerRunnable = object : Runnable {
+            override fun run() {
+                updateQrUiState()
+                qrTickerHandler.postDelayed(this, 1000L)
+            }
+        }
+
+        // Start ticker loop running every second while bottom sheet is open
+        qrTickerHandler.post(qrTickerRunnable)
+
+        dialog.setOnDismissListener {
+            qrTickerHandler.removeCallbacksAndMessages(null)
+        }
+
+        // Unhide trigger: updates data right at that time, unblurs for 30s, sets 5min expiration
+        val triggerUnhideAction = {
+            val freshPayload = repository.exportTasksSummaryForQr()
+            val freshCount = repository.getAllTasks().count { it.status != TaskStatus.DONE && it.status != TaskStatus.LEFT }
+            txtQrTaskSummary.text = "Device ID: $deviceSyncId • $freshCount active tasks"
+
+            DynamicQrSyncManager.onUserClickedUnhide(
+                context = this,
+                tasksPayload = freshPayload,
+                activeTasksCount = freshCount,
+                onExpiration = {
+                    updateQrUiState()
+                }
+            )
+
+            imgSyncQrCode.setImageBitmap(cleanQrBitmap)
+            viewQrBlurOverlay.animate()
+                .alpha(0f)
+                .setDuration(220)
+                .withEndAction {
+                    viewQrBlurOverlay.visibility = View.GONE
+                    viewQrBlurOverlay.alpha = 1.0f
+                }
+                .start()
+
+            updateQrUiState()
+            Toast.makeText(this, "QR unhidden for 30 seconds • Fresh data synced!", Toast.LENGTH_SHORT).show()
+        }
+
+        btnUnhideQr.setOnClickListener { triggerUnhideAction() }
+        viewQrBlurOverlay.setOnClickListener { triggerUnhideAction() }
+
+        // Initial UI render
+        updateQrUiState()
 
         // PhonePe-style dynamic scroll reveal & peek animation
         cardQrTransfer.alpha = 0.5f
@@ -2576,6 +2671,72 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleScannedQrPayload(scannedText: String) {
+        val trimmed = scannedText.trim()
+        if (trimmed.startsWith("TASCYN_DYNAMIC:")) {
+            val remoteDeviceId = trimmed.substring("TASCYN_DYNAMIC:".length).trim()
+            val loadingView = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(50, 40, 50, 40)
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                val progressBar = ProgressBar(this@MainActivity).apply {
+                    isIndeterminate = true
+                }
+                val textView = TextView(this@MainActivity).apply {
+                    text = "Connecting to dynamic QR data for device $remoteDeviceId..."
+                    setPadding(30, 0, 0, 0)
+                    textSize = 14f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.color_text_primary))
+                }
+                addView(progressBar)
+                addView(textView)
+            }
+            val progressDialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(loadingView)
+                .setCancelable(false)
+                .create()
+            progressDialog.show()
+
+            DynamicQrSyncManager.fetchAssociatedData(
+                deviceId = remoteDeviceId,
+                context = this,
+                repository = repository
+            ) { result ->
+                try {
+                    progressDialog.dismiss()
+                } catch (e: Exception) {}
+
+                when (result) {
+                    is DynamicQrFetchResult.Success -> {
+                        showImportTasksSelectionDialog(result.tasks)
+                    }
+                    is DynamicQrFetchResult.Expired -> {
+                        androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("QR Session Expired")
+                            .setIcon(R.drawable.ic_timer_precision)
+                            .setMessage(result.message)
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    is DynamicQrFetchResult.NotFound -> {
+                        androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("No QR Data Available")
+                            .setMessage(result.message)
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    is DynamicQrFetchResult.Error -> {
+                        androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Sync Failed")
+                            .setMessage(result.error)
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    else -> {}
+                }
+            }
+            return
+        }
+
         try {
             val tasks = repository.parseTasksFromQrPayload(scannedText)
             if (tasks.isNotEmpty()) {

@@ -2661,6 +2661,7 @@ drawable bg_bottom_navigation
 drawable bg_bottom_sheet
 drawable bg_btn_start_neutral
 drawable bg_btn_start_urgent
+drawable bg_btn_unhide_circle
 drawable bg_button_metallic
 drawable bg_button_primary
 drawable bg_button_secondary
@@ -2679,6 +2680,7 @@ drawable bg_nav_selected_pill
 drawable bg_notification_badge
 drawable bg_notion_btn_blue
 drawable bg_notion_view_pill
+drawable bg_qr_frosted_overlay
 drawable bg_quadrant_badge
 drawable bg_settings_card
 drawable bg_summary_card
@@ -2686,6 +2688,7 @@ drawable bg_task_next_card
 drawable bg_task_now_card
 drawable bg_theme_option_selected
 drawable bg_theme_option_unselected
+drawable bg_unhide_pill
 drawable bg_urgency_green
 drawable bg_urgency_neutral
 drawable bg_urgency_orange
@@ -2752,6 +2755,8 @@ drawable ic_time_precision
 drawable ic_timeline_precision
 drawable ic_timer_precision
 drawable ic_trash_precision
+drawable ic_visibility_off_precision
+drawable ic_visibility_precision
 drawable logo
 drawable m3_appbar_background
 drawable m3_popupmenu_background_overlay
@@ -2987,6 +2992,7 @@ id btnTimelinePrevMonth
 id btnTimelineViewSelector
 id btnTimelineZoomGranularity
 id btnToggleApiKeyVisibility
+id btnUnhideQr
 id buttonPanel
 id cache_measures
 id callMeasure
@@ -3064,6 +3070,7 @@ id disablePostScroll
 id disableScroll
 id disjoint
 id dotAlarmIndicator
+id dotQrStatusLive
 id dragAnticlockwise
 id dragClockwise
 id dragDown
@@ -3110,6 +3117,7 @@ id flip
 id floating
 id forever
 id fragment_container_view_tag
+id frameQrWrapper
 id frost
 id fullscreen_header
 id ghost_view
@@ -3182,6 +3190,7 @@ id layoutInlineAddSubtask
 id layoutItemAiSubtaskList
 id layoutMainContentContainer
 id layoutQrContainer
+id layoutQrStatusBanner
 id layoutSessionsPageView
 id layoutSheetMatrixBanner
 id layoutStartNewSessionForm
@@ -3192,6 +3201,7 @@ id layoutTasksEmptyState
 id layoutTasksPageView
 id layoutTimelinePageView
 id layoutTopHeader
+id layoutUnhidePrompt
 id layoutVoiceBottomHint
 id layoutVoiceModeOverlay
 id lblTabAll
@@ -3474,6 +3484,7 @@ id txtAppBrandTitle
 id txtAttentionCountLabel
 id txtAttentionHeadline
 id txtBatteryOptBadge
+id txtBlurOverlaySubtitle
 id txtExactAlarmBadge
 id txtGeminiStatusBadge
 id txtGreetingDate
@@ -3494,6 +3505,8 @@ id txtNoTodaySessions
 id txtNotifPermBadge
 id txtOnTrackCountLabel
 id txtPriorityBadge
+id txtQrExpirationInfo
+id txtQrStatusTicker
 id txtQrTaskSummary
 id txtQuadrantBadge
 id txtQuadrantHeaderTitle
@@ -3549,6 +3562,7 @@ id viewAiInterlocking
 id viewInterlockingCheck
 id viewNavAiGeometry
 id viewNotionTimelineGantt
+id viewQrBlurOverlay
 id viewQuadrantDot
 id viewStatusDot
 id viewTaskCheckbox

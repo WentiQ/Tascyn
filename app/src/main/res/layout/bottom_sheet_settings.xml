@@ -885,7 +885,7 @@
                     app:strokeColor="@color/color_accent" />
             </LinearLayout>
 
-            <!-- PhonePe-style QR Preview Container -->
+            <!-- Dynamic QR Container with Frosted Blur & Unhide -->
             <LinearLayout
                 android:id="@+id/layoutQrContainer"
                 android:layout_width="match_parent"
@@ -894,32 +894,120 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
+                <!-- Dynamic QR Status Banner / Live Ticker -->
+                <LinearLayout
+                    android:id="@+id/layoutQrStatusBanner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/bg_unhide_pill"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp">
+
+                    <View
+                        android:id="@+id/dotQrStatusLive"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/bg_urgency_orange" />
+
+                    <TextView
+                        android:id="@+id/txtQrStatusTicker"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Blurred • Tap to Unhide"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
+
+                <!-- QR Card with Frosted Blur Overlay -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="14dp"
-                    app:cardElevation="2dp">
+                    app:cardElevation="3dp">
 
                     <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:id="@+id/frameQrWrapper"
+                        android:layout_width="214dp"
+                        android:layout_height="214dp"
                         android:padding="12dp">
 
+                        <!-- The Crisp Dynamic QR Code Image -->
                         <ImageView
                             android:id="@+id/imgSyncQrCode"
                             android:layout_width="190dp"
                             android:layout_height="190dp"
+                            android:layout_gravity="center"
                             android:scaleType="fitCenter" />
+
+                        <!-- Frosted Blur Overlay covering the QR -->
+                        <FrameLayout
+                            android:id="@+id/viewQrBlurOverlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_qr_frosted_overlay"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <LinearLayout
+                                android:id="@+id/layoutUnhidePrompt"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="12dp">
+
+                                <ImageButton
+                                    android:id="@+id/btnUnhideQr"
+                                    android:layout_width="54dp"
+                                    android:layout_height="54dp"
+                                    android:background="@drawable/bg_btn_unhide_circle"
+                                    android:contentDescription="Unhide Dynamic QR"
+                                    android:elevation="4dp"
+                                    android:padding="13dp"
+                                    android:scaleType="fitCenter"
+                                    android:src="@drawable/ic_visibility_precision"
+                                    app:tint="@android:color/white" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:fontFamily="sans-serif-bold"
+                                    android:text="Tap to Unhide"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="13sp" />
+
+                                <TextView
+                                    android:id="@+id/txtBlurOverlaySubtitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="3dp"
+                                    android:fontFamily="sans-serif"
+                                    android:gravity="center"
+                                    android:text="Syncs tasks • Visible for 30s"
+                                    android:textColor="#B0C4DE"
+                                    android:textSize="10.5sp" />
+                            </LinearLayout>
+                        </FrameLayout>
+
                     </FrameLayout>
                 </androidx.cardview.widget.CardView>
 
+                <!-- Expiration & Device Footnote -->
                 <TextView
+                    android:id="@+id/txtQrExpirationInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:fontFamily="sans-serif-medium"
-                    android:text="Scan this code from Tascyn on another phone to import"
+                    android:gravity="center"
+                    android:text="Dynamic Device QR • Updates only when unhidden"
                     android:textColor="@color/color_text_tertiary"
                     android:textSize="11sp" />
             </LinearLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.tascyn.DynamicQrSyncTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-13T17:40:56" hostname="DINESH" time="0.014">
+  <properties/>
+  <testcase name="testDynamicQrSessionLifecycle" classname="com.example.tascyn.DynamicQrSyncTest" time="0.004"/>
+  <testcase name="testDynamicQrConstants" classname="com.example.tascyn.DynamicQrSyncTest" time="0.0"/>
+  <testcase name="testDynamicQrPayloadPrefix" classname="com.example.tascyn.DynamicQrSyncTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

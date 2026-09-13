@@ -1,2 +1,0 @@
-C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\test\java\com\example\tascyn\NotionFormulasTest.kt
-C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\test\java\com\example\tascyn\GeminiAiServiceParsingTest.kt
