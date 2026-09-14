@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutFullScreenSessionFocus"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_canvas"
+    android:clickable="true"
+    android:focusable="true"
+    android:visibility="gone">
+
+    <!-- ============================================================= -->
+    <!-- DEAD-CENTERED FOCUS TIMER (Horizontally & Vertically Centered) -->
+    <!-- Directly inside root FrameLayout with layout_gravity="center"  -->
+    <!-- No external weights or siblings can shift its position!        -->
+    <!-- Occupies ~70% of visible screen area with massive bold digits  -->
+    <!-- ============================================================= -->
+    <LinearLayout
+        android:id="@+id/layoutFocusTimerContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- Tier 1: Hours (Top in portrait / Left in landscape) -->
+        <TextView
+            android:id="@+id/txtTimerHours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:letterSpacing="-0.04"
+            android:text="01"
+            android:textColor="@color/color_text_primary"
+            android:textSize="180sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <!-- Colon Separator between Hours and Minutes in Landscape -->
+        <TextView
+            android:id="@+id/txtTimerColonHoursMin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="6dp"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text=":"
+            android:textColor="@color/color_text_tertiary"
+            android:textSize="180sp"
+            android:visibility="gone" />
+
+        <!-- Tier 2: Minutes (Middle in portrait / Middle in landscape) -->
+        <TextView
+            android:id="@+id/txtTimerMinutes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:letterSpacing="-0.04"
+            android:text="25"
+            android:textColor="@color/color_text_primary"
+            android:textSize="180sp"
+            android:textStyle="bold" />
+
+        <!-- Colon Separator between Minutes and Seconds in Landscape -->
+        <TextView
+            android:id="@+id/txtTimerColonMinSec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="6dp"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text=":"
+            android:textColor="@color/color_text_tertiary"
+            android:textSize="180sp"
+            android:visibility="gone" />
+
+        <!-- Tier 3: Seconds (Bottom in portrait / Right in landscape) -->
+        <TextView
+            android:id="@+id/txtTimerSeconds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:letterSpacing="-0.04"
+            android:text="42"
+            android:textColor="@color/color_accent"
+            android:textSize="180sp"
+            android:textStyle="bold" />
+
+        <!-- Overtime Notice Indicator -->
+        <TextView
+            android:id="@+id/txtFocusOvertimeNotice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_urgency_red"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.06"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="5dp"
+            android:text="OVERTIME (+0m)"
+            android:textColor="@color/color_urgent_red"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- Top Bar & Secondary Info Section (Fades away during Zen Mode) -->
+    <LinearLayout
+        android:id="@+id/containerFocusTopSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical">
+
+        <!-- Top Header Controls -->
+        <LinearLayout
+            android:id="@+id/containerFocusHeader"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="8dp">
+
+            <!-- Minimize / Exit Fullscreen -->
+            <ImageView
+                android:id="@+id/btnFocusMinimize"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="7dp"
+                android:src="@drawable/ic_minimize_precision"
+                app:tint="@color/color_icon_primary" />
+
+            <!-- Task Category Tag -->
+            <TextView
+                android:id="@+id/txtFocusCategoryBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_chip_tag"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.06"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="WORK"
+                android:textColor="@color/color_text_primary"
+                android:textSize="11sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Theme Switcher Pill (System / Light / Dark) -->
+            <LinearLayout
+                android:id="@+id/btnFocusTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_lock_pill"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp">
+
+                <ImageView
+                    android:id="@+id/iconFocusTheme"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_theme_system"
+                    app:tint="@color/color_icon_primary" />
+
+                <TextView
+                    android:id="@+id/lblFocusTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Auto"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Keep Screen Awake Toggle -->
+            <LinearLayout
+                android:id="@+id/btnFocusScreenAwake"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_lock_pill"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp">
+
+                <ImageView
+                    android:id="@+id/iconScreenAwake"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_screen_awake"
+                    app:tint="@color/color_icon_primary" />
+
+                <TextView
+                    android:id="@+id/lblScreenAwake"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Screen On"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Secondary Info: Task Title, Priority, Goal (Fades during Zen Mode) -->
+        <LinearLayout
+            android:id="@+id/containerFocusSecondaryInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="4dp">
+
+            <!-- Active Task Title -->
+            <TextView
+                android:id="@+id/txtFocusTaskTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="Prepare physics exam"
+                android:textColor="@color/color_text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <!-- Badges Row: Priority & Goal -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtFocusPriorityBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_urgency_red"
+                    android:fontFamily="sans-serif-bold"
+                    android:paddingHorizontal="9dp"
+                    android:paddingVertical="3dp"
+                    android:text="HIGH"
+                    android:textColor="@color/color_urgent_red"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/txtFocusGoalDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Goal: 2h 00m"
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Bottom Action Dock (Fades away during Zen Mode) -->
+    <LinearLayout
+        android:id="@+id/containerFocusBottomDock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="24dp"
+        android:paddingBottom="28dp">
+
+        <!-- Mark Done / Complete Button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnFocusCompleteTask"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button_secondary"
+            app:backgroundTint="@null"
+            android:fontFamily="sans-serif-bold"
+            android:text="Mark Done"
+            android:textColor="@color/color_btn_secondary_text"
+            android:textSize="14sp" />
+
+        <!-- End Session Button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnFocusEndSession"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_fab_dark"
+            app:backgroundTint="@null"
+            android:fontFamily="sans-serif-bold"
+            android:text="End Session"
+            android:textColor="@color/color_btn_primary_text"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+</FrameLayout>

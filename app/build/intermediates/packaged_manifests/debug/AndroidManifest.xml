@@ -58,6 +58,7 @@
         android:usesCleartextTraffic="true" >
         <activity
             android:name="com.example.tascyn.MainActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden"
             android:exported="true"
             android:theme="@style/Theme.Tascyn" >
             <intent-filter>

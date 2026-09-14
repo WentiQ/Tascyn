@@ -92,7 +92,7 @@
 46-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:44:9-33
 47
 48    <application
-48-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:20:5-86:19
+48-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:20:5-87:19
 49        android:name="com.example.tascyn.TascynApplication"
 49-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:21:9-42
 50        android:allowBackup="true"
@@ -113,143 +113,145 @@
 58        android:usesCleartextTraffic="true" >
 58-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:28:9-44
 59        <activity
-59-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:30:9-38:20
+59-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:30:9-39:20
 60            android:name="com.example.tascyn.MainActivity"
 60-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:31:13-41
-61            android:exported="true"
-61-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:32:13-36
-62            android:theme="@style/Theme.Tascyn" >
-62-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:33:13-48
-63            <intent-filter>
-63-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:34:13-37:29
-64                <action android:name="android.intent.action.MAIN" />
-64-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:35:17-69
-64-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:35:25-66
-65
-66                <category android:name="android.intent.category.LAUNCHER" />
-66-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:36:17-77
-66-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:36:27-74
-67            </intent-filter>
-68        </activity>
-69
-70        <!-- Foreground Service for Continuous Live Session Notifications in Background -->
-71        <service
-71-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:41:9-43:40
-72            android:name="com.example.tascyn.service.SessionForegroundService"
-72-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:42:13-61
-73            android:exported="false" />
-73-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:43:13-37
-74
-75        <!-- Full-Screen Alarm Alert Screen -->
-76        <activity
-76-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:46:9-56:51
-77            android:name="com.example.tascyn.ui.alarm.AlarmAlertActivity"
-77-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:47:13-56
-78            android:excludeFromRecents="true"
-78-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:51:13-46
-79            android:exported="true"
-79-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:48:13-36
-80            android:inheritShowWhenLocked="true"
-80-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:55:13-49
-81            android:launchMode="singleInstance"
-81-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:49:13-48
-82            android:showOnLockScreen="true"
-82-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:54:13-44
-83            android:showWhenLocked="true"
-83-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:52:13-42
-84            android:taskAffinity="com.example.tascyn.alarm"
-84-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:50:13-60
-85            android:theme="@style/Theme.Tascyn"
-85-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:56:13-48
-86            android:turnScreenOn="true" />
-86-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:53:13-40
-87
-88        <!-- Alarm Broadcast Receiver -->
-89        <receiver
-89-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:59:9-61:40
-90            android:name="com.example.tascyn.receiver.TaskAlarmReceiver"
-90-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:60:13-55
-91            android:exported="false" />
-91-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:61:13-37
-92
-93        <!-- Boot & Time Change Receiver to Reschedule Alarms -->
-94        <receiver
-94-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:64:9-73:20
-95            android:name="com.example.tascyn.receiver.BootReceiver"
-95-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:65:13-50
-96            android:exported="true" >
-96-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:66:13-36
-97            <intent-filter>
-97-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:67:13-72:29
-98                <action android:name="android.intent.action.BOOT_COMPLETED" />
-98-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:68:17-79
-98-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:68:25-76
-99                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-99-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:69:17-84
-99-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:69:25-81
-100                <action android:name="android.intent.action.TIME_SET" />
-100-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:70:17-73
-100-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:70:25-70
-101                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-101-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:71:17-81
-101-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:71:25-78
-102            </intent-filter>
-103        </receiver>
-104
-105        <!-- File Provider for Backup Export & Sharing -->
-106        <provider
-107            android:name="androidx.core.content.FileProvider"
-107-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:77:13-62
-108            android:authorities="com.example.tascyn.fileprovider"
-108-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:78:13-64
-109            android:exported="false"
-109-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:79:13-37
-110            android:grantUriPermissions="true" >
-110-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:80:13-47
-111            <meta-data
-111-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:81:13-83:54
-112                android:name="android.support.FILE_PROVIDER_PATHS"
-112-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:82:17-67
-113                android:resource="@xml/file_paths" />
-113-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:83:17-51
-114        </provider>
-115
-116        <activity
-116-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:47:9-53:63
-117            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-117-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:48:13-74
-118            android:clearTaskOnLaunch="true"
-118-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:49:13-45
-119            android:screenOrientation="sensorLandscape"
-119-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:50:13-56
-120            android:stateNotNeeded="true"
-120-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:51:13-42
-121            android:theme="@style/zxing_CaptureTheme"
-121-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:52:13-54
-122            android:windowSoftInputMode="stateAlwaysHidden" />
-122-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:53:13-60
-123
-124        <provider
-124-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
-125            android:name="androidx.startup.InitializationProvider"
-125-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
-126            android:authorities="com.example.tascyn.androidx-startup"
-126-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
-127            android:exported="false" >
-127-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
-128            <meta-data
-128-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
-129                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-129-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
-130                android:value="androidx.startup" />
-130-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
-131            <meta-data
-131-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
-132                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-132-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
-133                android:value="androidx.startup" />
-133-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
-134        </provider>
-135    </application>
-136
-137</manifest>
+61            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden"
+61-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:33:13-106
+62            android:exported="true"
+62-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:32:13-36
+63            android:theme="@style/Theme.Tascyn" >
+63-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:34:13-48
+64            <intent-filter>
+64-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:35:13-38:29
+65                <action android:name="android.intent.action.MAIN" />
+65-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:36:17-69
+65-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:36:25-66
+66
+67                <category android:name="android.intent.category.LAUNCHER" />
+67-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:37:17-77
+67-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:37:27-74
+68            </intent-filter>
+69        </activity>
+70
+71        <!-- Foreground Service for Continuous Live Session Notifications in Background -->
+72        <service
+72-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:42:9-44:40
+73            android:name="com.example.tascyn.service.SessionForegroundService"
+73-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:43:13-61
+74            android:exported="false" />
+74-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:44:13-37
+75
+76        <!-- Full-Screen Alarm Alert Screen -->
+77        <activity
+77-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:47:9-57:51
+78            android:name="com.example.tascyn.ui.alarm.AlarmAlertActivity"
+78-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:48:13-56
+79            android:excludeFromRecents="true"
+79-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:52:13-46
+80            android:exported="true"
+80-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:49:13-36
+81            android:inheritShowWhenLocked="true"
+81-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:56:13-49
+82            android:launchMode="singleInstance"
+82-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:50:13-48
+83            android:showOnLockScreen="true"
+83-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:55:13-44
+84            android:showWhenLocked="true"
+84-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:53:13-42
+85            android:taskAffinity="com.example.tascyn.alarm"
+85-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:51:13-60
+86            android:theme="@style/Theme.Tascyn"
+86-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:57:13-48
+87            android:turnScreenOn="true" />
+87-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:54:13-40
+88
+89        <!-- Alarm Broadcast Receiver -->
+90        <receiver
+90-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:60:9-62:40
+91            android:name="com.example.tascyn.receiver.TaskAlarmReceiver"
+91-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:61:13-55
+92            android:exported="false" />
+92-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:62:13-37
+93
+94        <!-- Boot & Time Change Receiver to Reschedule Alarms -->
+95        <receiver
+95-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:65:9-74:20
+96            android:name="com.example.tascyn.receiver.BootReceiver"
+96-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:66:13-50
+97            android:exported="true" >
+97-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:67:13-36
+98            <intent-filter>
+98-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:68:13-73:29
+99                <action android:name="android.intent.action.BOOT_COMPLETED" />
+99-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:69:17-79
+99-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:69:25-76
+100                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+100-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:70:17-84
+100-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:70:25-81
+101                <action android:name="android.intent.action.TIME_SET" />
+101-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:71:17-73
+101-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:71:25-70
+102                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+102-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:72:17-81
+102-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:72:25-78
+103            </intent-filter>
+104        </receiver>
+105
+106        <!-- File Provider for Backup Export & Sharing -->
+107        <provider
+108            android:name="androidx.core.content.FileProvider"
+108-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:78:13-62
+109            android:authorities="com.example.tascyn.fileprovider"
+109-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:79:13-64
+110            android:exported="false"
+110-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:80:13-37
+111            android:grantUriPermissions="true" >
+111-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:81:13-47
+112            <meta-data
+112-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:82:13-84:54
+113                android:name="android.support.FILE_PROVIDER_PATHS"
+113-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:83:17-67
+114                android:resource="@xml/file_paths" />
+114-->C:\Users\dines\Documents\02-PROJECTS\Tascyn\app\src\main\AndroidManifest.xml:84:17-51
+115        </provider>
+116
+117        <activity
+117-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:47:9-53:63
+118            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+118-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:48:13-74
+119            android:clearTaskOnLaunch="true"
+119-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:49:13-45
+120            android:screenOrientation="sensorLandscape"
+120-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:50:13-56
+121            android:stateNotNeeded="true"
+121-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:51:13-42
+122            android:theme="@style/zxing_CaptureTheme"
+122-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:52:13-54
+123            android:windowSoftInputMode="stateAlwaysHidden" />
+123-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\dines\.gradle\caches\transforms-3\d1dbc84fd4b64413bb2dd53d31547bb6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:53:13-60
+124
+125        <provider
+125-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+126            android:name="androidx.startup.InitializationProvider"
+126-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+127            android:authorities="com.example.tascyn.androidx-startup"
+127-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+128            android:exported="false" >
+128-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+129            <meta-data
+129-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+130                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+130-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+131                android:value="androidx.startup" />
+131-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dines\.gradle\caches\transforms-3\f0a2bc0d6fe9b631b3bc81797f835a9c\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+132            <meta-data
+132-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+133                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+133-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+134                android:value="androidx.startup" />
+134-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dines\.gradle\caches\transforms-3\cc28b3cef285540baa54cd92fdd92fcf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+135        </provider>
+136    </application>
+137
+138</manifest>

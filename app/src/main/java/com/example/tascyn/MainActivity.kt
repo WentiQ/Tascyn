@@ -12,7 +12,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -49,6 +51,12 @@ import com.example.tascyn.ui.components.InterlockingGeometryView
 import com.example.tascyn.ui.components.TaskItemTouchHelperCallback
 import com.example.tascyn.ui.components.VoiceDiscOverlayLayout
 import com.example.tascyn.ui.components.VoiceWaveformView
+import com.example.tascyn.ui.components.*
+import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.chip.Chip
@@ -62,7 +70,14 @@ enum class AppNavTab {
     TASKS,
     TIMELINE,
     SESSIONS,
-    AI
+    AI,
+    ANALYTICS
+}
+
+enum class AnalyticsPeriod {
+    SEVEN_DAYS,
+    THIRTY_DAYS,
+    ALL_TIME
 }
 
 enum class TasksTimeTab {
@@ -77,6 +92,7 @@ enum class TasksTimeTab {
 class MainActivity : AppCompatActivity() {
 
     private val repository = TaskManagerRepository.get()
+    private val settings by lazy { AppSettingsManager.getInstance(this) }
     private var currentTab: AppNavTab = AppNavTab.TODAY
     private var selectedTasksTimeTab: TasksTimeTab = TasksTimeTab.PENDING
     private var selectedTaskTypeFilter: TaskType? = null
@@ -235,14 +251,90 @@ class MainActivity : AppCompatActivity() {
     private lateinit var startWorkingTaskAdapter: StartWorkingTaskAdapter
     private var imgAppLogo: ImageView? = null
 
+    private var selectedAnalyticsPeriod: AnalyticsPeriod = AnalyticsPeriod.SEVEN_DAYS
+    private var isFullScreenFocusActive: Boolean = false
+    private var isScreenAwakeEnabled: Boolean = true
+
+    // Analytics Page Views
+    private lateinit var layoutAnalyticsPageView: NestedScrollView
+    private lateinit var btnHeaderAnalytics: ImageView
+    private lateinit var btnPeriod7Days: TextView
+    private lateinit var btnPeriod30Days: TextView
+    private lateinit var btnPeriodAllTime: TextView
+    private lateinit var txtAnalyticsDateRangeSubtitle: TextView
+    private lateinit var txtAnalyticsTotalFocus: TextView
+    private lateinit var txtAnalyticsFocusAvg: TextView
+    private lateinit var txtAnalyticsSessionsCount: TextView
+    private lateinit var txtAnalyticsSessionAvg: TextView
+    private lateinit var txtAnalyticsCompletionRate: TextView
+    private lateinit var txtAnalyticsDoneVsTotal: TextView
+    private lateinit var txtAnalyticsCurrentStreak: TextView
+    private lateinit var txtAnalyticsBestStreak: TextView
+    private lateinit var chartDailyFocus: FocusBarChartView
+    private lateinit var chartCategoryDistribution: CategoryDonutChartView
+    private lateinit var containerCategoryLegends: LinearLayout
+    private lateinit var chartHourlyDistribution: FocusHourlyDistributionView
+    private lateinit var txtAnalyticsPeakZoneBadge: TextView
+    private lateinit var txtAnalyticsPeakHourVal: TextView
+    private lateinit var txtAnalyticsPrimeRangeVal: TextView
+    private lateinit var txtAnalyticsPrimeShareVal: TextView
+    private lateinit var txtAnalyticsDisciplineBadge: TextView
+    private lateinit var txtAnalyticsDisciplineScore: TextView
+    private lateinit var txtAnalyticsDisciplineDescription: TextView
+    private lateinit var txtCompletedOverdueStats: TextView
+    private lateinit var txtCompletedUrgentStats: TextView
+    private lateinit var txtCompletedAttentionStats: TextView
+    private lateinit var txtCompletedOnTrackStats: TextView
+    private lateinit var txtNoAnalyticsSessions: TextView
+    private lateinit var recyclerAnalyticsRecentSessions: RecyclerView
+    private lateinit var analyticsSessionsAdapter: TimesheetAdapter
+
+    // Full Screen Focus Overlay Views & State
+    private lateinit var layoutFullScreenSessionFocus: FrameLayout
+    private lateinit var containerFocusTopSection: LinearLayout
+    private lateinit var containerFocusHeader: LinearLayout
+    private lateinit var btnFocusMinimize: ImageView
+    private lateinit var txtFocusCategoryBadge: TextView
+    private lateinit var btnFocusTheme: LinearLayout
+    private lateinit var iconFocusTheme: ImageView
+    private lateinit var lblFocusTheme: TextView
+    private lateinit var btnFocusScreenAwake: LinearLayout
+    private lateinit var iconScreenAwake: ImageView
+    private lateinit var lblScreenAwake: TextView
+    private lateinit var containerFocusSecondaryInfo: LinearLayout
+    private lateinit var txtFocusTaskTitle: TextView
+    private lateinit var txtFocusPriorityBadge: TextView
+    private lateinit var txtFocusGoalDuration: TextView
+    private lateinit var layoutFocusTimerContainer: LinearLayout
+    private lateinit var txtTimerHours: TextView
+    private lateinit var txtTimerColonHoursMin: TextView
+    private lateinit var txtTimerMinutes: TextView
+    private lateinit var txtTimerColonMinSec: TextView
+    private lateinit var txtTimerSeconds: TextView
+    private lateinit var txtFocusOvertimeNotice: TextView
+    private lateinit var containerFocusBottomDock: LinearLayout
+    private lateinit var btnFocusCompleteTask: androidx.appcompat.widget.AppCompatButton
+    private lateinit var btnFocusEndSession: androidx.appcompat.widget.AppCompatButton
+
+    // Zen Mode (Auto-hide chrome after 3 seconds)
+    private var isZenModeActive = false
+    private val zenHandler = Handler(Looper.getMainLooper())
+    private val zenAutoHideRunnable = Runnable { enterZenMode() }
+
     private val sessionTickerHandler = Handler(Looper.getMainLooper())
     private val sessionTickerRunnable = object : Runnable {
         override fun run() {
             val activeState = repository.getActiveSessionState()
             if (activeState != null) {
                 SessionNotificationManager.showOrUpdateSessionNotification(this@MainActivity, activeState)
+                if (isFullScreenFocusActive) {
+                    updateFullScreenFocusUi(activeState)
+                }
             } else {
                 SessionNotificationManager.cancelSessionNotification(this@MainActivity)
+                if (isFullScreenFocusActive) {
+                    closeFullScreenFocusMode(animated = true)
+                }
             }
             if (currentTab == AppNavTab.SESSIONS) {
                 updateLiveSessionUi()
@@ -368,6 +460,7 @@ class MainActivity : AppCompatActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             window.navigationBarDividerColor = android.graphics.Color.TRANSPARENT
+            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
 
         repository.attachContext(this)
@@ -382,10 +475,14 @@ class MainActivity : AppCompatActivity() {
         setupAdapters()
         setupTasksPageFilters()
         setupBottomNavigation()
+        setupOnBackPressed()
         refreshData()
 
         if (intent?.getStringExtra("EXTRA_NAV_TAB") == "SESSIONS") {
             selectTab(AppNavTab.SESSIONS)
+            if (repository.getActiveSession() != null) {
+                openFullScreenFocusMode(animated = true)
+            }
         }
     }
 
@@ -394,6 +491,9 @@ class MainActivity : AppCompatActivity() {
         setIntent(intent)
         if (intent.getStringExtra("EXTRA_NAV_TAB") == "SESSIONS") {
             selectTab(AppNavTab.SESSIONS)
+            if (repository.getActiveSession() != null) {
+                openFullScreenFocusMode(animated = true)
+            }
         }
     }
 
@@ -512,6 +612,87 @@ class MainActivity : AppCompatActivity() {
             refreshSessionsPageView()
             refreshData()
         }
+
+        // Analytics Button & Sessions Banner
+        btnHeaderAnalytics = findViewById(R.id.btnHeaderAnalytics)
+        btnHeaderAnalytics.setOnClickListener {
+            if (currentTab == AppNavTab.ANALYTICS) {
+                selectTab(AppNavTab.TODAY)
+            } else {
+                selectTab(AppNavTab.ANALYTICS)
+            }
+        }
+
+        findViewById<View>(R.id.bannerSessionsToAnalytics).setOnClickListener {
+            selectTab(AppNavTab.ANALYTICS)
+        }
+
+        layoutActiveSessionCard.setOnClickListener {
+            if (repository.getActiveSession() != null) {
+                openFullScreenFocusMode(animated = true)
+            }
+        }
+
+        // Analytics Page View Bindings
+        layoutAnalyticsPageView = findViewById(R.id.layoutAnalyticsPageView)
+        btnPeriod7Days = findViewById(R.id.btnPeriod7Days)
+        btnPeriod30Days = findViewById(R.id.btnPeriod30Days)
+        btnPeriodAllTime = findViewById(R.id.btnPeriodAllTime)
+        txtAnalyticsDateRangeSubtitle = findViewById(R.id.txtAnalyticsDateRangeSubtitle)
+        txtAnalyticsTotalFocus = findViewById(R.id.txtAnalyticsTotalFocus)
+        txtAnalyticsFocusAvg = findViewById(R.id.txtAnalyticsFocusAvg)
+        txtAnalyticsSessionsCount = findViewById(R.id.txtAnalyticsSessionsCount)
+        txtAnalyticsSessionAvg = findViewById(R.id.txtAnalyticsSessionAvg)
+        txtAnalyticsCompletionRate = findViewById(R.id.txtAnalyticsCompletionRate)
+        txtAnalyticsDoneVsTotal = findViewById(R.id.txtAnalyticsDoneVsTotal)
+        txtAnalyticsCurrentStreak = findViewById(R.id.txtAnalyticsCurrentStreak)
+        txtAnalyticsBestStreak = findViewById(R.id.txtAnalyticsBestStreak)
+        chartDailyFocus = findViewById(R.id.chartDailyFocus)
+        chartCategoryDistribution = findViewById(R.id.chartCategoryDistribution)
+        containerCategoryLegends = findViewById(R.id.containerCategoryLegends)
+        chartHourlyDistribution = findViewById(R.id.chartHourlyDistribution)
+        txtAnalyticsPeakZoneBadge = findViewById(R.id.txtAnalyticsPeakZoneBadge)
+        txtAnalyticsPeakHourVal = findViewById(R.id.txtAnalyticsPeakHourVal)
+        txtAnalyticsPrimeRangeVal = findViewById(R.id.txtAnalyticsPrimeRangeVal)
+        txtAnalyticsPrimeShareVal = findViewById(R.id.txtAnalyticsPrimeShareVal)
+        txtAnalyticsDisciplineBadge = findViewById(R.id.txtAnalyticsDisciplineBadge)
+        txtAnalyticsDisciplineScore = findViewById(R.id.txtAnalyticsDisciplineScore)
+        txtAnalyticsDisciplineDescription = findViewById(R.id.txtAnalyticsDisciplineDescription)
+        txtCompletedOverdueStats = findViewById(R.id.txtCompletedOverdueStats)
+        txtCompletedUrgentStats = findViewById(R.id.txtCompletedUrgentStats)
+        txtCompletedAttentionStats = findViewById(R.id.txtCompletedAttentionStats)
+        txtCompletedOnTrackStats = findViewById(R.id.txtCompletedOnTrackStats)
+        txtNoAnalyticsSessions = findViewById(R.id.txtNoAnalyticsSessions)
+        recyclerAnalyticsRecentSessions = findViewById(R.id.recyclerAnalyticsRecentSessions)
+        setupAnalyticsPeriodListeners()
+
+        // Full-Screen Focus Mode Overlay Bindings
+        layoutFullScreenSessionFocus = findViewById(R.id.layoutFullScreenSessionFocus)
+        containerFocusTopSection = findViewById(R.id.containerFocusTopSection)
+        containerFocusHeader = findViewById(R.id.containerFocusHeader)
+        btnFocusMinimize = findViewById(R.id.btnFocusMinimize)
+        txtFocusCategoryBadge = findViewById(R.id.txtFocusCategoryBadge)
+        btnFocusTheme = findViewById(R.id.btnFocusTheme)
+        iconFocusTheme = findViewById(R.id.iconFocusTheme)
+        lblFocusTheme = findViewById(R.id.lblFocusTheme)
+        btnFocusScreenAwake = findViewById(R.id.btnFocusScreenAwake)
+        iconScreenAwake = findViewById(R.id.iconScreenAwake)
+        lblScreenAwake = findViewById(R.id.lblScreenAwake)
+        containerFocusSecondaryInfo = findViewById(R.id.containerFocusSecondaryInfo)
+        txtFocusTaskTitle = findViewById(R.id.txtFocusTaskTitle)
+        txtFocusPriorityBadge = findViewById(R.id.txtFocusPriorityBadge)
+        txtFocusGoalDuration = findViewById(R.id.txtFocusGoalDuration)
+        layoutFocusTimerContainer = findViewById(R.id.layoutFocusTimerContainer)
+        txtTimerHours = findViewById(R.id.txtTimerHours)
+        txtTimerColonHoursMin = findViewById(R.id.txtTimerColonHoursMin)
+        txtTimerMinutes = findViewById(R.id.txtTimerMinutes)
+        txtTimerColonMinSec = findViewById(R.id.txtTimerColonMinSec)
+        txtTimerSeconds = findViewById(R.id.txtTimerSeconds)
+        txtFocusOvertimeNotice = findViewById(R.id.txtFocusOvertimeNotice)
+        containerFocusBottomDock = findViewById(R.id.containerFocusBottomDock)
+        btnFocusCompleteTask = findViewById(R.id.btnFocusCompleteTask)
+        btnFocusEndSession = findViewById(R.id.btnFocusEndSession)
+        setupFullScreenFocusListeners()
 
         // Header Action Buttons
         findViewById<View>(R.id.btnHeaderSettings).setOnClickListener {
@@ -668,6 +849,13 @@ class MainActivity : AppCompatActivity() {
         )
         recyclerStartWorkingOnTasks.layoutManager = LinearLayoutManager(this)
         recyclerStartWorkingOnTasks.adapter = startWorkingTaskAdapter
+
+        // Analytics Page Adapters
+        analyticsSessionsAdapter = TimesheetAdapter(
+            onSessionClicked = { showTimesheetsBottomSheet() }
+        )
+        recyclerAnalyticsRecentSessions.layoutManager = LinearLayoutManager(this)
+        recyclerAnalyticsRecentSessions.adapter = analyticsSessionsAdapter
     }
 
     private fun setupTasksPageFilters() {
@@ -1269,6 +1457,7 @@ class MainActivity : AppCompatActivity() {
                 layoutTasksPageView.visibility = View.GONE
                 layoutTimelinePageView.visibility = View.GONE
                 layoutSessionsPageView.visibility = View.GONE
+                layoutAnalyticsPageView.visibility = View.GONE
             }
 
             AppNavTab.TASKS -> {
@@ -1280,6 +1469,7 @@ class MainActivity : AppCompatActivity() {
                 layoutTasksPageView.visibility = View.VISIBLE
                 layoutTimelinePageView.visibility = View.GONE
                 layoutSessionsPageView.visibility = View.GONE
+                layoutAnalyticsPageView.visibility = View.GONE
 
                 refreshTasksPageView()
             }
@@ -1293,6 +1483,7 @@ class MainActivity : AppCompatActivity() {
                 layoutTasksPageView.visibility = View.GONE
                 layoutTimelinePageView.visibility = View.VISIBLE
                 layoutSessionsPageView.visibility = View.GONE
+                layoutAnalyticsPageView.visibility = View.GONE
 
                 refreshTimelinePageView()
                 scrollTimelineToToday()
@@ -1307,6 +1498,7 @@ class MainActivity : AppCompatActivity() {
                 layoutTasksPageView.visibility = View.GONE
                 layoutTimelinePageView.visibility = View.GONE
                 layoutSessionsPageView.visibility = View.VISIBLE
+                layoutAnalyticsPageView.visibility = View.GONE
 
                 refreshSessionsPageView()
                 sessionTickerHandler.removeCallbacks(sessionTickerRunnable)
@@ -1316,6 +1508,19 @@ class MainActivity : AppCompatActivity() {
             AppNavTab.AI -> {
                 pillNavAi.setBackgroundResource(R.drawable.bg_nav_ai_black_circle)
                 showAiNaturalLanguageBottomSheet()
+            }
+
+            AppNavTab.ANALYTICS -> {
+                btnHeaderAnalytics.setColorFilter(accent)
+
+                layoutTopHeader.visibility = View.VISIBLE
+                scrollTodayView.visibility = View.GONE
+                layoutTasksPageView.visibility = View.GONE
+                layoutTimelinePageView.visibility = View.GONE
+                layoutSessionsPageView.visibility = View.GONE
+                layoutAnalyticsPageView.visibility = View.VISIBLE
+
+                refreshAnalyticsPageView()
             }
         }
     }
@@ -1328,10 +1533,12 @@ class MainActivity : AppCompatActivity() {
         pillNavAi.setBackgroundResource(R.drawable.bg_nav_ai_black_circle)
 
         val inactiveColor = ContextCompat.getColor(this, R.color.color_text_secondary)
+        val normalIconColor = ContextCompat.getColor(this, R.color.color_icon_primary)
         iconNavToday.setColorFilter(inactiveColor)
         iconNavTasks.setColorFilter(inactiveColor)
         iconNavTimeline.setColorFilter(inactiveColor)
         iconNavSessions.setColorFilter(inactiveColor)
+        btnHeaderAnalytics.setColorFilter(normalIconColor)
     }
 
     private fun refreshTimelinePageView() {
@@ -1470,6 +1677,8 @@ class MainActivity : AppCompatActivity() {
             refreshTimelinePageView()
         } else if (currentTab == AppNavTab.SESSIONS) {
             refreshSessionsPageView()
+        } else if (currentTab == AppNavTab.ANALYTICS) {
+            refreshAnalyticsPageView()
         }
     }
 
@@ -1559,6 +1768,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             selectTab(AppNavTab.SESSIONS)
         }
+        openFullScreenFocusMode(animated = true)
     }
 
     // =========================================================================
@@ -1751,6 +1961,7 @@ class MainActivity : AppCompatActivity() {
             dialog.dismiss()
             refreshData()
             selectTab(AppNavTab.SESSIONS)
+            openFullScreenFocusMode(animated = true)
         }
 
         btnDelete.setOnClickListener {
@@ -3010,5 +3221,1024 @@ class MainActivity : AppCompatActivity() {
                 btnDel.setOnClickListener { onDeleteClicked(task) }
             }
         }
+    }
+
+    // =========================================================================
+    // FOCUS MODE & SCREEN LOCK IMPLEMENTATION
+    // =========================================================================
+    // =========================================================================
+    // FOCUS MODE & FULL SCREEN IMMERSIVE IMPLEMENTATION
+    // =========================================================================
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && isFullScreenFocusActive) {
+            setFullScreenImmersiveMode(true)
+        }
+    }
+
+    private fun setupOnBackPressed() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isFullScreenFocusActive) {
+                    closeFullScreenFocusMode(animated = true)
+                    return
+                }
+                if (currentTab == AppNavTab.ANALYTICS) {
+                    selectTab(AppNavTab.TODAY)
+                    return
+                }
+                if (currentTab != AppNavTab.TODAY) {
+                    selectTab(AppNavTab.TODAY)
+                    return
+                }
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        })
+    }
+
+    private fun setupFullScreenFocusListeners() {
+        btnFocusMinimize.setOnClickListener {
+            closeFullScreenFocusMode(animated = true)
+        }
+        btnFocusTheme.setOnClickListener {
+            cycleFocusScreenTheme()
+            resetZenTimer()
+        }
+        btnFocusScreenAwake.setOnClickListener {
+            toggleScreenAwake()
+            resetZenTimer()
+        }
+        btnFocusEndSession.setOnClickListener {
+            endFocusSession()
+        }
+        btnFocusCompleteTask.setOnClickListener {
+            completeFocusTask()
+        }
+
+        // Tap anywhere on full screen background or timer container resets/exits zen mode
+        val screenTapAction = View.OnClickListener {
+            if (isZenModeActive) {
+                exitZenMode()
+            } else {
+                resetZenTimer()
+            }
+        }
+        layoutFullScreenSessionFocus.setOnClickListener(screenTapAction)
+        layoutFocusTimerContainer.setOnClickListener(screenTapAction)
+    }
+
+    // =========================================================================
+    // FOCUS SCREEN THEME ENGINE (Light / Dark / App Default)
+    // =========================================================================
+    private fun cycleFocusScreenTheme() {
+        val current = settings.focusThemeMode
+        val next = when (current) {
+            AppSettingsManager.THEME_SYSTEM -> AppSettingsManager.THEME_LIGHT
+            AppSettingsManager.THEME_LIGHT -> AppSettingsManager.THEME_DARK
+            AppSettingsManager.THEME_DARK -> AppSettingsManager.THEME_SYSTEM
+            else -> AppSettingsManager.THEME_SYSTEM
+        }
+        settings.focusThemeMode = next
+        applyFocusScreenTheme(next)
+        val msg = when (next) {
+            AppSettingsManager.THEME_LIGHT -> "Focus theme: Light"
+            AppSettingsManager.THEME_DARK -> "Focus theme: Dark"
+            else -> "Focus theme: Default (App Setting)"
+        }
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun isEffectiveFocusDark(themeMode: String): Boolean {
+        return when (themeMode) {
+            AppSettingsManager.THEME_LIGHT -> false
+            AppSettingsManager.THEME_DARK -> true
+            else -> {
+                // Follow system/app theme
+                when (settings.themeMode) {
+                    AppSettingsManager.THEME_LIGHT -> false
+                    AppSettingsManager.THEME_DARK -> true
+                    else -> {
+                        val nightFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                        nightFlags == Configuration.UI_MODE_NIGHT_YES
+                    }
+                }
+            }
+        }
+    }
+
+    private fun applyFocusScreenTheme(themeMode: String = settings.focusThemeMode) {
+        val isDark = isEffectiveFocusDark(themeMode)
+
+        // Pill label & icon
+        when (themeMode) {
+            AppSettingsManager.THEME_LIGHT -> {
+                lblFocusTheme.text = "Light"
+                iconFocusTheme.setImageResource(R.drawable.ic_theme_light)
+            }
+            AppSettingsManager.THEME_DARK -> {
+                lblFocusTheme.text = "Dark"
+                iconFocusTheme.setImageResource(R.drawable.ic_theme_dark)
+            }
+            else -> {
+                lblFocusTheme.text = "Auto"
+                iconFocusTheme.setImageResource(R.drawable.ic_theme_system)
+            }
+        }
+
+        val canvasColor = if (isDark) Color.BLACK else Color.WHITE
+        val primaryTextColor = if (isDark) Color.parseColor("#F3F4F6") else Color.parseColor("#0E0E10")
+        val secondaryTextColor = if (isDark) Color.parseColor("#9CA3AF") else Color.parseColor("#6B7280")
+        val colonColor = if (isDark) Color.parseColor("#4B5563") else Color.parseColor("#9CA3AF")
+
+        layoutFullScreenSessionFocus.setBackgroundColor(canvasColor)
+        txtFocusTaskTitle.setTextColor(primaryTextColor)
+        txtFocusGoalDuration.setTextColor(secondaryTextColor)
+        txtTimerHours.setTextColor(primaryTextColor)
+        txtTimerMinutes.setTextColor(primaryTextColor)
+        txtTimerColonHoursMin.setTextColor(colonColor)
+        txtTimerColonMinSec.setTextColor(colonColor)
+
+        // Top controls icons & text
+        btnFocusMinimize.setColorFilter(primaryTextColor)
+        iconFocusTheme.setColorFilter(primaryTextColor)
+        lblFocusTheme.setTextColor(primaryTextColor)
+        val awakeColor = if (isScreenAwakeEnabled) ContextCompat.getColor(this, R.color.color_accent) else primaryTextColor
+        iconScreenAwake.setColorFilter(awakeColor)
+        lblScreenAwake.setTextColor(awakeColor)
+
+        // Bottom Action Dock Buttons (Crisp high-contrast styling)
+        if (isDark) {
+            btnFocusCompleteTask.setTextColor(Color.WHITE)
+            btnFocusCompleteTask.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1F2937"))
+            btnFocusEndSession.setTextColor(Color.BLACK)
+            btnFocusEndSession.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+        } else {
+            btnFocusCompleteTask.setTextColor(Color.parseColor("#0E0E10"))
+            btnFocusCompleteTask.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F3F4F6"))
+            btnFocusEndSession.setTextColor(Color.WHITE)
+            btnFocusEndSession.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#0E0E10"))
+        }
+    }
+
+    // =========================================================================
+    // AUTO-ZEN MODE (Disappear everything except timer, scale timer to fill screen)
+    // =========================================================================
+    private fun startZenTimer() {
+        zenHandler.removeCallbacks(zenAutoHideRunnable)
+        zenHandler.postDelayed(zenAutoHideRunnable, 3000L)
+    }
+
+    private fun resetZenTimer() {
+        if (isZenModeActive) {
+            exitZenMode()
+        }
+        zenHandler.removeCallbacks(zenAutoHideRunnable)
+        zenHandler.postDelayed(zenAutoHideRunnable, 3000L)
+    }
+
+    private fun enterZenMode() {
+        if (!isFullScreenFocusActive || isZenModeActive) return
+        isZenModeActive = true
+
+        val animDuration = 600L
+        containerFocusTopSection.animate()
+            .alpha(0f)
+            .translationY(-24f)
+            .setDuration(animDuration)
+            .withEndAction { containerFocusTopSection.visibility = View.INVISIBLE }
+            .start()
+
+        containerFocusBottomDock.animate()
+            .alpha(0f)
+            .translationY(24f)
+            .setDuration(animDuration)
+            .withEndAction { containerFocusBottomDock.visibility = View.INVISIBLE }
+            .start()
+
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val zenScale = if (isLandscape) 1.15f else 1.18f
+        layoutFocusTimerContainer.animate()
+            .scaleX(zenScale)
+            .scaleY(zenScale)
+            .setDuration(800L)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+    }
+
+    private fun exitZenMode() {
+        if (!isFullScreenFocusActive) return
+        isZenModeActive = false
+        zenHandler.removeCallbacks(zenAutoHideRunnable)
+
+        val animDuration = 350L
+
+        containerFocusTopSection.visibility = View.VISIBLE
+        containerFocusTopSection.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(animDuration)
+            .start()
+
+        containerFocusBottomDock.visibility = View.VISIBLE
+        containerFocusBottomDock.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(animDuration)
+            .start()
+
+        layoutFocusTimerContainer.animate()
+            .scaleX(1.0f)
+            .scaleY(1.0f)
+            .setDuration(animDuration)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        startZenTimer()
+    }
+
+    private fun toggleScreenAwake() {
+        isScreenAwakeEnabled = !isScreenAwakeEnabled
+        val accent = ContextCompat.getColor(this, R.color.color_accent)
+        val normal = if (isEffectiveFocusDark(settings.focusThemeMode)) Color.parseColor("#F3F4F6") else Color.parseColor("#0E0E10")
+        if (isScreenAwakeEnabled) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            iconScreenAwake.setColorFilter(accent)
+            lblScreenAwake.text = "Screen On"
+            lblScreenAwake.setTextColor(accent)
+            Toast.makeText(this, "Keep screen awake: ON", Toast.LENGTH_SHORT).show()
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            iconScreenAwake.setColorFilter(normal)
+            lblScreenAwake.text = "Auto Sleep"
+            lblScreenAwake.setTextColor(normal)
+            Toast.makeText(this, "Keep screen awake: OFF", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // =========================================================================
+    // FULL SCREEN IMMERSIVE MODE (Edge-to-edge beyond camera cutout)
+    // =========================================================================
+    private fun setFullScreenImmersiveMode(enabled: Boolean) {
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        if (enabled) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val params = window.attributes
+                params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                window.attributes = params
+            }
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+            )
+        } else {
+            controller.show(WindowInsetsCompat.Type.systemBars())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val params = window.attributes
+                params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
+                window.attributes = params
+            }
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+        }
+    }
+
+    private fun openFullScreenFocusMode(animated: Boolean = true) {
+        val activeState = repository.getActiveSessionState() ?: return
+        isFullScreenFocusActive = true
+        isZenModeActive = false
+        layoutFocusTimerContainer.scaleX = 1.0f
+        layoutFocusTimerContainer.scaleY = 1.0f
+
+        setFullScreenImmersiveMode(true)
+        applyFocusScreenTheme()
+        updateFullScreenFocusUi(activeState)
+
+        if (isScreenAwakeEnabled) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+
+        if (animated) {
+            layoutFullScreenSessionFocus.visibility = View.VISIBLE
+            layoutFullScreenSessionFocus.alpha = 0f
+            layoutFullScreenSessionFocus.scaleX = 0.94f
+            layoutFullScreenSessionFocus.scaleY = 0.94f
+
+            layoutFullScreenSessionFocus.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(350L)
+                .setInterpolator(DecelerateInterpolator())
+                .withEndAction {
+                    startZenTimer()
+                }
+                .start()
+        } else {
+            layoutFullScreenSessionFocus.visibility = View.VISIBLE
+            layoutFullScreenSessionFocus.alpha = 1f
+            layoutFullScreenSessionFocus.scaleX = 1f
+            layoutFullScreenSessionFocus.scaleY = 1f
+            startZenTimer()
+        }
+    }
+
+    private fun closeFullScreenFocusMode(animated: Boolean = true) {
+        if (!isFullScreenFocusActive) return
+        zenHandler.removeCallbacks(zenAutoHideRunnable)
+        isFullScreenFocusActive = false
+        isZenModeActive = false
+        setFullScreenImmersiveMode(false)
+        if (!isScreenAwakeEnabled) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+
+        if (animated) {
+            layoutFullScreenSessionFocus.animate()
+                .alpha(0f)
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(250L)
+                .withEndAction {
+                    layoutFullScreenSessionFocus.visibility = View.GONE
+                }
+                .start()
+        } else {
+            layoutFullScreenSessionFocus.visibility = View.GONE
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (isFullScreenFocusActive) {
+            val activeState = repository.getActiveSessionState()
+            if (activeState != null) {
+                updateFullScreenFocusUi(activeState)
+            }
+            if (!isZenModeActive) {
+                resetZenTimer()
+            }
+        }
+    }
+
+    private fun updateFullScreenFocusUi(activeState: ActiveSessionState) {
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val totalSec = activeState.elapsedSeconds
+        val hours = totalSec / 3600L
+        val minutes = (totalSec % 3600L) / 60L
+        val seconds = totalSec % 60L
+
+        // Dynamically compute font size so all numbers occupy ~70% of available screen area
+        val dm = resources.displayMetrics
+        val screenWidthDp = dm.widthPixels / dm.density
+        val screenHeightDp = dm.heightPixels / dm.density
+
+        val calculatedDigitSp = if (isLandscape) {
+            if (hours > 0) {
+                // Horizontal row with hours: [HH : MM : SS] -> 6 digits + 2 colons
+                val maxFromWidth = (screenWidthDp * 0.84f) / 4.6f
+                val maxFromHeight = screenHeightDp * 0.58f
+                minOf(maxFromWidth, maxFromHeight).coerceIn(75f, 150f)
+            } else {
+                // Horizontal row without hours: [MM : SS] -> 4 digits + 1 colon
+                val maxFromWidth = (screenWidthDp * 0.82f) / 3.0f
+                val maxFromHeight = screenHeightDp * 0.65f
+                minOf(maxFromWidth, maxFromHeight).coerceIn(110f, 195f)
+            }
+        } else {
+            if (hours > 0) {
+                // Vertical stack with hours: 3 rows (HH / MM / SS)
+                val maxFromWidth = (screenWidthDp * 0.75f) / 1.25f
+                val maxFromHeight = (screenHeightDp * 0.68f) / 3.0f
+                minOf(maxFromWidth, maxFromHeight).coerceIn(90f, 160f)
+            } else {
+                // Vertical stack without hours: 2 rows (MM / SS)
+                val maxFromWidth = (screenWidthDp * 0.78f) / 1.25f
+                val maxFromHeight = (screenHeightDp * 0.62f) / 2.0f
+                minOf(maxFromWidth, maxFromHeight).coerceIn(130f, 215f)
+            }
+        }
+
+        // Adjust Timer Container orientation for portrait vs landscape
+        if (isLandscape) {
+            layoutFocusTimerContainer.orientation = LinearLayout.HORIZONTAL
+            txtTimerColonHoursMin.visibility = if (hours > 0) View.VISIBLE else View.GONE
+            txtTimerColonMinSec.visibility = View.VISIBLE
+
+            txtTimerHours.textSize = calculatedDigitSp
+            txtTimerMinutes.textSize = calculatedDigitSp
+            txtTimerSeconds.textSize = calculatedDigitSp
+            txtTimerColonHoursMin.textSize = calculatedDigitSp * 0.85f
+            txtTimerColonMinSec.textSize = calculatedDigitSp * 0.85f
+        } else {
+            layoutFocusTimerContainer.orientation = LinearLayout.VERTICAL
+            txtTimerColonHoursMin.visibility = View.GONE
+            txtTimerColonMinSec.visibility = View.GONE
+
+            txtTimerHours.textSize = calculatedDigitSp
+            txtTimerMinutes.textSize = calculatedDigitSp
+            txtTimerSeconds.textSize = calculatedDigitSp
+        }
+
+        // Tier 1: Hours - Only show if hours > 0
+        if (hours > 0) {
+            txtTimerHours.visibility = View.VISIBLE
+            txtTimerHours.text = String.format("%02d", hours)
+        } else {
+            txtTimerHours.visibility = View.GONE
+        }
+
+        // Tier 2: Minutes
+        txtTimerMinutes.text = String.format("%02d", minutes)
+
+        // Tier 3: Seconds
+        txtTimerSeconds.text = String.format("%02d", seconds)
+
+        // Overtime check
+        val isDark = isEffectiveFocusDark(settings.focusThemeMode)
+        val defaultPrimaryText = if (isDark) Color.parseColor("#F3F4F6") else Color.parseColor("#0E0E10")
+
+        val targetMin = activeState.task?.let { NotionFormulas.parseMinimumTimeToMinutes(it.minimumTimeRequired) }
+        val targetSec = if (targetMin != null && targetMin > 0) targetMin * 60L else null
+        if (targetSec != null && totalSec > targetSec) {
+            val overtimeSec = totalSec - targetSec
+            val otMins = overtimeSec / 60L
+            txtFocusOvertimeNotice.visibility = View.VISIBLE
+            txtFocusOvertimeNotice.text = if (otMins > 0) "OVERTIME (+${otMins}m)" else "OVERTIME (+${overtimeSec}s)"
+            txtTimerHours.setTextColor(ContextCompat.getColor(this, R.color.color_urgent_red))
+            txtTimerMinutes.setTextColor(ContextCompat.getColor(this, R.color.color_urgent_red))
+            txtTimerSeconds.setTextColor(ContextCompat.getColor(this, R.color.color_urgent_red))
+        } else {
+            txtFocusOvertimeNotice.visibility = View.GONE
+            txtTimerHours.setTextColor(defaultPrimaryText)
+            txtTimerMinutes.setTextColor(defaultPrimaryText)
+            txtTimerSeconds.setTextColor(ContextCompat.getColor(this, R.color.color_accent))
+        }
+
+        txtFocusTaskTitle.text = activeState.task?.title ?: activeState.session.title
+
+        val mainType = activeState.task?.taskTypes?.firstOrNull()
+        if (mainType != null) {
+            txtFocusCategoryBadge.visibility = View.VISIBLE
+            txtFocusCategoryBadge.text = mainType.displayName.uppercase()
+            try {
+                txtFocusCategoryBadge.setTextColor(Color.parseColor(mainType.badgeColorHex))
+            } catch (e: Exception) {
+                txtFocusCategoryBadge.setTextColor(defaultPrimaryText)
+            }
+        } else {
+            txtFocusCategoryBadge.visibility = View.GONE
+        }
+
+        val priority = activeState.task?.priority ?: TaskPriority.MEDIUM
+        txtFocusPriorityBadge.text = priority.displayName.uppercase()
+        when (priority) {
+            TaskPriority.HIGH -> {
+                txtFocusPriorityBadge.setBackgroundResource(R.drawable.bg_urgency_red)
+                txtFocusPriorityBadge.setTextColor(ContextCompat.getColor(this, R.color.color_urgent_red))
+            }
+            TaskPriority.MEDIUM -> {
+                txtFocusPriorityBadge.setBackgroundResource(R.drawable.bg_urgency_orange)
+                txtFocusPriorityBadge.setTextColor(ContextCompat.getColor(this, R.color.color_attention_orange))
+            }
+            TaskPriority.LOW -> {
+                txtFocusPriorityBadge.setBackgroundResource(R.drawable.bg_urgency_neutral)
+                txtFocusPriorityBadge.setTextColor(ContextCompat.getColor(this, R.color.color_neutral_blue))
+            }
+        }
+
+        val minTime = activeState.task?.minimumTimeRequired
+        if (!minTime.isNullOrBlank() && minTime != "0d 0h 0m") {
+            txtFocusGoalDuration.visibility = View.VISIBLE
+            txtFocusGoalDuration.text = "Goal: $minTime"
+        } else {
+            txtFocusGoalDuration.visibility = View.GONE
+        }
+    }
+
+    private fun endFocusSession() {
+        repository.endCurrentActiveSession()
+        SessionNotificationManager.cancelSessionNotification(this)
+        Toast.makeText(this, "Session ended and logged.", Toast.LENGTH_SHORT).show()
+        closeFullScreenFocusMode(animated = true)
+        refreshSessionsPageView()
+        refreshData()
+    }
+
+    private fun completeFocusTask() {
+        val activeState = repository.getActiveSessionState()
+        val activeSession = repository.getActiveSession()
+        val taskId = activeState?.task?.id ?: activeSession?.taskId
+        
+        if (!taskId.isNullOrBlank()) {
+            val task = repository.getTaskById(taskId)
+            if (task != null) {
+                task.status = TaskStatus.DONE
+                task.completedAt = System.currentTimeMillis()
+                repository.updateTask(task)
+                Toast.makeText(this, "Task '${task.title}' marked done!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Session completed!", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Session completed!", Toast.LENGTH_SHORT).show()
+        }
+        endFocusSession()
+    }
+
+    // =========================================================================
+    // ANALYTICS ENGINE & PAGE IMPLEMENTATION
+    // =========================================================================
+    private fun setupAnalyticsPeriodListeners() {
+        btnPeriod7Days.setOnClickListener {
+            selectedAnalyticsPeriod = AnalyticsPeriod.SEVEN_DAYS
+            updatePeriodButtonsUi()
+            refreshAnalyticsPageView()
+        }
+        btnPeriod30Days.setOnClickListener {
+            selectedAnalyticsPeriod = AnalyticsPeriod.THIRTY_DAYS
+            updatePeriodButtonsUi()
+            refreshAnalyticsPageView()
+        }
+        btnPeriodAllTime.setOnClickListener {
+            selectedAnalyticsPeriod = AnalyticsPeriod.ALL_TIME
+            updatePeriodButtonsUi()
+            refreshAnalyticsPageView()
+        }
+    }
+
+    private fun updatePeriodButtonsUi() {
+        val selBg = R.drawable.bg_chip_selected
+        val unselBg = android.R.color.transparent
+        val selText = ContextCompat.getColor(this, R.color.color_btn_primary_text)
+        val unselText = ContextCompat.getColor(this, R.color.color_text_secondary)
+
+        btnPeriod7Days.setBackgroundResource(if (selectedAnalyticsPeriod == AnalyticsPeriod.SEVEN_DAYS) selBg else unselBg)
+        btnPeriod7Days.setTextColor(if (selectedAnalyticsPeriod == AnalyticsPeriod.SEVEN_DAYS) selText else unselText)
+
+        btnPeriod30Days.setBackgroundResource(if (selectedAnalyticsPeriod == AnalyticsPeriod.THIRTY_DAYS) selBg else unselBg)
+        btnPeriod30Days.setTextColor(if (selectedAnalyticsPeriod == AnalyticsPeriod.THIRTY_DAYS) selText else unselText)
+
+        btnPeriodAllTime.setBackgroundResource(if (selectedAnalyticsPeriod == AnalyticsPeriod.ALL_TIME) selBg else unselBg)
+        btnPeriodAllTime.setTextColor(if (selectedAnalyticsPeriod == AnalyticsPeriod.ALL_TIME) selText else unselText)
+    }
+
+    private fun refreshAnalyticsPageView() {
+        val allSessions = repository.getAllSessions()
+        val allTasks = repository.getAllTasks()
+
+        val now = System.currentTimeMillis()
+        val cal = Calendar.getInstance()
+
+        // Determine period start
+        val periodDays: Int
+        val periodStartMs: Long
+        when (selectedAnalyticsPeriod) {
+            AnalyticsPeriod.SEVEN_DAYS -> {
+                periodDays = 7
+                cal.timeInMillis = now
+                cal.add(Calendar.DAY_OF_YEAR, -6)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                periodStartMs = cal.timeInMillis
+                txtAnalyticsDateRangeSubtitle.text = "Past 7 Days focus & productivity summary"
+            }
+            AnalyticsPeriod.THIRTY_DAYS -> {
+                periodDays = 30
+                cal.timeInMillis = now
+                cal.add(Calendar.DAY_OF_YEAR, -29)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                periodStartMs = cal.timeInMillis
+                txtAnalyticsDateRangeSubtitle.text = "Past 30 Days focus & productivity summary"
+            }
+            AnalyticsPeriod.ALL_TIME -> {
+                periodDays = 0 // variable
+                periodStartMs = 0L
+                txtAnalyticsDateRangeSubtitle.text = "All-time productivity & focus history"
+            }
+        }
+
+        // Filter sessions within period
+        val filteredSessions = allSessions.filter { s ->
+            s.status == TimesheetStatus.DONE &&
+            s.startTime != null &&
+            s.startTime!! >= periodStartMs
+        }
+
+        // 1. Total Focus Time
+        var totalMinutes = 0L
+        for (s in filteredSessions) {
+            val st = s.startTime ?: continue
+            val et = s.endTime ?: continue
+            val dur = ((et - st) / 60000L).coerceAtLeast(0L)
+            totalMinutes += dur
+        }
+
+        val totalHours = totalMinutes / 60L
+        val remMins = totalMinutes % 60L
+        txtAnalyticsTotalFocus.text = if (totalHours > 0) "${totalHours}h ${remMins}m" else "${totalMinutes}m"
+
+        val effectiveDays = if (selectedAnalyticsPeriod == AnalyticsPeriod.ALL_TIME) {
+            val earliest = filteredSessions.minOfOrNull { it.startTime ?: now } ?: now
+            val spanDays = ((now - earliest) / (1000L * 60L * 60L * 24L)).toInt() + 1
+            spanDays.coerceAtLeast(1)
+        } else {
+            periodDays
+        }
+        val dailyAvgMins = totalMinutes / effectiveDays
+        val avgHours = dailyAvgMins / 60L
+        val avgMins = dailyAvgMins % 60L
+        txtAnalyticsFocusAvg.text = if (avgHours > 0) "Avg ${avgHours}h ${avgMins}m / day" else "Avg ${dailyAvgMins}m / day"
+
+        // 2. Completed Sessions
+        val sessionCount = filteredSessions.size
+        txtAnalyticsSessionsCount.text = "$sessionCount"
+        val avgSessionMins = if (sessionCount > 0) totalMinutes / sessionCount else 0L
+        txtAnalyticsSessionAvg.text = "Avg ${avgSessionMins}m per session"
+
+        // 3. Task Completion Rate
+        val totalTasksCount = allTasks.size
+        val doneTasksCount = allTasks.count { it.isCompleted }
+        val completionRate = if (totalTasksCount > 0) {
+            ((doneTasksCount.toFloat() / totalTasksCount.toFloat()) * 100f).toInt()
+        } else 0
+        txtAnalyticsCompletionRate.text = "$completionRate%"
+        txtAnalyticsDoneVsTotal.text = "$doneTasksCount of $totalTasksCount tasks completed"
+
+        // 4. Focus Streak Calculation
+        val dayFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val activeDaysSet = mutableSetOf<String>()
+        for (s in allSessions) {
+            if (s.status == TimesheetStatus.DONE && s.startTime != null && s.endTime != null && s.endTime!! > s.startTime!!) {
+                activeDaysSet.add(dayFormat.format(Date(s.startTime!!)))
+            }
+        }
+
+        var streak = 0
+        val streakCal = Calendar.getInstance()
+        streakCal.timeInMillis = now
+        val todayStr = dayFormat.format(streakCal.time)
+        if (!activeDaysSet.contains(todayStr)) {
+            streakCal.add(Calendar.DAY_OF_YEAR, -1)
+        }
+
+        while (activeDaysSet.contains(dayFormat.format(streakCal.time))) {
+            streak++
+            streakCal.add(Calendar.DAY_OF_YEAR, -1)
+        }
+        txtAnalyticsCurrentStreak.text = "$streak ${if (streak == 1) "day" else "days"}"
+        txtAnalyticsBestStreak.text = if (streak > 0) "Active focus streak" else "Start a session today"
+
+        // 5. Daily Focus Bar Chart Data
+        val barCount = if (selectedAnalyticsPeriod == AnalyticsPeriod.THIRTY_DAYS) 14 else 7
+        val barList = mutableListOf<DailyBarData>()
+        val dayCal = Calendar.getInstance()
+        val dayNameFmt = SimpleDateFormat("EEE", Locale.getDefault())
+        val dayNumFmt = SimpleDateFormat("d", Locale.getDefault())
+
+        val daysMsList = mutableListOf<Long>()
+        for (i in (barCount - 1) downTo 0) {
+            dayCal.timeInMillis = now
+            dayCal.add(Calendar.DAY_OF_YEAR, -i)
+            dayCal.set(Calendar.HOUR_OF_DAY, 0)
+            dayCal.set(Calendar.MINUTE, 0)
+            dayCal.set(Calendar.SECOND, 0)
+            dayCal.set(Calendar.MILLISECOND, 0)
+            daysMsList.add(dayCal.timeInMillis)
+        }
+
+        for (i in daysMsList.indices) {
+            val startDay = daysMsList[i]
+            val endDay = startDay + (24L * 60L * 60L * 1000L) - 1L
+            val daySessions = allSessions.filter { s ->
+                s.status == TimesheetStatus.DONE &&
+                s.startTime != null &&
+                s.startTime!! in startDay..endDay
+            }
+            val dayMins = daySessions.sumOf { s ->
+                val st = s.startTime
+                val et = s.endTime
+                if (st != null && et != null) ((et - st) / 60000L).coerceAtLeast(0L) else 0L
+            }
+
+            dayCal.timeInMillis = startDay
+            val dayLabel = dayNameFmt.format(dayCal.time)
+            val daySubtitle = dayNumFmt.format(dayCal.time)
+            val isToday = (i == daysMsList.size - 1)
+            barList.add(DailyBarData(dayLabel, daySubtitle, dayMins, isToday))
+        }
+        chartDailyFocus.setData(barList, targetDailyMinutes = 120L)
+
+        // 6. Category Breakdown Donut Chart
+        val categoryMinutesMap = mutableMapOf<String, Pair<Long, String>>() // name -> (mins, hexColor)
+        for (s in filteredSessions) {
+            val st = s.startTime ?: continue
+            val et = s.endTime ?: continue
+            val dur = ((et - st) / 60000L).coerceAtLeast(0L)
+            val linkedTask = s.taskId?.let { repository.getTaskById(it) }
+            val mainType = linkedTask?.taskTypes?.firstOrNull() ?: TaskType.WORK
+            val name = mainType.displayName
+            val color = mainType.badgeColorHex
+
+            val prev = categoryMinutesMap[name]
+            val prevMins = prev?.first ?: 0L
+            categoryMinutesMap[name] = Pair(prevMins + dur, color)
+        }
+
+        val totalCatMins = categoryMinutesMap.values.sumOf { it.first }.coerceAtLeast(1L)
+        val shareList = categoryMinutesMap.entries.map { entry ->
+            val mins = entry.value.first
+            val pct = (mins.toFloat() / totalCatMins.toFloat()) * 100f
+            CategoryShareData(entry.key, mins, pct, entry.value.second)
+        }.sortedByDescending { it.minutes }
+
+        chartCategoryDistribution.setData(shareList)
+
+        // Populate dynamic legends in containerCategoryLegends
+        containerCategoryLegends.removeAllViews()
+        for (cat in shareList) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(0, 6, 0, 6)
+                }
+            }
+            val dot = View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(24, 24).apply {
+                    setMargins(0, 0, 16, 0)
+                }
+                val shape = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.OVAL
+                    try {
+                        setColor(Color.parseColor(cat.colorHex))
+                    } catch (e: Exception) {
+                        setColor(ContextCompat.getColor(this@MainActivity, R.color.color_accent))
+                    }
+                }
+                background = shape
+            }
+            val nameTv = TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                text = cat.name
+                textSize = 13.5f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.color_text_primary))
+                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+            }
+            val valTv = TextView(this).apply {
+                val hPart = cat.minutes / 60
+                val mPart = cat.minutes % 60
+                val timeFmt = if (hPart > 0) "${hPart}h ${mPart}m" else "${mPart}m"
+                text = "$timeFmt (${cat.percentage.toInt()}%)"
+                textSize = 13f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.color_text_secondary))
+                typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+            }
+            row.addView(dot)
+            row.addView(nameTv)
+            row.addView(valTv)
+            containerCategoryLegends.addView(row)
+        }
+
+        // 7. 24-Hour Continuous Hourly Productivity Distribution
+        val hourlyMinutes = FloatArray(24) // hours 0..23
+
+        for (s in filteredSessions) {
+            val start = s.startTime ?: continue
+            val end = s.endTime ?: continue
+            if (end <= start) continue
+
+            val cal = Calendar.getInstance()
+            var cur = start
+            while (cur < end) {
+                cal.timeInMillis = cur
+                val hour = cal.get(Calendar.HOUR_OF_DAY)
+
+                val nextHourCal = Calendar.getInstance().apply {
+                    timeInMillis = cur
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                    add(Calendar.HOUR_OF_DAY, 1)
+                }
+                val nextHourMillis = nextHourCal.timeInMillis
+                val sliceEnd = minOf(end, nextHourMillis)
+                val sliceMinutes = (sliceEnd - cur) / 60000.0f
+                if (sliceMinutes > 0f) {
+                    hourlyMinutes[hour] += sliceMinutes
+                }
+                cur = sliceEnd
+            }
+        }
+
+        val totalHourlyFocus = hourlyMinutes.sum()
+        val maxHourMins = hourlyMinutes.maxOrNull() ?: 0f
+        val peakHour = if (maxHourMins > 0f) hourlyMinutes.indices.maxByOrNull { hourlyMinutes[it] } ?: -1 else -1
+
+        // Determine Good Productivity threshold (e.g. >= 40% of peak, min 8 mins)
+        val goodThreshold = if (maxHourMins > 0f) maxOf(8f, maxHourMins * 0.40f) else Float.MAX_VALUE
+
+        // Identify contiguous good productivity time ranges
+        val goodRanges = mutableListOf<ProductivityTimeRange>()
+        var rangeStart: Int? = null
+        for (h in 0..23) {
+            val isGood = hourlyMinutes[h] >= goodThreshold
+            if (isGood) {
+                if (rangeStart == null) {
+                    rangeStart = h
+                }
+            } else {
+                if (rangeStart != null) {
+                    val rEnd = h - 1
+                    var sumR = 0f
+                    for (rh in rangeStart..rEnd) sumR += hourlyMinutes[rh]
+                    val pct = if (totalHourlyFocus > 0f) (sumR / totalHourlyFocus) * 100f else 0f
+                    goodRanges.add(
+                        ProductivityTimeRange(
+                            startHour = rangeStart,
+                            endHour = rEnd,
+                            label = String.format("%02d:00 – %02d:00", rangeStart, (rEnd + 1) % 24),
+                            totalMinutes = sumR,
+                            percentageOfTotal = pct
+                        )
+                    )
+                    rangeStart = null
+                }
+            }
+        }
+        if (rangeStart != null) {
+            val rEnd = 23
+            var sumR = 0f
+            for (rh in rangeStart..rEnd) sumR += hourlyMinutes[rh]
+            val pct = if (totalHourlyFocus > 0f) (sumR / totalHourlyFocus) * 100f else 0f
+            goodRanges.add(
+                ProductivityTimeRange(
+                    startHour = rangeStart,
+                    endHour = rEnd,
+                    label = String.format("%02d:00 – 00:00", rangeStart),
+                    totalMinutes = sumR,
+                    percentageOfTotal = pct
+                )
+            )
+        }
+
+        chartHourlyDistribution.setHourlyDistribution(
+            hourlyMinutes = hourlyMinutes,
+            peakHour = peakHour,
+            goodProductivityRanges = goodRanges
+        )
+
+        // Update card header badge and bottom insights
+        if (maxHourMins > 0f && peakHour != -1) {
+            val primeRange = goodRanges.maxByOrNull { it.totalMinutes } ?: goodRanges.firstOrNull()
+            val peakHourStr = formatHourAmPm(peakHour)
+            val peakMins = hourlyMinutes[peakHour].toInt()
+            val peakFmt = if (peakMins >= 60) "${peakMins / 60}h ${peakMins % 60}m" else "${peakMins}m"
+
+            txtAnalyticsPeakHourVal.text = "$peakHourStr ($peakFmt)"
+
+            if (primeRange != null) {
+                txtAnalyticsPeakZoneBadge.visibility = View.VISIBLE
+                txtAnalyticsPeakZoneBadge.text = "🔥 ${primeRange.label} Prime Zone"
+                txtAnalyticsPrimeRangeVal.text = primeRange.label
+                val pMins = primeRange.totalMinutes.toInt()
+                val pFmt = if (pMins >= 60) "${pMins / 60}h ${pMins % 60}m" else "${pMins}m"
+                txtAnalyticsPrimeShareVal.text = "$pFmt (${primeRange.percentageOfTotal.toInt()}%)"
+            } else {
+                txtAnalyticsPeakZoneBadge.visibility = View.VISIBLE
+                txtAnalyticsPeakZoneBadge.text = "⚡ Peak: $peakHourStr"
+                txtAnalyticsPrimeRangeVal.text = "$peakHourStr – ${formatHourAmPm(peakHour + 1)}"
+                txtAnalyticsPrimeShareVal.text = peakFmt
+            }
+        } else {
+            txtAnalyticsPeakZoneBadge.visibility = View.GONE
+            txtAnalyticsPeakHourVal.text = "—"
+            txtAnalyticsPrimeRangeVal.text = "—"
+            txtAnalyticsPrimeShareVal.text = "0m (0%)"
+        }
+
+        // 8. Completion Behavior & Discipline Analysis
+        // Evaluates completed tasks against their deadlines and minimum time requirements
+        val completedTasks = allTasks.filter { it.isCompleted }
+        val totalCompleted = completedTasks.size
+
+        var overdueCompletedCount = 0
+        var urgentZoneCompletedCount = 0
+        var attentionZoneCompletedCount = 0
+        var onTrackCompletedCount = 0
+
+        for (t in completedTasks) {
+            val due = t.dueDate
+            val completedTime = t.completedAt ?: now
+            if (due == null) {
+                // No due date set -> planned and finished freely on track
+                onTrackCompletedCount++
+                continue
+            }
+
+            val minTotalMinutes = NotionFormulas.parseMinimumTimeToMinutes(t.minimumTimeRequired)
+            val minutesLeftAtCompletion = (due - completedTime) / (1000L * 60L)
+
+            when {
+                minutesLeftAtCompletion < 0 -> {
+                    // Completed past deadline -> Procrastination / Overdue
+                    overdueCompletedCount++
+                }
+                minutesLeftAtCompletion < minTotalMinutes -> {
+                    // Completed with < 1x minimum time left -> Urgent pressure rush
+                    urgentZoneCompletedCount++
+                }
+                minutesLeftAtCompletion < 2 * minTotalMinutes -> {
+                    // Completed between 1x and 2x minimum time -> Attention needed window
+                    attentionZoneCompletedCount++
+                }
+                else -> {
+                    // Completed with >= 2x minimum time left -> Early & disciplined
+                    onTrackCompletedCount++
+                }
+            }
+        }
+
+        // Percentages
+        val overduePct = if (totalCompleted > 0) ((overdueCompletedCount.toFloat() / totalCompleted.toFloat()) * 100f).toInt() else 0
+        val urgentPct = if (totalCompleted > 0) ((urgentZoneCompletedCount.toFloat() / totalCompleted.toFloat()) * 100f).toInt() else 0
+        val attentionPct = if (totalCompleted > 0) ((attentionZoneCompletedCount.toFloat() / totalCompleted.toFloat()) * 100f).toInt() else 0
+        val onTrackPct = if (totalCompleted > 0) ((onTrackCompletedCount.toFloat() / totalCompleted.toFloat()) * 100f).toInt() else 0
+
+        txtCompletedOverdueStats.text = "$overdueCompletedCount ($overduePct%)"
+        txtCompletedUrgentStats.text = "$urgentZoneCompletedCount ($urgentPct%)"
+        txtCompletedAttentionStats.text = "$attentionZoneCompletedCount ($attentionPct%)"
+        txtCompletedOnTrackStats.text = "$onTrackCompletedCount ($onTrackPct%)"
+
+        // Overall Discipline Score: Tasks completed before overdue
+        val onTimeCount = totalCompleted - overdueCompletedCount
+        val disciplineScore = if (totalCompleted > 0) {
+            ((onTimeCount.toFloat() / totalCompleted.toFloat()) * 100f).toInt()
+        } else 100
+
+        txtAnalyticsDisciplineScore.text = "$disciplineScore%"
+        txtAnalyticsDisciplineDescription.text = "$onTimeCount of $totalCompleted completed tasks on or before deadline"
+
+        // Diagnosis Pill
+        when {
+            totalCompleted == 0 -> {
+                txtAnalyticsDisciplineBadge.text = "NO DATA"
+                txtAnalyticsDisciplineBadge.setTextColor(ContextCompat.getColor(this, R.color.color_text_tertiary))
+            }
+            disciplineScore >= 90 -> {
+                txtAnalyticsDisciplineBadge.text = "HIGH DISCIPLINE"
+                txtAnalyticsDisciplineBadge.setTextColor(ContextCompat.getColor(this, R.color.color_on_track_green))
+            }
+            disciplineScore >= 70 -> {
+                txtAnalyticsDisciplineBadge.text = "GOOD FOCUS"
+                txtAnalyticsDisciplineBadge.setTextColor(ContextCompat.getColor(this, R.color.color_neutral_blue))
+            }
+            disciplineScore >= 50 -> {
+                txtAnalyticsDisciplineBadge.text = "ATTENTION NEEDED"
+                txtAnalyticsDisciplineBadge.setTextColor(ContextCompat.getColor(this, R.color.color_attention_orange))
+            }
+            else -> {
+                txtAnalyticsDisciplineBadge.text = "PROCRASTINATING"
+                txtAnalyticsDisciplineBadge.setTextColor(ContextCompat.getColor(this, R.color.color_urgent_red))
+            }
+        }
+
+        // 9. Recent Activity List
+        if (filteredSessions.isEmpty()) {
+            txtNoAnalyticsSessions.visibility = View.VISIBLE
+            recyclerAnalyticsRecentSessions.visibility = View.GONE
+        } else {
+            txtNoAnalyticsSessions.visibility = View.GONE
+            recyclerAnalyticsRecentSessions.visibility = View.VISIBLE
+            analyticsSessionsAdapter.submitList(filteredSessions.take(15))
+        }
+    }
+
+    private fun formatHourAmPm(hour: Int): String {
+        val h = hour % 24
+        val ampm = if (h < 12) "AM" else "PM"
+        val displayH = when (h) {
+            0 -> 12
+            in 1..12 -> h
+            else -> h - 12
+        }
+        return String.format("%d %s", displayH, ampm)
     }
 }

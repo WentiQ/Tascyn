@@ -41,6 +41,18 @@
                 android:textSize="21sp"
                 android:textStyle="bold" />
 
+            <!-- Analytics Action -->
+            <ImageView
+                android:id="@+id/btnHeaderAnalytics"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_stats_bars"
+                app:tint="@color/color_icon_primary" />
+
             <!-- Settings Action -->
             <ImageView
                 android:id="@+id/btnHeaderSettings"
@@ -884,6 +896,65 @@
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
+                    <!-- Focus Analytics Entry Banner -->
+                    <LinearLayout
+                        android:id="@+id/bannerSessionsToAnalytics"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/bg_summary_card"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="10dp">
+
+                        <FrameLayout
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_icon_circle_subtle">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_stats_bars"
+                                app:tint="@color/color_accent" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-bold"
+                                android:text="Focus Analytics &amp; Insights"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="13.5sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="View daily focus charts, streaks &amp; time breakdown"
+                                android:textColor="@color/color_text_secondary"
+                                android:textSize="11.5sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/color_icon_secondary" />
+                    </LinearLayout>
+
                     <!-- Active / Inactive Work Session Container Card -->
                     <LinearLayout
                         android:id="@+id/cardWorkSessionMain"
@@ -1093,6 +1164,9 @@
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 
+            <!-- 5. ANALYTICS PAGE VIEW -->
+            <include layout="@layout/layout_page_analytics" />
+
         </FrameLayout>
 
         <!-- Floating Action Button (+) -->
@@ -1264,6 +1338,15 @@
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ============================================================= -->
+    <!-- FULL-SCREEN FOCUS MODE OVERLAY (Transforms on session start)  -->
+    <!-- Includes circular timer ring, lock controls, and actions      -->
+    <!-- ============================================================= -->
+    <include
+        layout="@layout/overlay_fullscreen_focus"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <!-- ============================================================= -->
     <!-- VOICE MODE OVERLAY (Hold-to-listen, radial expand from AI btn)-->

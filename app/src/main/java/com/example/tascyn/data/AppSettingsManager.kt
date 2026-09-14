@@ -16,6 +16,7 @@ class AppSettingsManager(context: Context) {
         private const val KEY_DEFAULT_SESSION_MIN = "default_session_minutes"
 
         private const val KEY_THEME_MODE = "app_theme_mode"
+        private const val KEY_FOCUS_THEME_MODE = "focus_screen_theme_mode"
 
         const val THEME_SYSTEM = "system"
         const val THEME_LIGHT = "light"
@@ -36,6 +37,10 @@ class AppSettingsManager(context: Context) {
     var themeMode: String
         get() = prefs.getString(KEY_THEME_MODE, THEME_SYSTEM) ?: THEME_SYSTEM
         set(value) = prefs.edit().putString(KEY_THEME_MODE, value).apply()
+
+    var focusThemeMode: String
+        get() = prefs.getString(KEY_FOCUS_THEME_MODE, THEME_SYSTEM) ?: THEME_SYSTEM
+        set(value) = prefs.edit().putString(KEY_FOCUS_THEME_MODE, value).apply()
 
     fun applyTheme(mode: String = themeMode, context: Context? = null) {
         val nightMode = when (mode) {
