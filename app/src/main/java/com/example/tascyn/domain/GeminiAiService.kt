@@ -50,14 +50,19 @@ object GeminiAiService {
         }
 
         executor.execute {
+            var conn: HttpURLConnection? = null
             try {
                 val url = URL("https://generativelanguage.googleapis.com/v1beta/models/$cleanModel:generateContent?key=$cleanKey")
-                val conn = (url.openConnection() as HttpURLConnection).apply {
+                conn = (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                    setRequestProperty("Accept", "application/json")
+                    setRequestProperty("x-goog-api-key", cleanKey)
+                    useCaches = false
+                    instanceFollowRedirects = true
                     doOutput = true
-                    connectTimeout = 10000
-                    readTimeout = 10000
+                    connectTimeout = 25000
+                    readTimeout = 25000
                 }
 
                 val jsonBody = JSONObject().apply {
@@ -73,9 +78,13 @@ object GeminiAiService {
                     put("contents", contentsArray)
                 }
 
-                OutputStreamWriter(conn.outputStream).use { writer ->
-                    writer.write(jsonBody.toString())
-                    writer.flush()
+                val bodyBytes = jsonBody.toString().toByteArray(Charsets.UTF_8)
+                conn.setFixedLengthStreamingMode(bodyBytes.size)
+                conn.setRequestProperty("Content-Length", bodyBytes.size.toString())
+
+                conn.outputStream.use { os ->
+                    os.write(bodyBytes)
+                    os.flush()
                 }
 
                 val responseCode = conn.responseCode
@@ -93,10 +102,30 @@ object GeminiAiService {
                     } catch (e: Exception) {
                         errorMsg
                     }
-                    mainHandler.post { onResult(false, "Test failed ($responseCode): $parsedMsg") }
+
+                    val userFriendlyMsg = when {
+                        parsedMsg.contains("API_KEY_INVALID", ignoreCase = true) || parsedMsg.contains("API key not valid", ignoreCase = true) ->
+                            "Invalid API Key: Please verify your Gemini API key."
+                        parsedMsg.contains("RESOURCE_EXHAUSTED", ignoreCase = true) || responseCode == 429 ->
+                            "API Quota Exceeded (429): Free tier quota reached for '$cleanModel'. Try gemini-1.5-flash."
+                        parsedMsg.contains("not found", ignoreCase = true) || responseCode == 404 ->
+                            "Model '$cleanModel' not found (404). Please choose gemini-1.5-flash or gemini-2.0-flash."
+                        else -> "Test failed ($responseCode): $parsedMsg"
+                    }
+
+                    mainHandler.post { onResult(false, userFriendlyMsg) }
                 }
             } catch (e: Exception) {
-                mainHandler.post { onResult(false, "Connection error: ${e.localizedMessage ?: "Unknown error"}") }
+                val errorMsg = when (e) {
+                    is java.net.SocketTimeoutException ->
+                        "Connection timed out. Please check your internet connection or try model gemini-1.5-flash."
+                    is java.net.UnknownHostException ->
+                        "Network error: Unable to reach Google Gemini API. Please check your internet/Wi-Fi connection."
+                    else -> "Connection error: ${e.localizedMessage ?: "Unknown error"}"
+                }
+                mainHandler.post { onResult(false, errorMsg) }
+            } finally {
+                conn?.disconnect()
             }
         }
     }
@@ -119,15 +148,20 @@ object GeminiAiService {
         }
 
         executor.execute {
+            var conn: HttpURLConnection? = null
             try {
                 val model = settings.selectedAiModel.ifBlank { "gemini-2.5-flash" }
                 val url = URL("https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey")
-                val conn = (url.openConnection() as HttpURLConnection).apply {
+                conn = (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                    setRequestProperty("Accept", "application/json")
+                    setRequestProperty("x-goog-api-key", apiKey)
+                    useCaches = false
+                    instanceFollowRedirects = true
                     doOutput = true
-                    connectTimeout = 15000
-                    readTimeout = 15000
+                    connectTimeout = 30000
+                    readTimeout = 40000
                 }
 
                 val nowCal = Calendar.getInstance()
@@ -225,9 +259,13 @@ OUTPUT SCHEMA (Return ONLY valid JSON matching this schema):
                     put("generationConfig", genConfig)
                 }
 
-                OutputStreamWriter(conn.outputStream).use { writer ->
-                    writer.write(jsonBody.toString())
-                    writer.flush()
+                val bodyBytes = jsonBody.toString().toByteArray(Charsets.UTF_8)
+                conn.setFixedLengthStreamingMode(bodyBytes.size)
+                conn.setRequestProperty("Content-Length", bodyBytes.size.toString())
+
+                conn.outputStream.use { os ->
+                    os.write(bodyBytes)
+                    os.flush()
                 }
 
                 val responseCode = conn.responseCode
@@ -238,7 +276,35 @@ OUTPUT SCHEMA (Return ONLY valid JSON matching this schema):
                     val firstCandidate = candidates?.optJSONObject(0)
                     val content = firstCandidate?.optJSONObject("content")
                     val parts = content?.optJSONArray("parts")
-                    val text = parts?.optJSONObject(0)?.optString("text") ?: ""
+
+                    // Extract text parts, ignoring internal thought/reasoning parts
+                    val textBuilder = StringBuilder()
+                    if (parts != null) {
+                        for (i in 0 until parts.length()) {
+                            val partObj = parts.optJSONObject(i) ?: continue
+                            val isThought = partObj.optBoolean("thought", false)
+                            if (!isThought) {
+                                val pText = partObj.optString("text", "")
+                                if (pText.isNotEmpty()) {
+                                    textBuilder.append(pText)
+                                }
+                            }
+                        }
+                    }
+
+                    var text = textBuilder.toString().trim()
+                    if (text.isEmpty() && parts != null && parts.length() > 0) {
+                        for (i in 0 until parts.length()) {
+                            val cand = parts.optJSONObject(i)?.optString("text", "") ?: ""
+                            if (cand.contains("{") || cand.contains("[")) {
+                                text = cand
+                                break
+                            }
+                        }
+                        if (text.isEmpty()) {
+                            text = parts.optJSONObject(0)?.optString("text", "") ?: ""
+                        }
+                    }
 
                     val cleanJsonStr = extractJsonSubstring(text)
                     val parsedResult = parseTasksFromJsonString(cleanJsonStr, prompt)
@@ -252,26 +318,44 @@ OUTPUT SCHEMA (Return ONLY valid JSON matching this schema):
                     } catch (e: Exception) {
                         errMsg
                     }
+                    val userFriendlyMsg = when {
+                        parsedMsg.contains("API_KEY_INVALID", ignoreCase = true) || parsedMsg.contains("API key not valid", ignoreCase = true) ->
+                            "Invalid Gemini API Key. Please verify your key in Settings."
+                        parsedMsg.contains("RESOURCE_EXHAUSTED", ignoreCase = true) || responseCode == 429 ->
+                            "Gemini API Quota Exceeded (429). Please try model gemini-1.5-flash or wait a moment."
+                        parsedMsg.contains("not found", ignoreCase = true) || responseCode == 404 ->
+                            "Gemini Model '$model' not found (404). Please select gemini-1.5-flash in Settings."
+                        else -> "Gemini LLM error ($responseCode: $parsedMsg). No task was created."
+                    }
                     mainHandler.post {
                         onResult(
                             TaskParseResult(
                                 success = false,
                                 taskGroups = emptyList(),
-                                error = "Gemini LLM error ($responseCode: $parsedMsg). No task was created."
+                                error = userFriendlyMsg
                             )
                         )
                     }
                 }
             } catch (e: Exception) {
+                val errorMsg = when (e) {
+                    is java.net.SocketTimeoutException ->
+                        "Gemini request timed out. Please check your internet connection or try model gemini-1.5-flash."
+                    is java.net.UnknownHostException ->
+                        "Network error: Unable to reach Google Gemini API. Please check your internet connection."
+                    else -> "LLM request failed: ${e.localizedMessage ?: "Network error"}. No task was created."
+                }
                 mainHandler.post {
                     onResult(
                         TaskParseResult(
                             success = false,
                             taskGroups = emptyList(),
-                            error = "LLM request failed: ${e.localizedMessage ?: "Network error"}. No task was created."
+                            error = errorMsg
                         )
                     )
                 }
+            } finally {
+                conn?.disconnect()
             }
         }
     }

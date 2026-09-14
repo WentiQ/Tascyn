@@ -369,8 +369,14 @@ class MainActivity : AppCompatActivity() {
     /** Live SpeechRecognizer used for the hold-to-listen overlay (not the system dialog). */
     private var speechRecognizer: SpeechRecognizer? = null
 
-    /** Transcript accumulated while the user holds the AI button. */
-    private var voiceTranscript: String = ""
+    /** Finalized transcript segments committed while holding the AI button across speech pauses. */
+    private var accumulatedVoiceTranscript: String = ""
+
+    /** Current unfinalized transcript from the active recognition session (partial or current result). */
+    private var currentSegmentTranscript: String = ""
+
+    /** Fallback dismissal runnable if speech recognition does not emit terminal callbacks. */
+    private var voiceFallbackDismissRunnable: Runnable? = null
 
     /** True while the overlay is showing. */
     private var isVoiceOverlayVisible = false
@@ -511,6 +517,8 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         sessionTickerHandler.removeCallbacks(sessionTickerRunnable)
+        voiceFallbackDismissRunnable?.let { Handler(Looper.getMainLooper()).removeCallbacks(it) }
+        voiceFallbackDismissRunnable = null
         speechRecognizer?.destroy()
         speechRecognizer = null
     }
@@ -1269,11 +1277,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Safety fallback: if recognizer doesn't emit onResults within 1.2s, dismiss with whatever was gathered
-        Handler(Looper.getMainLooper()).postDelayed({
+        voiceFallbackDismissRunnable?.let { Handler(Looper.getMainLooper()).removeCallbacks(it) }
+        val fallback = Runnable {
             if (isVoiceOverlayVisible && !isUserHoldingAi) {
-                dismissVoiceOverlay(voiceTranscript)
+                dismissVoiceOverlay(getCombinedVoiceTranscript())
             }
-        }, 1200)
+        }
+        voiceFallbackDismissRunnable = fallback
+        Handler(Looper.getMainLooper()).postDelayed(fallback, 1200)
     }
 
     /**
@@ -1282,7 +1293,10 @@ class MainActivity : AppCompatActivity() {
      */
     private fun showVoiceOverlay(revealX: Float, revealY: Float) {
         isVoiceOverlayVisible = true
-        voiceTranscript = ""
+        accumulatedVoiceTranscript = ""
+        currentSegmentTranscript = ""
+        voiceFallbackDismissRunnable?.let { Handler(Looper.getMainLooper()).removeCallbacks(it) }
+        voiceFallbackDismissRunnable = null
 
         // Expand the circular disc up to the middle of the screen
         layoutVoiceModeOverlay.startExpand(revealX, revealY)
@@ -1294,6 +1308,37 @@ class MainActivity : AppCompatActivity() {
         startSpeechRecognition()
     }
 
+    /** Combines finalized accumulated text segments with any active partial segment without duplication. */
+    private fun getCombinedVoiceTranscript(): String {
+        val committed = accumulatedVoiceTranscript.trim()
+        val current = currentSegmentTranscript.trim()
+        return when {
+            committed.isEmpty() -> current
+            current.isEmpty() -> committed
+            else -> "$committed $current"
+        }
+    }
+
+    /**
+     * Sanitizes voice transcript and safeguards against consecutive exact duplicate phrases or words.
+     */
+    private fun sanitizeVoiceTranscript(raw: String): String {
+        val trimmed = raw.trim().replace(Regex("\\s+"), " ")
+        if (trimmed.isEmpty()) return ""
+
+        // Check if the whole string was duplicated into two identical halves (e.g., "Buy milk Buy milk")
+        val words = trimmed.split(" ")
+        if (words.size >= 2 && words.size % 2 == 0) {
+            val half = words.size / 2
+            val firstHalf = words.subList(0, half).joinToString(" ")
+            val secondHalf = words.subList(half, words.size).joinToString(" ")
+            if (firstHalf.equals(secondHalf, ignoreCase = true)) {
+                return firstHalf
+            }
+        }
+        return trimmed
+    }
+
     /**
      * Shrinks the disc back into the AI button and opens the AI bottom sheet
      * with the captured [transcript].
@@ -1302,10 +1347,13 @@ class MainActivity : AppCompatActivity() {
         if (!isVoiceOverlayVisible) return
         isVoiceOverlayVisible = false
 
+        voiceFallbackDismissRunnable?.let { Handler(Looper.getMainLooper()).removeCallbacks(it) }
+        voiceFallbackDismissRunnable = null
+
         viewVoiceWaveform.releaseAnimator()
 
         layoutVoiceModeOverlay.startCollapse {
-            val cleanText = transcript.trim()
+            val cleanText = sanitizeVoiceTranscript(transcript)
             if (cleanText.isNotBlank()) {
                 showAiNaturalLanguageBottomSheet(initialPrompt = cleanText)
             }
@@ -1359,6 +1407,7 @@ class MainActivity : AppCompatActivity() {
                 // User is STILL holding the AI button! DO NOT CLOSE!
                 // Silently restart listening so user can speak when ready
                 if (isUserHoldingAi) {
+                    currentSegmentTranscript = ""
                     Handler(Looper.getMainLooper()).postDelayed({
                         if (isUserHoldingAi && isVoiceOverlayVisible) {
                             try {
@@ -1377,20 +1426,21 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 // User has already lifted finger — dismiss with whatever transcript was gathered
-                dismissVoiceOverlay(voiceTranscript)
+                dismissVoiceOverlay(getCombinedVoiceTranscript())
             }
 
             override fun onResults(results: android.os.Bundle?) {
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                if (!matches.isNullOrEmpty()) {
-                    val text = matches[0]
-                    if (text.isNotBlank()) {
-                        voiceTranscript = if (voiceTranscript.isBlank()) text else "$voiceTranscript $text"
-                    }
+                val text = matches?.firstOrNull()?.trim() ?: ""
+                if (text.isNotBlank()) {
+                    currentSegmentTranscript = text
                 }
 
                 if (isUserHoldingAi) {
-                    // User is STILL holding — keep listening for more speech
+                    // User is STILL holding — commit current segment and keep listening for more speech
+                    accumulatedVoiceTranscript = getCombinedVoiceTranscript()
+                    currentSegmentTranscript = ""
+
                     Handler(Looper.getMainLooper()).postDelayed({
                         if (isUserHoldingAi && isVoiceOverlayVisible) {
                             try {
@@ -1406,16 +1456,16 @@ class MainActivity : AppCompatActivity() {
                         }
                     }, 120)
                 } else {
-                    dismissVoiceOverlay(voiceTranscript)
+                    dismissVoiceOverlay(getCombinedVoiceTranscript())
                 }
             }
 
             override fun onPartialResults(partialResults: android.os.Bundle?) {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    val text = matches[0]
+                    val text = matches[0].trim()
                     if (text.isNotBlank()) {
-                        voiceTranscript = text
+                        currentSegmentTranscript = text
                     }
                 }
             }
